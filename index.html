@@ -3,303 +3,573 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TECHTRA – Công ty Cổ phần Công nghệ & Dịch thuật Số hoá</title>
+<title>TECHTRA – Công nghệ & Dịch thuật Số hoá</title>
 <meta name="description" content="Dịch thuật chuyên nghiệp, công chứng, hợp pháp hoá lãnh sự, thiết kế thương hiệu, website, phần mềm quản lý. TP.HCM">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 14px; }
+body {
+  font-family: Tahoma, Arial, sans-serif;
+  background: #fff;
+  color: #1a1a1a;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; display: block; }
+ul { list-style: none; }
+button { cursor: pointer; font-family: Tahoma, Arial, sans-serif; }
+
+/* ===== VARIABLES ===== */
 :root {
-  --primary: #0a2540;
-  --accent: #00c2cb;
-  --accent2: #ff6b35;
-  --gold: #f5a623;
-  --bg: #f8f9fb;
-  --white: #ffffff;
-  --text: #1a1a2e;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --card-bg: #ffffff;
-  --nav-h: 72px;
-  --radius: 16px;
-  --shadow: 0 4px 24px rgba(10,37,64,0.08);
-  --shadow-lg: 0 12px 48px rgba(10,37,64,0.14);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
-h1,h2,h3,h4{font-family:'Syne',sans-serif;line-height:1.2}
-a{text-decoration:none;color:inherit}
-img{max-width:100%}
-ul{list-style:none}
-button{cursor:pointer;font-family:'DM Sans',sans-serif}
-
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,37,64,0.96);backdrop-filter:blur(12px);height:var(--nav-h);display:flex;align-items:center;transition:all .3s}
-.nav-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;width:100%}
-.logo{display:flex;align-items:center;gap:12px}
-.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:#fff;font-size:16px;letter-spacing:-0.5px}
-.logo-text{color:#fff}
-.logo-text span{display:block;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.5px}
-.logo-text small{font-size:10px;color:rgba(255,255,255,0.6);font-weight:300;letter-spacing:0.3px}
-.nav-links{display:flex;align-items:center;gap:4px}
-.nav-links a{color:rgba(255,255,255,0.8);font-size:13.5px;padding:8px 14px;border-radius:8px;transition:all .2s;font-weight:400;white-space:nowrap}
-.nav-links a:hover{color:#fff;background:rgba(255,255,255,0.1)}
-.nav-links .dropdown{position:relative}
-.nav-links .dropdown:hover .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
-.dropdown-menu{position:absolute;top:100%;left:0;background:var(--white);border-radius:12px;box-shadow:var(--shadow-lg);padding:8px;min-width:240px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s;border:1px solid var(--border);margin-top:8px}
-.dropdown-menu a{display:block;padding:10px 16px;color:var(--text);font-size:13.5px;border-radius:8px;transition:all .15s}
-.dropdown-menu a:hover{background:var(--bg);color:var(--accent)}
-.nav-cta{display:flex;align-items:center;gap:8px}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:500;transition:all .2s;border:none}
-.btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.4)}
-.btn-outline:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.8)}
-.btn-accent{background:var(--accent);color:#fff}
-.btn-accent:hover{background:#00adb5;transform:translateY(-1px)}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:#0d2f54;transform:translateY(-1px)}
-.btn-lg{padding:14px 28px;font-size:15px;border-radius:12px}
-.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:8px;cursor:pointer}
-.hamburger span{width:24px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
-
-/* HERO */
-#hero{min-height:100vh;background:linear-gradient(160deg,#0a2540 0%,#1a3a5c 50%,#0d3b3e 100%);display:flex;align-items:center;position:relative;overflow:hidden;padding-top:var(--nav-h)}
-.hero-bg{position:absolute;inset:0;opacity:0.06}
-.hero-bg svg{width:100%;height:100%}
-.hero-inner{max-width:1280px;margin:0 auto;padding:80px 24px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
-.hero-label{display:inline-flex;align-items:center;gap:8px;background:rgba(0,194,203,0.15);border:1px solid rgba(0,194,203,0.3);color:var(--accent);font-size:12px;font-weight:600;padding:6px 14px;border-radius:50px;margin-bottom:24px;letter-spacing:1px;text-transform:uppercase}
-.hero h1{font-size:clamp(32px,4vw,56px);color:#fff;margin-bottom:20px;font-weight:800}
-.hero h1 span{color:var(--accent)}
-.hero p{color:rgba(255,255,255,0.75);font-size:17px;margin-bottom:36px;max-width:500px;line-height:1.8}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
-.hero-stats{display:flex;gap:32px;margin-top:48px;flex-wrap:wrap}
-.stat{text-align:center}
-.stat strong{display:block;font-family:'Syne',sans-serif;font-size:28px;color:#fff;font-weight:800}
-.stat span{font-size:13px;color:rgba(255,255,255,0.6)}
-.hero-visual{position:relative}
-.hero-card-stack{position:relative;height:420px}
-.hcard{position:absolute;background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:24px;color:#fff}
-.hcard:nth-child(1){top:0;right:0;width:280px;animation:float1 4s ease-in-out infinite}
-.hcard:nth-child(2){top:120px;left:0;width:260px;animation:float2 4.5s ease-in-out infinite}
-.hcard:nth-child(3){bottom:0;right:40px;width:240px;animation:float3 5s ease-in-out infinite}
-.hcard-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px}
-.hcard h4{font-size:14px;font-weight:600;margin-bottom:4px}
-.hcard p{font-size:12px;color:rgba(255,255,255,0.65);line-height:1.5}
-@keyframes float1{0%,100%{transform:translateY(0px)}50%{transform:translateY(-12px)}}
-@keyframes float2{0%,100%{transform:translateY(-8px)}50%{transform:translateY(4px)}}
-@keyframes float3{0%,100%{transform:translateY(4px)}50%{transform:translateY(-10px)}}
-
-/* SECTIONS */
-section{padding:80px 0}
-.container{max-width:1280px;margin:0 auto;padding:0 24px}
-.section-label{display:inline-block;background:rgba(0,194,203,0.1);color:var(--accent);font-size:11px;font-weight:700;padding:5px 14px;border-radius:50px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;border:1px solid rgba(0,194,203,0.25)}
-.section-title{font-size:clamp(26px,3.5vw,42px);font-weight:800;margin-bottom:16px;color:var(--primary)}
-.section-sub{color:var(--muted);font-size:16px;max-width:560px;line-height:1.8}
-.section-header{margin-bottom:56px}
-
-/* SERVICES TABS */
-#services{background:#fff}
-.services-tabs{display:flex;gap:8px;margin-bottom:40px;flex-wrap:wrap}
-.tab-btn{padding:10px 22px;border-radius:50px;border:1.5px solid var(--border);background:#fff;color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
-.tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.tab-btn:hover:not(.active){border-color:var(--accent);color:var(--accent)}
-.tab-content{display:none}
-.tab-content.active{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.service-card{background:var(--bg);border-radius:var(--radius);padding:28px;border:1px solid var(--border);transition:all .3s;cursor:pointer}
-.service-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--accent);background:#fff}
-.sc-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px}
-.sc-icon.blue{background:rgba(10,37,64,0.08);color:var(--primary)}
-.sc-icon.teal{background:rgba(0,194,203,0.12);color:var(--accent)}
-.sc-icon.orange{background:rgba(255,107,53,0.1);color:var(--accent2)}
-.sc-icon.gold{background:rgba(245,166,35,0.12);color:var(--gold)}
-.service-card h3{font-size:17px;font-weight:700;margin-bottom:8px;color:var(--primary)}
-.service-card p{font-size:14px;color:var(--muted);line-height:1.7}
-.service-card .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-.tag{background:var(--bg);border:1px solid var(--border);color:var(--muted);font-size:11px;padding:3px 10px;border-radius:50px}
-
-/* FEATURES */
-#features{background:var(--bg)}
-.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-.features-list{display:flex;flex-direction:column;gap:20px}
-.feature-item{display:flex;gap:16px;padding:20px;background:#fff;border-radius:14px;border:1px solid var(--border);transition:all .3s}
-.feature-item:hover{box-shadow:var(--shadow);border-color:var(--accent)}
-.fi-icon{width:46px;height:46px;min-width:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
-.fi-icon.primary{background:var(--primary);color:#fff}
-.fi-icon.accent{background:var(--accent);color:#fff}
-.fi-icon.orange{background:var(--accent2);color:#fff}
-.fi-text h4{font-size:15px;font-weight:700;margin-bottom:4px;color:var(--primary)}
-.fi-text p{font-size:13.5px;color:var(--muted);line-height:1.7}
-.features-visual{background:linear-gradient(135deg,var(--primary),#1a3a5c);border-radius:24px;padding:40px;position:relative;overflow:hidden}
-.fv-header{color:#fff;margin-bottom:24px}
-.fv-header h3{font-size:22px;font-weight:700;margin-bottom:8px}
-.fv-header p{font-size:13.5px;color:rgba(255,255,255,0.65)}
-.upload-zone{background:rgba(255,255,255,0.08);border:2px dashed rgba(0,194,203,0.5);border-radius:16px;padding:36px;text-align:center;color:rgba(255,255,255,0.7);margin-bottom:16px;cursor:pointer;transition:all .3s}
-.upload-zone:hover{background:rgba(255,255,255,0.12);border-color:var(--accent)}
-.upload-zone i{font-size:32px;color:var(--accent);margin-bottom:12px;display:block}
-.upload-zone p{font-size:13px}
-.upload-zone small{font-size:11px;color:rgba(255,255,255,0.4)}
-.or-divider{text-align:center;color:rgba(255,255,255,0.4);font-size:12px;margin:12px 0;position:relative}
-.or-divider::before,.or-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(255,255,255,0.15)}
-.or-divider::before{left:0}
-.or-divider::after{right:0}
-.paste-area{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:80px;outline:none}
-.paste-area::placeholder{color:rgba(255,255,255,0.35)}
-.paste-area:focus{border-color:rgba(0,194,203,0.5);background:rgba(255,255,255,0.09)}
-.import-actions{display:flex;gap:8px;margin-top:12px}
-.btn-sm{padding:8px 16px;font-size:13px;border-radius:8px}
-
-/* LIBRARY / KNOWLEDGE */
-#library{background:#fff}
-.library-tabs{display:flex;gap:8px;margin-bottom:32px;overflow-x:auto;padding-bottom:4px}
-.lib-tab{padding:8px 18px;border-radius:50px;border:1.5px solid var(--border);background:#fff;color:var(--muted);font-size:13.5px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.lib-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
-.lib-card{border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;transition:all .3s;cursor:pointer;background:#fff}
-.lib-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
-.lib-card-img{height:140px;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
-.lib-card-img.law{background:linear-gradient(135deg,#e8f0fe,#c7d7fc)}
-.lib-card-img.embassy{background:linear-gradient(135deg,#e6f7f7,#b3eaea)}
-.lib-card-img.school{background:linear-gradient(135deg,#fff3e0,#ffe0b2)}
-.lib-card-img.ai{background:linear-gradient(135deg,#f3e8ff,#e1bee7)}
-.lib-card-body{padding:18px}
-.lib-card-body h4{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--primary)}
-.lib-card-body p{font-size:13px;color:var(--muted);line-height:1.6}
-.lib-card-meta{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-.lib-badge{font-size:11px;padding:3px 10px;border-radius:50px;background:rgba(0,194,203,0.1);color:var(--accent);font-weight:600}
-.lib-date{font-size:11px;color:var(--muted)}
-
-/* AI LEARNING */
-#ai-hub{background:linear-gradient(160deg,#0a2540,#0d3b3e)}
-#ai-hub .section-title{color:#fff}
-#ai-hub .section-sub{color:rgba(255,255,255,0.65)}
-#ai-hub .section-label{background:rgba(0,194,203,0.15);border:1px solid rgba(0,194,203,0.3)}
-.ai-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
-.ai-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:28px;color:#fff;transition:all .3s;cursor:pointer}
-.ai-card:hover{background:rgba(255,255,255,0.11);transform:translateY(-4px);border-color:rgba(0,194,203,0.4)}
-.ai-card-logo{width:56px;height:56px;border-radius:16px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;font-family:'Syne',sans-serif}
-.ai-card h3{font-size:17px;font-weight:700;margin-bottom:8px}
-.ai-card p{font-size:13.5px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:16px}
-.ai-topics{display:flex;flex-wrap:wrap;gap:6px}
-.ai-topic{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);font-size:11px;padding:4px 10px;border-radius:50px;border:1px solid rgba(255,255,255,0.15)}
-.ai-topic:hover{background:rgba(0,194,203,0.2);border-color:rgba(0,194,203,0.4);cursor:pointer}
-
-/* MEMBERSHIP */
-#membership{background:var(--bg)}
-.plans-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
-.plan-card{background:#fff;border-radius:20px;padding:36px;border:1.5px solid var(--border);position:relative;transition:all .3s}
-.plan-card:hover{box-shadow:var(--shadow-lg)}
-.plan-card.featured{border-color:var(--accent);background:linear-gradient(160deg,#f0fdfd,#e6f9f9)}
-.plan-card.featured::before{content:'Phổ biến nhất';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:0 0 10px 10px;letter-spacing:0.5px}
-.plan-name{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
-.plan-price{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:var(--primary);margin-bottom:4px}
-.plan-price span{font-size:16px;font-weight:400;color:var(--muted)}
-.plan-desc{font-size:13.5px;color:var(--muted);margin-bottom:28px;line-height:1.7}
-.plan-features{margin-bottom:28px}
-.plan-features li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);padding:8px 0;border-bottom:1px solid var(--border)}
-.plan-features li:last-child{border:none}
-.plan-features li i{color:var(--accent);font-size:14px;min-width:16px}
-.plan-features li i.no{color:#e5e7eb}
-
-/* CONTACT */
-#contact{background:#fff}
-.contact-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:64px;align-items:start}
-.contact-info{padding:40px;background:linear-gradient(160deg,var(--primary),#1a3a5c);border-radius:24px;color:#fff}
-.contact-info h3{font-size:24px;font-weight:700;margin-bottom:12px}
-.contact-info p{font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:32px;line-height:1.8}
-.ci-item{display:flex;align-items:flex-start;gap:16px;margin-bottom:24px}
-.ci-icon{width:44px;height:44px;min-width:44px;background:rgba(255,255,255,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.ci-text strong{display:block;font-size:14px;font-weight:600;margin-bottom:2px}
-.ci-text span{font-size:13.5px;color:rgba(255,255,255,0.65)}
-.contact-socials{display:flex;gap:10px;margin-top:32px}
-.social-btn{width:42px;height:42px;background:rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;transition:all .2s;border:1px solid rgba(255,255,255,0.15)}
-.social-btn:hover{background:var(--accent);border-color:var(--accent);transform:translateY(-2px)}
-.contact-form{background:var(--bg);border-radius:24px;padding:40px;border:1px solid var(--border)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:#fff;outline:none;transition:all .2s}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,194,203,0.1)}
-.form-group textarea{resize:vertical;min-height:120px}
-
-/* FOOTER */
-footer{background:var(--primary);color:#fff;padding:64px 0 24px}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
-.footer-brand p{font-size:13.5px;color:rgba(255,255,255,0.6);margin-top:16px;line-height:1.8;max-width:280px}
-.footer-col h4{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;color:rgba(255,255,255,0.5)}
-.footer-col a{display:block;font-size:13.5px;color:rgba(255,255,255,0.65);margin-bottom:10px;transition:color .2s}
-.footer-col a:hover{color:var(--accent)}
-.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap;gap:16px}
-.footer-bottom p{font-size:13px;color:rgba(255,255,255,0.4)}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .3s}
-.modal-overlay.open{opacity:1;visibility:visible}
-.modal{background:#fff;border-radius:24px;padding:48px;max-width:520px;width:90%;position:relative;transform:scale(0.9);transition:all .3s;max-height:90vh;overflow-y:auto}
-.modal-overlay.open .modal{transform:scale(1)}
-.modal-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border:none;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:16px;transition:all .2s}
-.modal-close:hover{background:var(--border);color:var(--text)}
-.modal h2{font-size:26px;font-weight:800;color:var(--primary);margin-bottom:8px}
-.modal p.subtitle{font-size:14px;color:var(--muted);margin-bottom:28px}
-.modal-tabs{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:28px}
-.modal-tab{flex:1;padding:9px;border:none;background:transparent;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;color:var(--muted)}
-.modal-tab.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-.auth-form{display:none}
-.auth-form.active{display:block}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--primary);color:#fff;padding:14px 20px;border-radius:12px;font-size:14px;box-shadow:var(--shadow-lg);z-index:9999;transform:translateX(120%);transition:all .35s;display:flex;align-items:center;gap:10px}
-.toast.show{transform:translateX(0)}
-.toast.success{background:#059669}
-.toast.error{background:#dc2626}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--muted)}
-
-/* RESPONSIVE */
-@media(max-width:1024px){
-  .hero-inner{grid-template-columns:1fr;text-align:center}
-  .hero-visual{display:none}
-  .hero p{margin:0 auto 36px}
-  .hero-btns{justify-content:center}
-  .hero-stats{justify-content:center}
-  .features-grid{grid-template-columns:1fr}
-  .contact-grid{grid-template-columns:1fr}
-  .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
-}
-@media(max-width:768px){
-  .nav-links,.nav-cta{display:none}
-  .hamburger{display:flex}
-  section{padding:56px 0}
-  .form-row{grid-template-columns:1fr}
-  .plans-grid{grid-template-columns:1fr}
-  .footer-grid{grid-template-columns:1fr}
-  .hero-stats{gap:20px}
-  .stat strong{font-size:22px}
+  --primary: #003366;
+  --accent: #0066cc;
+  --accent-light: #e8f0fb;
+  --orange: #e65c00;
+  --green: #00875a;
+  --text: #1a1a1a;
+  --muted: #555;
+  --border: #ddd;
+  --bg: #f7f8fa;
+  --nav-h: 60px;
+  --radius: 6px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.12);
 }
 
-/* MOBILE MENU */
-.mobile-menu{position:fixed;inset:0;z-index:999;background:var(--primary);transform:translateX(100%);transition:transform .3s;padding:var(--nav-h) 24px 40px;overflow-y:auto}
-.mobile-menu.open{transform:translateX(0)}
-.mobile-menu a{display:block;color:rgba(255,255,255,0.85);font-size:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
-.mobile-menu a:hover{color:#fff}
-.mobile-menu .mb-section{font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:1.5px;text-transform:uppercase;padding:20px 0 8px}
+/* ===== TYPOGRAPHY ===== */
+h1, h2, h3, h4, h5 {
+  font-family: Arial, Tahoma, sans-serif;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--primary);
+}
 
-/* SEARCH BAR */
-.search-bar{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:50px;display:flex;align-items:center;padding:8px 16px;gap:10px;margin-bottom:24px}
-.search-bar input{background:none;border:none;color:#fff;font-size:14px;outline:none;flex:1;font-family:'DM Sans',sans-serif}
-.search-bar input::placeholder{color:rgba(255,255,255,0.4)}
-.search-bar i{color:rgba(255,255,255,0.5)}
+/* ===== NAV ===== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: #fff;
+  border-bottom: 2px solid var(--accent);
+  height: var(--nav-h);
+  display: flex; align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.nav-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark {
+  width: 38px; height: 38px;
+  background: var(--primary);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+}
+.logo-mark span { color: #4da6ff; }
+.logo-text { line-height: 1.2; }
+.logo-name { font-size: 16px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+.logo-sub { font-size: 10px; color: var(--muted); font-weight: 400; }
 
-/* CHAT WIDGET */
-.chat-fab{position:fixed;bottom:28px;right:28px;z-index:999;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:22px;box-shadow:0 4px 20px rgba(0,194,203,0.4);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
-.chat-fab:hover{transform:scale(1.1);background:#00adb5}
-.chat-fab .badge{position:absolute;top:-4px;right:-4px;width:20px;height:20px;background:var(--accent2);border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.nav-menu { display: flex; align-items: center; gap: 2px; }
+.nav-item { position: relative; }
+.nav-link {
+  display: flex; align-items: center; gap: 4px;
+  padding: 8px 12px;
+  color: var(--text); font-size: 13px;
+  border-radius: var(--radius);
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.nav-link:hover, .nav-link.active { background: var(--accent-light); color: var(--accent); }
+.nav-link .fa-chevron-down { font-size: 9px; opacity: .6; }
+
+.dropdown-menu {
+  position: absolute; top: calc(100% + 6px); left: 0;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-md);
+  min-width: 220px; padding: 4px;
+  opacity: 0; visibility: hidden;
+  transform: translateY(-6px);
+  transition: all .18s;
+  z-index: 100;
+}
+.nav-item:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.dropdown-menu a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; font-size: 13px; color: var(--text);
+  border-radius: 4px; transition: background .12s;
+}
+.dropdown-menu a:hover { background: var(--accent-light); color: var(--accent); }
+.dropdown-menu a i { width: 16px; color: var(--accent); font-size: 12px; }
+
+.nav-actions { display: flex; align-items: center; gap: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 600; border: none;
+  font-family: Tahoma, Arial, sans-serif;
+  transition: all .15s; white-space: nowrap;
+}
+.btn-outline { background: #fff; color: var(--primary); border: 1.5px solid var(--primary); }
+.btn-outline:hover { background: var(--primary); color: #fff; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #0052a3; }
+.btn-danger { background: var(--orange); color: #fff; }
+.btn-danger:hover { background: #cc5200; }
+.btn-lg { padding: 11px 24px; font-size: 14px; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+.hamburger { display: none; flex-direction: column; gap: 4px; background: none; border: none; padding: 6px; }
+.hamburger span { width: 22px; height: 2px; background: var(--primary); border-radius: 2px; transition: all .25s; }
+
+/* ===== HERO ===== */
+#hero {
+  min-height: 100vh;
+  background: #fff;
+  display: flex; align-items: center;
+  padding-top: var(--nav-h);
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg-stripe {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 42%;
+  background: var(--bg);
+  clip-path: polygon(8% 0, 100% 0, 100% 100%, 0% 100%);
+}
+.hero-inner {
+  max-width: 1200px; margin: 0 auto; padding: 80px 20px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 60px; align-items: center; width: 100%;
+  position: relative; z-index: 1;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-light); color: var(--accent);
+  font-size: 11px; font-weight: 700; padding: 4px 12px;
+  border-radius: 50px; margin-bottom: 18px;
+  border: 1px solid rgba(0,102,204,0.2);
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.hero-badge i { font-size: 10px; }
+.hero h1 { font-size: clamp(26px, 3.2vw, 44px); color: var(--primary); margin-bottom: 14px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero-desc { font-size: 15px; color: var(--muted); margin-bottom: 28px; max-width: 460px; line-height: 1.7; }
+.hero-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
+.hero-stats { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; max-width: 460px; }
+.stat { flex: 1; padding: 14px 16px; text-align: center; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat strong { display: block; font-size: 22px; color: var(--primary); font-weight: 700; }
+.stat small { font-size: 11px; color: var(--muted); }
+
+/* Hero visual */
+.hero-visual { display: flex; flex-direction: column; gap: 12px; }
+.hv-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px;
+  display: flex; align-items: flex-start; gap: 14px;
+  box-shadow: var(--shadow);
+  transition: box-shadow .2s, transform .2s;
+}
+.hv-card:hover { box-shadow: var(--shadow-md); transform: translateX(-4px); }
+.hv-icon {
+  width: 40px; height: 40px; min-width: 40px;
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.hv-icon.blue { background: var(--accent-light); color: var(--accent); }
+.hv-icon.orange { background: #fff3ee; color: var(--orange); }
+.hv-icon.green { background: #e8f7f0; color: var(--green); }
+.hv-text h4 { font-size: 13px; margin-bottom: 3px; color: var(--primary); }
+.hv-text p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ===== SECTION COMMON ===== */
+section { padding: 64px 0; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.section-tag {
+  display: inline-block;
+  background: var(--accent-light); color: var(--accent);
+  font-size: 11px; font-weight: 700; padding: 3px 12px;
+  border-radius: 50px; margin-bottom: 10px;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  border: 1px solid rgba(0,102,204,0.15);
+}
+.section-title { font-size: clamp(20px, 2.5vw, 32px); color: var(--primary); margin-bottom: 10px; }
+.section-desc { font-size: 14px; color: var(--muted); max-width: 520px; line-height: 1.7; }
+.section-header { margin-bottom: 40px; }
+.section-header.center { text-align: center; }
+.section-header.center .section-desc { margin: 0 auto; }
+
+/* ===== DIVIDER ===== */
+.divider { height: 1px; background: var(--border); margin: 0; }
+
+/* ===== SERVICES ===== */
+#services { background: var(--bg); }
+.tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 28px; width: fit-content; }
+.tab-btn {
+  padding: 9px 20px; border: none; background: #fff;
+  color: var(--muted); font-size: 13px; font-weight: 600;
+  font-family: Tahoma, Arial, sans-serif;
+  transition: all .15s; border-right: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:last-child { border-right: none; }
+.tab-btn.active { background: var(--primary); color: #fff; }
+.tab-btn:not(.active):hover { background: var(--accent-light); color: var(--accent); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; animation: fadeUp .25s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.srv-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px;
+  transition: all .2s; cursor: pointer;
+}
+.srv-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+.srv-card:hover .srv-arrow { opacity: 1; transform: translateX(3px); }
+.srv-icon {
+  width: 44px; height: 44px; border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 14px;
+}
+.srv-icon.blue { background: var(--accent-light); color: var(--accent); }
+.srv-icon.orange { background: #fff3ee; color: var(--orange); }
+.srv-icon.green { background: #e8f7f0; color: var(--green); }
+.srv-icon.navy { background: #e8eef5; color: var(--primary); }
+.srv-card h3 { font-size: 14px; margin-bottom: 6px; color: var(--primary); }
+.srv-card p { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+.srv-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.srv-tag { font-size: 11px; padding: 2px 8px; border-radius: 50px; background: var(--bg); border: 1px solid var(--border); color: var(--muted); }
+.srv-arrow { opacity: 0; transition: all .2s; color: var(--accent); font-size: 12px; margin-top: 10px; display: block; }
+
+/* ===== FEATURES ===== */
+#features { background: #fff; }
+.features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.feature-list { display: flex; flex-direction: column; gap: 12px; }
+.feature-item {
+  display: flex; gap: 14px; padding: 16px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: #fff; transition: all .2s;
+}
+.feature-item:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+.fi-icon {
+  width: 40px; height: 40px; min-width: 40px;
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.fi-icon.blue { background: var(--accent); color: #fff; }
+.fi-icon.orange { background: var(--orange); color: #fff; }
+.fi-icon.green { background: var(--green); color: #fff; }
+.fi-text h4 { font-size: 13px; margin-bottom: 4px; color: var(--primary); }
+.fi-text p { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+/* Import panel */
+.import-panel {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+}
+.import-panel h3 { font-size: 15px; margin-bottom: 4px; color: var(--primary); }
+.import-panel > p { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; }
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: var(--radius);
+  padding: 28px; text-align: center; cursor: pointer;
+  transition: all .2s; background: #fff; margin-bottom: 14px;
+}
+.upload-zone:hover { border-color: var(--accent); background: var(--accent-light); }
+.upload-zone i { font-size: 28px; color: var(--accent); margin-bottom: 10px; display: block; }
+.upload-zone p { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.upload-zone strong { color: var(--primary); }
+.upload-zone small { font-size: 11px; color: #999; }
+.or-line { text-align: center; color: #aaa; font-size: 12px; margin: 12px 0; position: relative; }
+.or-line::before, .or-line::after { content: ''; position: absolute; top: 50%; width: 44%; height: 1px; background: var(--border); }
+.or-line::before { left: 0; } .or-line::after { right: 0; }
+.paste-box {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-family: Tahoma, Arial, sans-serif; font-size: 12.5px;
+  resize: vertical; min-height: 70px; outline: none; color: var(--text);
+  transition: border-color .15s;
+}
+.paste-box:focus { border-color: var(--accent); }
+.import-btns { display: flex; gap: 8px; margin-top: 10px; }
+.import-btns .btn { flex: 1; }
+#analysisResult { display: none; margin-top: 12px; font-size: 12.5px; color: var(--muted); padding: 12px; background: var(--accent-light); border-radius: var(--radius); border: 1px solid rgba(0,102,204,0.15); line-height: 1.6; }
+
+/* ===== LIBRARY ===== */
+#library { background: var(--bg); }
+.lib-tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; width: fit-content; flex-wrap: wrap; }
+.lib-tab {
+  padding: 8px 18px; border: none; background: #fff;
+  color: var(--muted); font-size: 13px; font-weight: 600;
+  font-family: Tahoma, Arial, sans-serif; border-right: 1px solid var(--border);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.lib-tab:last-child { border-right: none; }
+.lib-tab.active { background: var(--primary); color: #fff; }
+.lib-tab:not(.active):hover { background: var(--accent-light); color: var(--accent); }
+
+.search-row { position: relative; margin-bottom: 20px; }
+.search-row i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; font-size: 13px; }
+.search-row input {
+  width: 100%; padding: 10px 14px 10px 36px;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-family: Tahoma, Arial, sans-serif; font-size: 13px;
+  outline: none; transition: border-color .15s; background: #fff;
+}
+.search-row input:focus { border-color: var(--accent); }
+
+.lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.lib-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: all .2s; }
+.lib-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+.lib-card-img { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.lib-card-img.law { background: #eef2fb; }
+.lib-card-img.embassy { background: #e8f5f2; }
+.lib-card-img.school { background: #fef8ee; }
+.lib-card-body { padding: 14px 16px; }
+.lib-card-body h4 { font-size: 13px; margin-bottom: 5px; color: var(--primary); }
+.lib-card-body p { font-size: 12px; color: var(--muted); line-height: 1.55; }
+.lib-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.lib-badge { font-size: 11px; padding: 2px 8px; border-radius: 50px; background: var(--accent-light); color: var(--accent); font-weight: 700; }
+.lib-date { font-size: 11px; color: #aaa; }
+.lib-more { text-align: center; margin-top: 28px; }
+
+/* ===== AI HUB ===== */
+#ai-hub { background: #fff; }
+.ai-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.ai-card {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 22px; cursor: pointer; transition: all .2s;
+  background: #fff;
+}
+.ai-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+.ai-logo {
+  width: 48px; height: 48px; border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: #fff;
+  margin-bottom: 14px; letter-spacing: 0.5px;
+}
+.ai-card h3 { font-size: 14px; margin-bottom: 6px; color: var(--primary); }
+.ai-card p { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+.ai-topics { display: flex; flex-wrap: wrap; gap: 4px; }
+.ai-topic { font-size: 11px; padding: 2px 8px; border-radius: 50px; background: var(--bg); border: 1px solid var(--border); color: var(--muted); transition: all .15s; }
+.ai-topic:hover { background: var(--accent-light); color: var(--accent); border-color: rgba(0,102,204,0.3); }
+.ai-more { text-align: center; margin-top: 32px; }
+
+/* ===== MEMBERSHIP ===== */
+#membership { background: var(--bg); }
+.plans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto; }
+.plan-card {
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+  position: relative; transition: all .2s;
+}
+.plan-card:hover { box-shadow: var(--shadow-md); }
+.plan-card.featured { border-color: var(--accent); }
+.plan-badge {
+  position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 3px 14px;
+  border-radius: 0 0 6px 6px; letter-spacing: 0.3px;
+}
+.plan-tier { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.plan-price { font-size: 36px; font-weight: 700; color: var(--primary); margin-bottom: 4px; line-height: 1; }
+.plan-price span { font-size: 14px; font-weight: 400; color: var(--muted); }
+.plan-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+.plan-feats { margin-bottom: 22px; border-top: 1px solid var(--border); padding-top: 16px; }
+.plan-feats li { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; color: var(--text); }
+.plan-feats li:last-child { border-bottom: none; }
+.plan-feats li i.fa-check { color: var(--green); font-size: 12px; }
+.plan-feats li i.fa-times { color: #ccc; font-size: 12px; }
+.plan-feats li.dimmed { color: #bbb; }
+.plan-card .btn { width: 100%; justify-content: center; }
+
+/* ===== CONTACT ===== */
+#contact { background: #fff; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; align-items: start; }
+.contact-info {
+  background: var(--primary); color: #fff;
+  border-radius: var(--radius); padding: 32px;
+}
+.contact-info h3 { font-size: 18px; color: #fff; margin-bottom: 8px; }
+.contact-info > p { font-size: 13px; color: rgba(255,255,255,.7); margin-bottom: 24px; line-height: 1.7; }
+.ci-item { display: flex; gap: 12px; margin-bottom: 18px; }
+.ci-icon {
+  width: 38px; height: 38px; min-width: 38px;
+  background: rgba(255,255,255,.1); border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.ci-body strong { display: block; font-size: 12.5px; font-weight: 700; margin-bottom: 2px; color: rgba(255,255,255,.9); }
+.ci-body span { font-size: 12.5px; color: rgba(255,255,255,.65); line-height: 1.5; }
+.ci-body a { color: #7ec8ff; }
+.socials { display: flex; gap: 8px; margin-top: 24px; }
+.social-btn {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,.1); border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.8); font-size: 15px;
+  transition: all .15s; border: 1px solid rgba(255,255,255,.15);
+}
+.social-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.contact-form-wrap {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 32px;
+}
+.contact-form-wrap h3 { font-size: 16px; color: var(--primary); margin-bottom: 6px; }
+.contact-form-wrap > p { font-size: 12.5px; color: var(--muted); margin-bottom: 22px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-family: Tahoma, Arial, sans-serif; font-size: 13px;
+  color: var(--text); background: #fff; outline: none;
+  transition: border-color .15s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--accent); }
+.form-group textarea { resize: vertical; min-height: 100px; }
+.form-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--primary); color: #fff;
+  padding: 48px 0 20px;
+  border-top: 3px solid var(--accent);
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+.footer-brand p { font-size: 12.5px; color: rgba(255,255,255,.55); margin-top: 12px; line-height: 1.7; max-width: 260px; }
+.footer-brand .addr { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 10px; line-height: 1.6; }
+.footer-col h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,.45); margin-bottom: 14px; }
+.footer-col a { display: block; font-size: 12.5px; color: rgba(255,255,255,.65); margin-bottom: 8px; transition: color .15s; }
+.footer-col a:hover { color: #7ec8ff; }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-bottom p { font-size: 12px; color: rgba(255,255,255,.35); }
+.footer-links { display: flex; gap: 16px; }
+.footer-links a { font-size: 12px; color: rgba(255,255,255,.35); }
+.footer-links a:hover { color: rgba(255,255,255,.7); }
+
+/* ===== MODAL ===== */
+.overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: all .25s;
+}
+.overlay.open { opacity: 1; visibility: visible; }
+.modal {
+  background: #fff; border-radius: var(--radius);
+  padding: 36px; max-width: 480px; width: 92%;
+  position: relative;
+  transform: scale(.95); transition: transform .25s;
+  max-height: 90vh; overflow-y: auto;
+  border-top: 3px solid var(--accent);
+}
+.overlay.open .modal { transform: scale(1); }
+.modal-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 30px; height: 30px; border: none;
+  background: var(--bg); border-radius: var(--radius);
+  color: var(--muted); font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.modal-close:hover { background: var(--border); }
+.modal h2 { font-size: 20px; color: var(--primary); margin-bottom: 6px; }
+.modal .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+.modal-tabs { display: flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 22px; }
+.modal-tab { flex: 1; padding: 8px; border: none; background: #fff; font-size: 13px; font-weight: 600; font-family: Tahoma, Arial, sans-serif; cursor: pointer; transition: all .15s; color: var(--muted); }
+.modal-tab.active { background: var(--primary); color: #fff; }
+.auth-form { display: none; }
+.auth-form.active { display: block; }
+.social-auth { display: flex; gap: 8px; margin-top: 16px; }
+.social-auth .btn { flex: 1; justify-content: center; background: #fff; border: 1.5px solid var(--border); color: var(--text); font-size: 12.5px; }
+.social-auth .btn:hover { background: var(--bg); }
+.forgot-link { text-align: center; margin-top: 12px; font-size: 12px; color: var(--muted); }
+.forgot-link a { color: var(--accent); }
+.terms-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 12px; }
+.terms-note a { color: var(--accent); }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+  background: var(--primary); color: #fff;
+  padding: 12px 18px; border-radius: var(--radius);
+  font-size: 13px; box-shadow: var(--shadow-md);
+  display: flex; align-items: center; gap: 8px;
+  transform: translateX(120%); transition: transform .3s;
+  max-width: 320px;
+}
+.toast.show { transform: translateX(0); }
+.toast.success { background: var(--green); }
+.toast.error { background: #cc0000; }
+.toast.info { background: var(--accent); }
+
+/* ===== CHAT FAB ===== */
+.chat-fab {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: #fff; border: none;
+  font-size: 20px; box-shadow: 0 4px 16px rgba(0,102,204,.35);
+  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.chat-fab:hover { background: #0052a3; transform: scale(1.08); }
+.chat-fab .badge {
+  position: absolute; top: -3px; right: -3px;
+  width: 18px; height: 18px; background: var(--orange);
+  border-radius: 50%; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #fff;
+}
+
+/* ===== MOBILE MENU ===== */
+.mobile-nav {
+  position: fixed; inset: 0; z-index: 998;
+  background: #fff; transform: translateX(100%);
+  transition: transform .3s; padding-top: var(--nav-h);
+  overflow-y: auto; border-left: 3px solid var(--accent);
+}
+.mobile-nav.open { transform: translateX(0); }
+.mobile-nav-section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #aaa; padding: 16px 20px 6px; }
+.mobile-nav a { display: block; padding: 12px 20px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border); }
+.mobile-nav a:hover { background: var(--accent-light); color: var(--accent); }
+.mobile-nav-actions { padding: 16px 20px; display: flex; gap: 8px; }
+.mobile-nav-actions .btn { flex: 1; justify-content: center; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .hero-inner { grid-template-columns: 1fr; text-align: center; }
+  .hero-visual { display: none; }
+  .hero-desc, .hero-btns { margin-left: auto; margin-right: auto; }
+  .hero-btns { justify-content: center; }
+  .hero-stats { max-width: 100%; }
+  .features-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+}
+@media (max-width: 768px) {
+  .nav-menu, .nav-actions { display: none; }
+  .hamburger { display: flex; }
+  section { padding: 44px 0; }
+  .form-row { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: row; overflow-x: auto; }
+  .stat { min-width: 80px; }
+  .tabs { width: 100%; overflow-x: auto; }
+  .lib-tabs { width: 100%; overflow-x: auto; }
+  .plans-grid { grid-template-columns: 1fr; max-width: 400px; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
@@ -308,105 +578,113 @@ footer{background:var(--primary);color:#fff;padding:64px 0 24px}
 <nav id="mainNav">
   <div class="nav-inner">
     <a href="#" class="logo">
-      <div class="logo-icon">TT</div>
+      <div class="logo-mark">TT</div>
       <div class="logo-text">
-        <span>TECHTRA</span>
-        <small>Công nghệ & Dịch thuật Số hoá</small>
+        <div class="logo-name">TECHTRA</div>
+        <div class="logo-sub">Công nghệ & Dịch thuật Số hoá</div>
       </div>
     </a>
-    <div class="nav-links">
-      <div class="dropdown">
-        <a href="#services" style="display:flex;align-items:center;gap:4px">Dịch vụ <i class="fa fa-chevron-down" style="font-size:10px"></i></a>
+
+    <div class="nav-menu">
+      <div class="nav-item">
+        <a href="#services" class="nav-link">Dịch vụ <i class="fa fa-chevron-down"></i></a>
         <div class="dropdown-menu">
-          <a href="#services" onclick="switchTab('dichthat')"><i class="fa fa-language" style="margin-right:8px;color:var(--accent)"></i>Dịch thuật & Công chứng</a>
-          <a href="#services" onclick="switchTab('congnghé')"><i class="fa fa-code" style="margin-right:8px;color:var(--accent2)"></i>Công nghệ & Thiết kế</a>
-          <a href="#services" onclick="switchTab('hoso')"><i class="fa fa-file-alt" style="margin-right:8px;color:var(--gold)"></i>Hồ sơ – Tư vấn pháp lý</a>
+          <a href="#services" onclick="switchTab('dichthuat')"><i class="fa fa-language"></i>Dịch thuật & Công chứng</a>
+          <a href="#services" onclick="switchTab('congnghe')"><i class="fa fa-code"></i>Công nghệ & Thiết kế</a>
+          <a href="#services" onclick="switchTab('hoso')"><i class="fa fa-file-alt"></i>Hồ sơ & Pháp lý</a>
         </div>
       </div>
-      <div class="dropdown">
-        <a href="#library" style="display:flex;align-items:center;gap:4px">Tra cứu <i class="fa fa-chevron-down" style="font-size:10px"></i></a>
+      <div class="nav-item">
+        <a href="#library" class="nav-link">Tra cứu <i class="fa fa-chevron-down"></i></a>
         <div class="dropdown-menu">
-          <a href="#library" onclick="switchLib('law')"><i class="fa fa-gavel" style="margin-right:8px;color:var(--accent)"></i>Văn bản pháp luật</a>
-          <a href="#library" onclick="switchLib('embassy')"><i class="fa fa-landmark" style="margin-right:8px;color:var(--accent2)"></i>Đại sứ quán – Cơ quan</a>
-          <a href="#library" onclick="switchLib('school')"><i class="fa fa-graduation-cap" style="margin-right:8px;color:var(--gold)"></i>Trường du học</a>
+          <a href="#library" onclick="switchLib('law')"><i class="fa fa-gavel"></i>Văn bản pháp luật</a>
+          <a href="#library" onclick="switchLib('embassy')"><i class="fa fa-landmark"></i>Đại sứ quán & Cơ quan</a>
+          <a href="#library" onclick="switchLib('school')"><i class="fa fa-graduation-cap"></i>Trường du học</a>
+          <a href="#library" onclick="switchLib('visa')"><i class="fa fa-plane"></i>Visa & Du lịch</a>
         </div>
       </div>
-      <a href="#ai-hub">Học AI</a>
-      <a href="#membership">Thành viên</a>
-      <a href="#contact">Liên hệ</a>
+      <a href="#ai-hub" class="nav-link">Học AI</a>
+      <a href="#membership" class="nav-link">Thành viên</a>
+      <a href="#contact" class="nav-link">Liên hệ</a>
     </div>
-    <div class="nav-cta">
+
+    <div class="nav-actions">
       <button class="btn btn-outline btn-sm" onclick="openModal('login')"><i class="fa fa-user"></i> Đăng nhập</button>
-      <button class="btn btn-accent btn-sm" onclick="openModal('register')"><i class="fa fa-star"></i> Đăng ký</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('register')"><i class="fa fa-star"></i> Đăng ký</button>
     </div>
-    <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+
+    <button class="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-  <div class="mb-section">Dịch vụ</div>
-  <a href="#services" onclick="closeMenu()">Dịch thuật & Công chứng</a>
-  <a href="#services" onclick="closeMenu()">Công nghệ & Thiết kế</a>
-  <a href="#services" onclick="closeMenu()">Hồ sơ – Tư vấn pháp lý</a>
-  <div class="mb-section">Tra cứu</div>
-  <a href="#library" onclick="closeMenu()">Văn bản pháp luật VN & Quốc tế</a>
-  <a href="#library" onclick="closeMenu()">Đại sứ quán – Cơ quan Chính phủ</a>
-  <a href="#library" onclick="closeMenu()">Trường du học danh tiếng</a>
-  <div class="mb-section">Khác</div>
-  <a href="#ai-hub" onclick="closeMenu()">Trung tâm học AI</a>
-  <a href="#membership" onclick="closeMenu()">Gói thành viên</a>
-  <a href="#contact" onclick="closeMenu()">Liên hệ & Báo giá</a>
-  <div style="margin-top:24px;display:flex;gap:10px">
-    <button class="btn btn-outline" style="flex:1" onclick="openModal('login');closeMenu()">Đăng nhập</button>
-    <button class="btn btn-accent" style="flex:1" onclick="openModal('register');closeMenu()">Đăng ký</button>
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-section">Dịch vụ</div>
+  <a href="#services" onclick="closeMobile()">Dịch thuật & Công chứng</a>
+  <a href="#services" onclick="closeMobile()">Công nghệ & Thiết kế</a>
+  <a href="#services" onclick="closeMobile()">Hồ sơ & Pháp lý</a>
+  <div class="mobile-nav-section">Tra cứu</div>
+  <a href="#library" onclick="closeMobile()">Văn bản pháp luật</a>
+  <a href="#library" onclick="closeMobile()">Đại sứ quán & Cơ quan</a>
+  <a href="#library" onclick="closeMobile()">Trường du học</a>
+  <div class="mobile-nav-section">Khác</div>
+  <a href="#ai-hub" onclick="closeMobile()">Trung tâm học AI</a>
+  <a href="#membership" onclick="closeMobile()">Gói thành viên</a>
+  <a href="#contact" onclick="closeMobile()">Liên hệ & Báo giá</a>
+  <div class="mobile-nav-actions">
+    <button class="btn btn-outline" onclick="openModal('login');closeMobile()">Đăng nhập</button>
+    <button class="btn btn-primary" onclick="openModal('register');closeMobile()">Đăng ký</button>
   </div>
 </div>
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-bg">
-    <svg viewBox="0 0 1400 800" xmlns="http://www.w3.org/2000/svg">
-      <defs><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs>
-      <rect width="100%" height="100%" fill="url(#grid)"/>
-      <circle cx="200" cy="200" r="300" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
-      <circle cx="1200" cy="600" r="400" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/>
-    </svg>
-  </div>
-  <div class="hero-inner container">
+  <div class="hero-bg-stripe"></div>
+  <div class="hero-inner">
     <div class="hero-content">
-      <div class="hero-label"><i class="fa fa-globe"></i> Công ty Cổ phần · TP.HCM · Est. 2024</div>
-      <h1>Công nghệ &amp; Dịch thuật<br><span>Số hoá Toàn diện</span></h1>
-      <p>Giải pháp dịch thuật chuyên nghiệp, thiết kế thương hiệu quốc tế và phần mềm doanh nghiệp thông minh — tất cả trong một nền tảng số hoá hiện đại.</p>
+      <div class="hero-badge"><i class="fa fa-map-marker-alt"></i> TP.HCM · Est. 2024 · Công ty Cổ phần</div>
+      <h1>Công nghệ &amp; Dịch thuật<br><em>Số hoá Toàn diện</em></h1>
+      <p class="hero-desc">Giải pháp dịch thuật chuyên nghiệp, thiết kế thương hiệu và phần mềm doanh nghiệp — chất lượng quốc tế, am hiểu địa phương.</p>
       <div class="hero-btns">
-        <a href="#services" class="btn btn-accent btn-lg"><i class="fa fa-rocket"></i> Khám phá dịch vụ</a>
+        <a href="#services" class="btn btn-primary btn-lg"><i class="fa fa-th-large"></i> Xem dịch vụ</a>
         <button class="btn btn-outline btn-lg" onclick="openModal('register')"><i class="fa fa-user-plus"></i> Đăng ký miễn phí</button>
       </div>
       <div class="hero-stats">
-        <div class="stat"><strong>500+</strong><span>Khách hàng tin tưởng</span></div>
-        <div class="stat"><strong>50+</strong><span>Ngôn ngữ dịch thuật</span></div>
-        <div class="stat"><strong>100%</strong><span>Bảo mật dữ liệu</span></div>
-        <div class="stat"><strong>24/7</strong><span>Hỗ trợ trực tuyến</span></div>
+        <div class="stat"><strong>500+</strong><small>Khách hàng</small></div>
+        <div class="stat"><strong>50+</strong><small>Ngôn ngữ</small></div>
+        <div class="stat"><strong>100%</strong><small>Bảo mật</small></div>
+        <div class="stat"><strong>24/7</strong><small>Hỗ trợ</small></div>
       </div>
     </div>
     <div class="hero-visual">
-      <div class="hero-card-stack">
-        <div class="hcard">
-          <div class="hcard-icon" style="background:rgba(0,194,203,0.2)">🌐</div>
+      <div class="hv-card">
+        <div class="hv-icon blue"><i class="fa fa-language"></i></div>
+        <div class="hv-text">
           <h4>Dịch thuật 50+ ngôn ngữ</h4>
           <p>Anh, Nhật, Hàn, Trung, Pháp, Đức, Tây Ban Nha và nhiều hơn nữa</p>
         </div>
-        <div class="hcard">
-          <div class="hcard-icon" style="background:rgba(255,107,53,0.2)">🎨</div>
+      </div>
+      <div class="hv-card">
+        <div class="hv-icon orange"><i class="fa fa-paint-brush"></i></div>
+        <div class="hv-text">
           <h4>Thiết kế thương hiệu</h4>
-          <p>Logo, menu, name card, brochure, social media toàn diện</p>
+          <p>Logo, menu, name card, brochure, website và social media</p>
         </div>
-        <div class="hcard">
-          <div class="hcard-icon" style="background:rgba(245,166,35,0.2)">🤖</div>
+      </div>
+      <div class="hv-card">
+        <div class="hv-icon green"><i class="fa fa-robot"></i></div>
+        <div class="hv-text">
           <h4>AI & Công nghệ mới nhất</h4>
           <p>ChatGPT, Claude, Gemini, Kling, tạo nhạc & phim AI</p>
+        </div>
+      </div>
+      <div class="hv-card">
+        <div class="hv-icon blue"><i class="fa fa-file-signature"></i></div>
+        <div class="hv-text">
+          <h4>Hợp pháp hoá lãnh sự</h4>
+          <p>Công chứng bản dịch, hợp pháp hoá quốc tế, visa & định cư</p>
         </div>
       </div>
     </div>
@@ -417,370 +695,264 @@ footer{background:var(--primary);color:#fff;padding:64px 0 24px}
 <section id="services">
   <div class="container">
     <div class="section-header">
-      <div class="section-label">Dịch vụ</div>
-      <h2 class="section-title">Giải pháp toàn diện cho<br>mọi nhu cầu của bạn</h2>
-      <p class="section-sub">Từ dịch thuật pháp lý đến thiết kế thương hiệu số — chúng tôi mang đến chất lượng quốc tế với sự am hiểu địa phương.</p>
+      <div class="section-tag">Dịch vụ</div>
+      <h2 class="section-title">Giải pháp toàn diện cho mọi nhu cầu</h2>
+      <p class="section-desc">Từ dịch thuật pháp lý đến thiết kế thương hiệu số — chất lượng quốc tế, am hiểu địa phương.</p>
     </div>
-    <div class="services-tabs">
+    <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('dichthuat')"><i class="fa fa-language"></i> Dịch thuật</button>
       <button class="tab-btn" onclick="switchTab('congnghe')"><i class="fa fa-code"></i> Công nghệ</button>
       <button class="tab-btn" onclick="switchTab('hoso')"><i class="fa fa-file-alt"></i> Hồ sơ & Pháp lý</button>
     </div>
 
-    <div class="tab-content active" id="tab-dichthuat">
-      <div class="service-card">
-        <div class="sc-icon teal"><i class="fa fa-language"></i></div>
-        <h3>Dịch thuật chuyên nghiệp</h3>
-        <p>Dịch văn bản kỹ thuật, pháp lý, y tế, thương mại và nhiều lĩnh vực khác. Đội ngũ dịch giả có chuyên môn sâu.</p>
-        <div class="tags"><span class="tag">Tiếng Anh</span><span class="tag">Tiếng Nhật</span><span class="tag">Tiếng Hàn</span><span class="tag">50+ ngôn ngữ</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon blue"><i class="fa fa-stamp"></i></div>
-        <h3>Công chứng bản dịch</h3>
-        <p>Công chứng bản dịch có giá trị pháp lý đầy đủ, được chấp nhận tại tất cả cơ quan nhà nước và tổ chức quốc tế.</p>
-        <div class="tags"><span class="tag">Có giá trị pháp lý</span><span class="tag">Nhanh chóng</span><span class="tag">Chính xác</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon gold"><i class="fa fa-file-signature"></i></div>
-        <h3>Hợp pháp hoá lãnh sự</h3>
-        <p>Hợp pháp hoá tài liệu cho mục đích sử dụng tại nước ngoài. Đại diện làm việc trực tiếp với lãnh sự quán.</p>
-        <div class="tags"><span class="tag">Tất cả quốc gia</span><span class="tag">Trọn gói</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon orange"><i class="fa fa-plane"></i></div>
-        <h3>Hồ sơ Du học – Du lịch</h3>
-        <p>Dịch thuật và chuẩn bị hồ sơ xin visa du học, du lịch quốc tế. Tỷ lệ đậu visa cao. Tư vấn tận tâm.</p>
-        <div class="tags"><span class="tag">Visa du học</span><span class="tag">Du lịch QT</span><span class="tag">Định cư</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon teal"><i class="fa fa-home"></i></div>
-        <h3>Hồ sơ Định cư Quốc tế</h3>
-        <p>Tư vấn và chuẩn bị đầy đủ hồ sơ định cư các nước Úc, Canada, Mỹ, châu Âu và các nước phát triển khác.</p>
-        <div class="tags"><span class="tag">Úc</span><span class="tag">Canada</span><span class="tag">Mỹ</span><span class="tag">EU</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon blue"><i class="fa fa-chart-line"></i></div>
-        <h3>Hồ sơ Đầu tư Nước ngoài</h3>
-        <p>Hỗ trợ dịch thuật và chuẩn bị hồ sơ cho nhà đầu tư nước ngoài tại Việt Nam. Đúng quy định, minh bạch.</p>
-        <div class="tags"><span class="tag">FDI</span><span class="tag">Thành lập công ty</span><span class="tag">Giấy phép</span></div>
-      </div>
+    <div class="tab-panel active" id="panel-dichthuat">
+      <div class="srv-card"><div class="srv-icon teal"><i class="fa fa-language"></i></div><h3>Dịch thuật chuyên nghiệp</h3><p>Dịch văn bản kỹ thuật, pháp lý, y tế, thương mại. Đội ngũ dịch giả chuyên môn sâu.</p><div class="srv-tags"><span class="srv-tag">Tiếng Anh</span><span class="srv-tag">Tiếng Nhật</span><span class="srv-tag">Tiếng Hàn</span><span class="srv-tag">50+ ngôn ngữ</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon navy"><i class="fa fa-stamp"></i></div><h3>Công chứng bản dịch</h3><p>Công chứng có giá trị pháp lý đầy đủ, chấp nhận tại tất cả cơ quan nhà nước và quốc tế.</p><div class="srv-tags"><span class="srv-tag">Giá trị pháp lý</span><span class="srv-tag">Nhanh chóng</span><span class="srv-tag">Chính xác</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon blue"><i class="fa fa-file-signature"></i></div><h3>Hợp pháp hoá lãnh sự</h3><p>Hợp pháp hoá tài liệu cho sử dụng nước ngoài. Đại diện làm việc trực tiếp với lãnh sự quán.</p><div class="srv-tags"><span class="srv-tag">Tất cả quốc gia</span><span class="srv-tag">Trọn gói</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon orange"><i class="fa fa-plane"></i></div><h3>Hồ sơ Du học – Du lịch</h3><p>Dịch thuật và chuẩn bị hồ sơ xin visa du học, du lịch quốc tế. Tỷ lệ đậu cao. Tư vấn tận tâm.</p><div class="srv-tags"><span class="srv-tag">Visa du học</span><span class="srv-tag">Du lịch QT</span><span class="srv-tag">Định cư</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon green"><i class="fa fa-home"></i></div><h3>Hồ sơ Định cư Quốc tế</h3><p>Tư vấn và chuẩn bị hồ sơ định cư Úc, Canada, Mỹ, châu Âu và các nước phát triển.</p><div class="srv-tags"><span class="srv-tag">Úc</span><span class="srv-tag">Canada</span><span class="srv-tag">Mỹ</span><span class="srv-tag">EU</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon navy"><i class="fa fa-chart-line"></i></div><h3>Hồ sơ Đầu tư Nước ngoài</h3><p>Hỗ trợ dịch thuật và chuẩn bị hồ sơ cho nhà đầu tư nước ngoài tại Việt Nam. Minh bạch.</p><div class="srv-tags"><span class="srv-tag">FDI</span><span class="srv-tag">Thành lập công ty</span><span class="srv-tag">Giấy phép</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
     </div>
 
-    <div class="tab-content" id="tab-congnghe">
-      <div class="service-card">
-        <div class="sc-icon orange"><i class="fa fa-paint-brush"></i></div>
-        <h3>Thiết kế Logo & Nhận diện</h3>
-        <p>Xây dựng bộ nhận diện thương hiệu chuyên nghiệp: logo, màu sắc, font chữ, bộ guideline đầy đủ.</p>
-        <div class="tags"><span class="tag">Logo độc bản</span><span class="tag">Brand guideline</span><span class="tag">Vector</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon teal"><i class="fa fa-utensils"></i></div>
-        <h3>Thiết kế Menu Nhà hàng</h3>
-        <p>Menu in ấn đẹp mắt, menu digital, menu QR code cho nhà hàng, quán café, khách sạn. Nhiều phong cách.</p>
-        <div class="tags"><span class="tag">Menu in</span><span class="tag">Menu QR</span><span class="tag">Digital</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon blue"><i class="fa fa-hashtag"></i></div>
-        <h3>Social Media & Content</h3>
-        <p>Thiết kế post, banner, story, cover cho Facebook, Instagram, TikTok, LinkedIn. Sản xuất nội dung số định kỳ.</p>
-        <div class="tags"><span class="tag">Facebook</span><span class="tag">Instagram</span><span class="tag">TikTok</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon gold"><i class="fa fa-print"></i></div>
-        <h3>In ấn Name Card & Brochure</h3>
-        <p>Thiết kế và in ấn name card, brochure, catalogue, standee, banner chất lượng cao. Giấy đẹp, in sắc nét.</p>
-        <div class="tags"><span class="tag">Name card</span><span class="tag">Brochure</span><span class="tag">Catalogue</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon orange"><i class="fa fa-globe-asia"></i></div>
-        <h3>Thiết kế Website</h3>
-        <p>Website doanh nghiệp, landing page, ecommerce chuyên nghiệp. Responsive, SEO-ready, tốc độ cao. Bảo hành dài hạn.</p>
-        <div class="tags"><span class="tag">WordPress</span><span class="tag">Next.js</span><span class="tag">E-commerce</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon teal"><i class="fa fa-tablet-alt"></i></div>
-        <h3>Phần mềm Quản lý & POS</h3>
-        <p>App quản lý doanh nghiệp, nhà hàng, quán café tích hợp POS. Báo cáo real-time, quản lý kho, nhân sự.</p>
-        <div class="tags"><span class="tag">POS</span><span class="tag">Quản lý kho</span><span class="tag">App mobile</span></div>
-      </div>
+    <div class="tab-panel" id="panel-congnghe">
+      <div class="srv-card"><div class="srv-icon orange"><i class="fa fa-paint-brush"></i></div><h3>Thiết kế Logo & Nhận diện</h3><p>Bộ nhận diện thương hiệu chuyên nghiệp: logo, màu sắc, font chữ, brand guideline đầy đủ.</p><div class="srv-tags"><span class="srv-tag">Logo độc bản</span><span class="srv-tag">Brand guideline</span><span class="srv-tag">Vector</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon blue"><i class="fa fa-utensils"></i></div><h3>Thiết kế Menu Nhà hàng</h3><p>Menu in ấn đẹp, menu digital, menu QR code cho nhà hàng, quán café, khách sạn.</p><div class="srv-tags"><span class="srv-tag">Menu in</span><span class="srv-tag">Menu QR</span><span class="srv-tag">Digital</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon navy"><i class="fa fa-hashtag"></i></div><h3>Social Media & Content</h3><p>Thiết kế post, banner, story cho Facebook, Instagram, TikTok, LinkedIn. Nội dung số định kỳ.</p><div class="srv-tags"><span class="srv-tag">Facebook</span><span class="srv-tag">Instagram</span><span class="srv-tag">TikTok</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon green"><i class="fa fa-print"></i></div><h3>In ấn Name Card & Brochure</h3><p>Thiết kế và in name card, brochure, catalogue, standee, banner chất lượng cao.</p><div class="srv-tags"><span class="srv-tag">Name card</span><span class="srv-tag">Brochure</span><span class="srv-tag">Catalogue</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon orange"><i class="fa fa-globe"></i></div><h3>Thiết kế Website</h3><p>Website doanh nghiệp, landing page, ecommerce. Responsive, SEO-ready, tốc độ cao.</p><div class="srv-tags"><span class="srv-tag">WordPress</span><span class="srv-tag">Next.js</span><span class="srv-tag">E-commerce</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon blue"><i class="fa fa-tablet-alt"></i></div><h3>Phần mềm Quản lý & POS</h3><p>App quản lý doanh nghiệp, nhà hàng tích hợp POS. Báo cáo real-time, kho, nhân sự.</p><div class="srv-tags"><span class="srv-tag">POS</span><span class="srv-tag">Quản lý kho</span><span class="srv-tag">App mobile</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
     </div>
 
-    <div class="tab-content" id="tab-hoso">
-      <div class="service-card">
-        <div class="sc-icon blue"><i class="fa fa-calculator"></i></div>
-        <h3>Hồ sơ Khai báo Thuế</h3>
-        <p>Hỗ trợ khai báo thuế cá nhân, doanh nghiệp. Dịch thuật và chuẩn bị hồ sơ thuế đúng quy định pháp luật.</p>
-        <div class="tags"><span class="tag">Thuế TNCN</span><span class="tag">Thuế TNDN</span><span class="tag">VAT</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon teal"><i class="fa fa-balance-scale"></i></div>
-        <h3>Quyết toán & Kế toán</h3>
-        <p>Dịch vụ quyết toán cuối năm, lập báo cáo tài chính, soát xét hồ sơ kế toán theo chuẩn VN và quốc tế.</p>
-        <div class="tags"><span class="tag">BCTC</span><span class="tag">Quyết toán</span><span class="tag">IFRS</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon gold"><i class="fa fa-globe"></i></div>
-        <h3>Hồ sơ Du học</h3>
-        <p>Tư vấn chọn trường, dịch thuật hồ sơ, viết essay, chuẩn bị hồ sơ nộp các trường đại học quốc tế uy tín.</p>
-        <div class="tags"><span class="tag">Úc</span><span class="tag">Mỹ</span><span class="tag">Nhật</span><span class="tag">EU</span></div>
-      </div>
-      <div class="service-card">
-        <div class="sc-icon orange"><i class="fa fa-briefcase"></i></div>
-        <h3>Hồ sơ Đầu tư & M&A</h3>
-        <p>Chuẩn bị tài liệu pháp lý cho giao dịch M&A, đầu tư nước ngoài, thành lập doanh nghiệp có vốn FDI.</p>
-        <div class="tags"><span class="tag">M&A</span><span class="tag">FDI</span><span class="tag">Công ty nước ngoài</span></div>
-      </div>
+    <div class="tab-panel" id="panel-hoso">
+      <div class="srv-card"><div class="srv-icon navy"><i class="fa fa-calculator"></i></div><h3>Hồ sơ Khai báo Thuế</h3><p>Khai báo thuế cá nhân, doanh nghiệp. Dịch thuật và chuẩn bị hồ sơ thuế đúng quy định.</p><div class="srv-tags"><span class="srv-tag">Thuế TNCN</span><span class="srv-tag">Thuế TNDN</span><span class="srv-tag">VAT</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon blue"><i class="fa fa-balance-scale"></i></div><h3>Quyết toán & Kế toán</h3><p>Quyết toán cuối năm, lập báo cáo tài chính, soát xét hồ sơ kế toán chuẩn VN và quốc tế.</p><div class="srv-tags"><span class="srv-tag">BCTC</span><span class="srv-tag">Quyết toán</span><span class="srv-tag">IFRS</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon green"><i class="fa fa-graduation-cap"></i></div><h3>Hồ sơ Du học</h3><p>Tư vấn chọn trường, dịch thuật hồ sơ, viết essay, chuẩn bị hồ sơ nộp trường quốc tế uy tín.</p><div class="srv-tags"><span class="srv-tag">Úc</span><span class="srv-tag">Mỹ</span><span class="srv-tag">Nhật</span><span class="srv-tag">EU</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
+      <div class="srv-card"><div class="srv-icon orange"><i class="fa fa-briefcase"></i></div><h3>Hồ sơ Đầu tư & M&A</h3><p>Tài liệu pháp lý cho giao dịch M&A, đầu tư nước ngoài, thành lập doanh nghiệp FDI.</p><div class="srv-tags"><span class="srv-tag">M&A</span><span class="srv-tag">FDI</span><span class="srv-tag">Công ty nước ngoài</span></div><i class="fa fa-arrow-right srv-arrow"></i></div>
     </div>
   </div>
 </section>
 
-<!-- FEATURES / IMPORT -->
+<div class="divider"></div>
+
+<!-- FEATURES -->
 <section id="features">
   <div class="container">
     <div class="features-grid">
       <div>
-        <div class="section-label">Nền tảng thông minh</div>
-        <h2 class="section-title">Import dữ liệu<br>bằng AI — Nhanh & Chính xác</h2>
-        <p class="section-sub" style="margin-bottom:36px">Tải ảnh hoặc dán văn bản — hệ thống AI tự động phân tích, trích xuất và nhập vào cơ sở dữ liệu của bạn.</p>
-        <div class="features-list">
+        <div class="section-tag">Nền tảng thông minh</div>
+        <h2 class="section-title">Import dữ liệu bằng AI<br>Nhanh & Chính xác</h2>
+        <p class="section-desc" style="margin-bottom:28px">Tải ảnh hoặc dán văn bản — hệ thống AI tự động phân tích, trích xuất và nhập vào cơ sở dữ liệu.</p>
+        <div class="feature-list">
           <div class="feature-item">
-            <div class="fi-icon primary"><i class="fa fa-camera"></i></div>
-            <div class="fi-text">
-              <h4>Nhận dạng hình ảnh (OCR)</h4>
-              <p>Tải ảnh tài liệu, hệ thống tự động nhận dạng chữ và trích xuất thông tin chính xác.</p>
-            </div>
+            <div class="fi-icon blue"><i class="fa fa-camera"></i></div>
+            <div class="fi-text"><h4>Nhận dạng hình ảnh (OCR)</h4><p>Tải ảnh tài liệu, hệ thống tự động nhận dạng chữ và trích xuất thông tin chính xác.</p></div>
           </div>
           <div class="feature-item">
-            <div class="fi-icon accent"><i class="fa fa-file-code"></i></div>
-            <div class="fi-text">
-              <h4>Import dữ liệu JSON</h4>
-              <p>Dán hoặc upload file JSON — hệ thống phân tích cấu trúc và nhập trực tiếp vào database.</p>
-            </div>
+            <div class="fi-icon green"><i class="fa fa-file-code"></i></div>
+            <div class="fi-text"><h4>Import dữ liệu JSON</h4><p>Dán hoặc upload file JSON — hệ thống phân tích cấu trúc và nhập trực tiếp vào database.</p></div>
           </div>
           <div class="feature-item">
             <div class="fi-icon orange"><i class="fa fa-brain"></i></div>
-            <div class="fi-text">
-              <h4>Phân tích AI tự động</h4>
-              <p>AI phân loại, gắn thẻ, dịch và tổng hợp nội dung theo ngữ cảnh phù hợp nhất.</p>
-            </div>
+            <div class="fi-text"><h4>Phân tích AI tự động</h4><p>AI phân loại, gắn thẻ, dịch và tổng hợp nội dung theo ngữ cảnh phù hợp nhất.</p></div>
           </div>
         </div>
       </div>
-      <div class="features-visual">
-        <div class="fv-header">
-          <h3>🔄 Import Dữ liệu Thông minh</h3>
-          <p>Tải ảnh hoặc dán nội dung để phân tích AI</p>
-        </div>
+      <div class="import-panel">
+        <h3>Import Dữ liệu Thông minh</h3>
+        <p>Tải ảnh hoặc dán nội dung để phân tích AI</p>
         <div class="upload-zone" onclick="triggerUpload()" id="uploadZone">
-          <input type="file" id="fileInput" accept="image/*,.json,.pdf" style="display:none" onchange="handleFileSelect(event)">
+          <input type="file" id="fileInput" accept="image/*,.json,.pdf" style="display:none" onchange="handleFile(event)">
           <i class="fa fa-cloud-upload-alt"></i>
-          <p><strong style="color:#fff">Kéo & thả file vào đây</strong></p>
-          <p>hoặc click để chọn file</p>
+          <p><strong>Kéo & thả file vào đây</strong> hoặc click để chọn</p>
           <small>Hỗ trợ: JPG, PNG, PDF, JSON — Tối đa 10MB</small>
         </div>
-        <div class="or-divider">HOẶC DÁN NỘI DUNG</div>
-        <textarea class="paste-area" id="pasteArea" placeholder="Dán văn bản, JSON hoặc nội dung cần phân tích vào đây..."></textarea>
-        <div class="import-actions">
-          <button class="btn btn-accent btn-sm" style="flex:1" onclick="analyzeContent()"><i class="fa fa-magic"></i> Phân tích AI</button>
-          <button class="btn btn-primary btn-sm" style="flex:1" onclick="importData()"><i class="fa fa-database"></i> Nhập dữ liệu</button>
+        <div class="or-line">HOẶC DÁN NỘI DUNG</div>
+        <textarea class="paste-box" id="pasteArea" placeholder="Dán văn bản, JSON hoặc nội dung cần phân tích..."></textarea>
+        <div class="import-btns">
+          <button class="btn btn-primary btn-sm" onclick="analyzeContent()"><i class="fa fa-magic"></i> Phân tích AI</button>
+          <button class="btn btn-outline btn-sm" onclick="importData()"><i class="fa fa-database"></i> Nhập dữ liệu</button>
         </div>
-        <div id="analysisResult" style="display:none;margin-top:16px;background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.7"></div>
+        <div id="analysisResult"></div>
       </div>
     </div>
   </div>
 </section>
+
+<div class="divider"></div>
 
 <!-- LIBRARY -->
 <section id="library">
   <div class="container">
     <div class="section-header">
-      <div class="section-label">Tra cứu & Tham khảo</div>
-      <h2 class="section-title">Thư viện Tri thức<br>Pháp luật & Quốc tế</h2>
-      <p class="section-sub">Tra cứu văn bản pháp luật Việt Nam & quốc tế, danh bạ đại sứ quán, trường du học danh tiếng.</p>
+      <div class="section-tag">Tra cứu & Tham khảo</div>
+      <h2 class="section-title">Thư viện Tri thức Pháp luật & Quốc tế</h2>
+      <p class="section-desc">Tra cứu văn bản pháp luật VN & quốc tế, danh bạ đại sứ quán, trường du học danh tiếng.</p>
     </div>
-    <div class="library-tabs">
+    <div class="lib-tabs">
       <button class="lib-tab active" onclick="switchLib('law')">⚖️ Pháp luật VN & QT</button>
-      <button class="lib-tab" onclick="switchLib('embassy')">🏛️ Đại sứ quán & Cơ quan</button>
+      <button class="lib-tab" onclick="switchLib('embassy')">🏛️ Đại sứ quán</button>
       <button class="lib-tab" onclick="switchLib('school')">🎓 Trường du học</button>
-      <button class="lib-tab" onclick="switchLib('visa')">✈️ Du lịch & Visa</button>
+      <button class="lib-tab" onclick="switchLib('visa')">✈️ Visa & Du lịch</button>
     </div>
-    <div style="margin-bottom:24px">
-      <div style="position:relative">
-        <i class="fa fa-search" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted)"></i>
-        <input type="text" id="libSearch" placeholder="Tìm kiếm văn bản, cơ quan, trường học..." style="width:100%;padding:12px 16px 12px 44px;border:1.5px solid var(--border);border-radius:50px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:#fff" oninput="filterLibrary()" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-      </div>
+    <div class="search-row">
+      <i class="fa fa-search"></i>
+      <input type="text" id="libSearch" placeholder="Tìm kiếm văn bản, cơ quan, trường học..." oninput="filterLib()">
     </div>
-    <div class="library-grid" id="libraryGrid"></div>
-    <div style="text-align:center;margin-top:40px">
-      <button class="btn btn-primary btn-lg" onclick="openModal('register')"><i class="fa fa-plus"></i> Đăng ký để thêm dữ liệu & tra cứu đầy đủ</button>
+    <div class="lib-grid" id="libraryGrid"></div>
+    <div class="lib-more">
+      <button class="btn btn-outline" onclick="openModal('register')"><i class="fa fa-plus"></i> Đăng ký để tra cứu đầy đủ</button>
     </div>
   </div>
 </section>
+
+<div class="divider"></div>
 
 <!-- AI HUB -->
 <section id="ai-hub">
   <div class="container">
     <div class="section-header">
-      <div class="section-label">Học AI</div>
-      <h2 class="section-title">Trung tâm Học AI<br>& Công nghệ Mới nhất</h2>
-      <p class="section-sub">Khám phá và học các công cụ AI hàng đầu: ChatGPT, Claude, Gemini, tạo ảnh, tạo nhạc, tạo phim — phân loại theo chủ đề rõ ràng.</p>
+      <div class="section-tag">Học AI</div>
+      <h2 class="section-title">Trung tâm Học AI & Công nghệ</h2>
+      <p class="section-desc">Khám phá công cụ AI hàng đầu: ChatGPT, Claude, Gemini, tạo ảnh, nhạc, phim — phân loại rõ ràng.</p>
     </div>
     <div class="ai-grid" id="aiGrid"></div>
-    <div style="text-align:center;margin-top:48px">
-      <button class="btn btn-accent btn-lg" onclick="openModal('register')"><i class="fa fa-graduation-cap"></i> Tham gia cộng đồng học AI</button>
+    <div class="ai-more">
+      <button class="btn btn-primary" onclick="openModal('register')"><i class="fa fa-graduation-cap"></i> Tham gia cộng đồng học AI</button>
     </div>
   </div>
 </section>
+
+<div class="divider"></div>
 
 <!-- MEMBERSHIP -->
 <section id="membership">
   <div class="container">
-    <div class="section-header" style="text-align:center">
-      <div class="section-label" style="margin:0 auto 16px">Thành viên</div>
-      <h2 class="section-title">Chọn gói phù hợp với bạn</h2>
-      <p class="section-sub" style="margin:0 auto">Đăng ký để theo dõi đơn hàng, tra cứu đầy đủ, học AI không giới hạn và nhiều ưu đãi hơn.</p>
+    <div class="section-header center">
+      <div class="section-tag">Thành viên</div>
+      <h2 class="section-title">Chọn gói phù hợp</h2>
+      <p class="section-desc">Đăng ký để tra cứu đầy đủ, học AI không giới hạn và nhiều ưu đãi dịch vụ.</p>
     </div>
     <div class="plans-grid">
       <div class="plan-card">
-        <div class="plan-name">Miễn phí</div>
+        <div class="plan-tier">Miễn phí</div>
         <div class="plan-price">0 <span>đ/tháng</span></div>
-        <p class="plan-desc">Trải nghiệm cơ bản — phù hợp để khám phá dịch vụ lần đầu.</p>
-        <ul class="plan-features">
-          <li><i class="fa fa-check-circle"></i> Tra cứu 10 văn bản/tháng</li>
-          <li><i class="fa fa-check-circle"></i> Xem danh bạ đại sứ quán</li>
-          <li><i class="fa fa-check-circle"></i> Học AI cơ bản (5 bài)</li>
-          <li><i class="fa fa-check-circle"></i> Theo dõi đơn hàng</li>
-          <li><i class="fa fa-circle" style="color:var(--border)"></i> <span style="color:var(--muted)">Import dữ liệu JSON</span></li>
-          <li><i class="fa fa-circle" style="color:var(--border)"></i> <span style="color:var(--muted)">Ưu đãi giá dịch vụ</span></li>
+        <p class="plan-sub">Trải nghiệm cơ bản — phù hợp để khám phá dịch vụ lần đầu.</p>
+        <ul class="plan-feats">
+          <li><i class="fa fa-check"></i> Tra cứu 10 văn bản/tháng</li>
+          <li><i class="fa fa-check"></i> Xem danh bạ đại sứ quán</li>
+          <li><i class="fa fa-check"></i> Học AI cơ bản (5 bài)</li>
+          <li><i class="fa fa-check"></i> Theo dõi đơn hàng</li>
+          <li class="dimmed"><i class="fa fa-times"></i> Import dữ liệu JSON</li>
+          <li class="dimmed"><i class="fa fa-times"></i> Ưu đãi giá dịch vụ</li>
         </ul>
-        <button class="btn btn-primary" style="width:100%" onclick="openModal('register')">Đăng ký miễn phí</button>
+        <button class="btn btn-outline" onclick="openModal('register')">Đăng ký miễn phí</button>
       </div>
       <div class="plan-card featured">
-        <div class="plan-name">Pro</div>
+        <div class="plan-badge">Phổ biến nhất</div>
+        <div class="plan-tier" style="margin-top:10px">Pro</div>
         <div class="plan-price">299K <span>đ/tháng</span></div>
-        <p class="plan-desc">Đầy đủ tính năng — dành cho cá nhân và doanh nghiệp nhỏ.</p>
-        <ul class="plan-features">
-          <li><i class="fa fa-check-circle"></i> Tra cứu không giới hạn</li>
-          <li><i class="fa fa-check-circle"></i> Import JSON & ảnh AI</li>
-          <li><i class="fa fa-check-circle"></i> Tất cả khoá học AI</li>
-          <li><i class="fa fa-check-circle"></i> Theo dõi đơn hàng real-time</li>
-          <li><i class="fa fa-check-circle"></i> Giảm 10% giá dịch vụ</li>
-          <li><i class="fa fa-check-circle"></i> Hỗ trợ ưu tiên 24/7</li>
+        <p class="plan-sub">Đầy đủ tính năng — dành cho cá nhân và doanh nghiệp nhỏ.</p>
+        <ul class="plan-feats">
+          <li><i class="fa fa-check"></i> Tra cứu không giới hạn</li>
+          <li><i class="fa fa-check"></i> Import JSON & ảnh AI</li>
+          <li><i class="fa fa-check"></i> Tất cả khoá học AI</li>
+          <li><i class="fa fa-check"></i> Theo dõi đơn hàng real-time</li>
+          <li><i class="fa fa-check"></i> Giảm 10% giá dịch vụ</li>
+          <li><i class="fa fa-check"></i> Hỗ trợ ưu tiên 24/7</li>
         </ul>
-        <button class="btn btn-accent" style="width:100%" onclick="openModal('register')">Đăng ký Pro ngay</button>
+        <button class="btn btn-primary" onclick="openModal('register')">Đăng ký Pro ngay</button>
       </div>
       <div class="plan-card">
-        <div class="plan-name">Doanh nghiệp</div>
+        <div class="plan-tier">Doanh nghiệp</div>
         <div class="plan-price">999K <span>đ/tháng</span></div>
-        <p class="plan-desc">Giải pháp toàn diện — dành cho doanh nghiệp lớn và đội nhóm.</p>
-        <ul class="plan-features">
-          <li><i class="fa fa-check-circle"></i> Tất cả tính năng Pro</li>
-          <li><i class="fa fa-check-circle"></i> Multi-user (5 tài khoản)</li>
-          <li><i class="fa fa-check-circle"></i> API tích hợp hệ thống</li>
-          <li><i class="fa fa-check-circle"></i> Báo cáo & thống kê riêng</li>
-          <li><i class="fa fa-check-circle"></i> Giảm 20% giá dịch vụ</li>
-          <li><i class="fa fa-check-circle"></i> Account manager riêng</li>
+        <p class="plan-sub">Giải pháp toàn diện — dành cho doanh nghiệp lớn và đội nhóm.</p>
+        <ul class="plan-feats">
+          <li><i class="fa fa-check"></i> Tất cả tính năng Pro</li>
+          <li><i class="fa fa-check"></i> Multi-user (5 tài khoản)</li>
+          <li><i class="fa fa-check"></i> API tích hợp hệ thống</li>
+          <li><i class="fa fa-check"></i> Báo cáo & thống kê riêng</li>
+          <li><i class="fa fa-check"></i> Giảm 20% giá dịch vụ</li>
+          <li><i class="fa fa-check"></i> Account manager riêng</li>
         </ul>
-        <button class="btn btn-primary" style="width:100%" onclick="openModal('register')">Liên hệ tư vấn</button>
+        <button class="btn btn-outline" onclick="openModal('register')">Liên hệ tư vấn</button>
       </div>
     </div>
   </div>
 </section>
 
+<div class="divider"></div>
+
 <!-- CONTACT -->
 <section id="contact">
   <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Liên hệ</div>
+      <h2 class="section-title">Liên hệ & Báo giá</h2>
+      <p class="section-desc">Đội ngũ chuyên viên sẵn sàng tư vấn. Phản hồi trong vòng 30 phút trong giờ làm việc.</p>
+    </div>
     <div class="contact-grid">
-      <div>
-        <div class="contact-info">
-          <h3>Liên hệ với chúng tôi</h3>
-          <p>Đội ngũ chuyên viên sẵn sàng tư vấn và hỗ trợ bạn. Phản hồi trong vòng 30 phút trong giờ làm việc.</p>
-          <div class="ci-item">
-            <div class="ci-icon">🏢</div>
-            <div class="ci-text">
-              <strong>Địa chỉ văn phòng</strong>
-              <span>Phòng 14, số 35 Nguyễn Văn Tráng,<br>Phường Bến Thành, TP.HCM</span>
-            </div>
-          </div>
-          <div class="ci-item">
-            <div class="ci-icon">📱</div>
-            <div class="ci-text">
-              <strong>Zalo / WhatsApp</strong>
-              <span><a href="tel:0909108890" style="color:var(--accent)">0909 108 890</a></span>
-            </div>
-          </div>
-          <div class="ci-item">
-            <div class="ci-icon">🕐</div>
-            <div class="ci-text">
-              <strong>Giờ làm việc</strong>
-              <span>Thứ 2 – Thứ 7: 8:00 – 18:00<br>Chủ nhật: 9:00 – 12:00</span>
-            </div>
-          </div>
-          <div class="ci-item">
-            <div class="ci-icon">✉️</div>
-            <div class="ci-text">
-              <strong>Email</strong>
-              <span>info@techtra.vn</span>
-            </div>
-          </div>
-          <div class="contact-socials">
-            <a href="#" class="social-btn" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="social-btn" title="Zalo"><i class="fa fa-comment"></i></a>
-            <a href="#" class="social-btn" title="YouTube"><i class="fab fa-youtube"></i></a>
-            <a href="#" class="social-btn" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-            <a href="#" class="social-btn" title="TikTok"><i class="fab fa-tiktok"></i></a>
-          </div>
+      <div class="contact-info">
+        <h3>Thông tin liên hệ</h3>
+        <p>Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn trong mọi nhu cầu.</p>
+        <div class="ci-item">
+          <div class="ci-icon">🏢</div>
+          <div class="ci-body"><strong>Địa chỉ văn phòng</strong><span>Phòng 14, số 35 Nguyễn Văn Tráng<br>Phường Bến Thành, TP.HCM</span></div>
+        </div>
+        <div class="ci-item">
+          <div class="ci-icon">📱</div>
+          <div class="ci-body"><strong>Zalo / WhatsApp</strong><span><a href="tel:0909108890">0909 108 890</a></span></div>
+        </div>
+        <div class="ci-item">
+          <div class="ci-icon">✉️</div>
+          <div class="ci-body"><strong>Email</strong><span>info@techtra.vn</span></div>
+        </div>
+        <div class="ci-item">
+          <div class="ci-icon">🕐</div>
+          <div class="ci-body"><strong>Giờ làm việc</strong><span>Thứ 2 – Thứ 7: 8:00 – 18:00<br>Chủ nhật: 9:00 – 12:00</span></div>
+        </div>
+        <div class="socials">
+          <a href="#" class="social-btn" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-btn" title="Zalo"><i class="fa fa-comment"></i></a>
+          <a href="#" class="social-btn" title="YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="#" class="social-btn" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="social-btn" title="TikTok"><i class="fab fa-tiktok"></i></a>
         </div>
       </div>
-      <div>
-        <div class="contact-form">
-          <h3 style="color:var(--primary);font-size:22px;margin-bottom:8px;font-family:'Syne',sans-serif">Gửi yêu cầu báo giá</h3>
-          <p style="color:var(--muted);font-size:14px;margin-bottom:28px">Điền thông tin bên dưới, chúng tôi sẽ liên hệ tư vấn trong 30 phút.</p>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Họ và tên *</label>
-              <input type="text" placeholder="Nguyễn Văn A" id="cf-name">
-            </div>
-            <div class="form-group">
-              <label>Số điện thoại *</label>
-              <input type="tel" placeholder="0909 xxx xxx" id="cf-phone">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" placeholder="email@example.com" id="cf-email">
-            </div>
-            <div class="form-group">
-              <label>Công ty / Tổ chức</label>
-              <input type="text" placeholder="Tên công ty (nếu có)" id="cf-company">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Dịch vụ quan tâm *</label>
-            <select id="cf-service">
-              <option value="">-- Chọn dịch vụ --</option>
-              <option>Dịch thuật & Công chứng</option>
-              <option>Hợp pháp hoá lãnh sự</option>
-              <option>Hồ sơ Du học / Du lịch</option>
-              <option>Hồ sơ Định cư Quốc tế</option>
-              <option>Hồ sơ Đầu tư Nước ngoài</option>
-              <option>Khai báo Thuế & Quyết toán</option>
-              <option>Thiết kế Logo & Thương hiệu</option>
-              <option>Thiết kế Website</option>
-              <option>Phần mềm Quản lý & POS</option>
-              <option>In ấn Name card & Brochure</option>
-              <option>Social Media Content</option>
-              <option>Khác</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Mô tả yêu cầu</label>
-            <textarea placeholder="Mô tả chi tiết nhu cầu của bạn để được tư vấn chính xác nhất..." id="cf-message"></textarea>
-          </div>
-          <button class="btn btn-accent btn-lg" style="width:100%" onclick="submitContact()"><i class="fa fa-paper-plane"></i> Gửi yêu cầu ngay</button>
-          <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:12px">Thông tin của bạn được bảo mật tuyệt đối. Không chia sẻ với bên thứ ba.</p>
+      <div class="contact-form-wrap">
+        <h3>Gửi yêu cầu báo giá</h3>
+        <p>Điền thông tin bên dưới, chúng tôi sẽ liên hệ tư vấn trong 30 phút.</p>
+        <div class="form-row">
+          <div class="form-group"><label>Họ và tên *</label><input type="text" placeholder="Nguyễn Văn A" id="cf-name"></div>
+          <div class="form-group"><label>Số điện thoại *</label><input type="tel" placeholder="0909 xxx xxx" id="cf-phone"></div>
         </div>
+        <div class="form-row">
+          <div class="form-group"><label>Email</label><input type="email" placeholder="email@example.com" id="cf-email"></div>
+          <div class="form-group"><label>Công ty / Tổ chức</label><input type="text" placeholder="Tên công ty (nếu có)" id="cf-company"></div>
+        </div>
+        <div class="form-group">
+          <label>Dịch vụ quan tâm *</label>
+          <select id="cf-service">
+            <option value="">-- Chọn dịch vụ --</option>
+            <option>Dịch thuật & Công chứng</option>
+            <option>Hợp pháp hoá lãnh sự</option>
+            <option>Hồ sơ Du học / Du lịch</option>
+            <option>Hồ sơ Định cư Quốc tế</option>
+            <option>Hồ sơ Đầu tư Nước ngoài</option>
+            <option>Khai báo Thuế & Quyết toán</option>
+            <option>Thiết kế Logo & Thương hiệu</option>
+            <option>Thiết kế Website</option>
+            <option>Phần mềm Quản lý & POS</option>
+            <option>In ấn Name card & Brochure</option>
+            <option>Social Media Content</option>
+            <option>Khác</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mô tả yêu cầu</label>
+          <textarea placeholder="Mô tả chi tiết nhu cầu để được tư vấn chính xác nhất..." id="cf-message"></textarea>
+        </div>
+        <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" onclick="submitContact()"><i class="fa fa-paper-plane"></i> Gửi yêu cầu ngay</button>
+        <p class="form-note">Thông tin của bạn được bảo mật tuyệt đối. Không chia sẻ với bên thứ ba.</p>
       </div>
     </div>
   </div>
@@ -791,15 +963,15 @@ footer{background:var(--primary);color:#fff;padding:64px 0 24px}
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="logo" style="margin-bottom:0">
-          <div class="logo-icon">TT</div>
+        <div class="logo">
+          <div class="logo-mark">TT</div>
           <div class="logo-text">
-            <span>TECHTRA</span>
-            <small style="color:rgba(255,255,255,0.4)">Công nghệ & Dịch thuật Số hoá</small>
+            <div class="logo-name">TECHTRA</div>
+            <div class="logo-sub" style="color:rgba(255,255,255,.4)">Công nghệ & Dịch thuật Số hoá</div>
           </div>
         </div>
-        <p>Công ty Cổ phần Công nghệ và Dịch thuật Số hoá — Giải pháp toàn diện cho doanh nghiệp và cá nhân trong kỷ nguyên số.</p>
-        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:8px">📍 Phòng 14, 35 Nguyễn Văn Tráng, P. Bến Thành, TP.HCM<br>📱 Zalo/WhatsApp: 0909 108 890</p>
+        <p>Công ty Cổ phần Công nghệ và Dịch thuật Số hoá — Giải pháp toàn diện trong kỷ nguyên số.</p>
+        <p class="addr">📍 Phòng 14, 35 Nguyễn Văn Tráng, P. Bến Thành, TP.HCM<br>📱 Zalo/WhatsApp: 0909 108 890</p>
       </div>
       <div class="footer-col">
         <h4>Dịch thuật</h4>
@@ -808,7 +980,6 @@ footer{background:var(--primary);color:#fff;padding:64px 0 24px}
         <a href="#services">Hợp pháp hoá lãnh sự</a>
         <a href="#services">Hồ sơ du học</a>
         <a href="#services">Hồ sơ định cư</a>
-        <a href="#services">Đầu tư nước ngoài</a>
       </div>
       <div class="footer-col">
         <h4>Công nghệ</h4>
@@ -816,7 +987,6 @@ footer{background:var(--primary);color:#fff;padding:64px 0 24px}
         <a href="#services">Social Media</a>
         <a href="#services">Thiết kế Website</a>
         <a href="#services">Phần mềm POS</a>
-        <a href="#services">In ấn</a>
         <a href="#ai-hub">Học AI</a>
       </div>
       <div class="footer-col">
@@ -825,47 +995,40 @@ footer{background:var(--primary);color:#fff;padding:64px 0 24px}
         <a href="#library">Luật Quốc tế</a>
         <a href="#library">Đại sứ quán</a>
         <a href="#library">Trường du học</a>
-        <a href="#library">Visa & Du lịch</a>
         <a href="#membership">Thành viên</a>
       </div>
     </div>
     <div class="footer-bottom">
       <p>© 2024 TECHTRA – Công ty Cổ phần Công nghệ và Dịch thuật Số hoá. Bảo lưu mọi quyền.</p>
-      <div style="display:flex;gap:16px">
-        <a href="#" style="font-size:12px;color:rgba(255,255,255,0.4)">Chính sách bảo mật</a>
-        <a href="#" style="font-size:12px;color:rgba(255,255,255,0.4)">Điều khoản sử dụng</a>
+      <div class="footer-links">
+        <a href="#">Chính sách bảo mật</a>
+        <a href="#">Điều khoản sử dụng</a>
       </div>
     </div>
   </div>
 </footer>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="authModal" onclick="closeModalOnOverlay(event)">
+<div class="overlay" id="authModal" onclick="closeModalOverlay(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()"><i class="fa fa-times"></i></button>
     <h2>Chào mừng đến TECHTRA</h2>
-    <p class="subtitle">Đăng ký để trải nghiệm đầy đủ tính năng — hoàn toàn miễn phí.</p>
+    <p class="modal-sub">Đăng ký để trải nghiệm đầy đủ tính năng — hoàn toàn miễn phí.</p>
     <div class="modal-tabs">
-      <button class="modal-tab active" onclick="switchAuthTab('login')" id="tab-login">Đăng nhập</button>
-      <button class="modal-tab" onclick="switchAuthTab('register')" id="tab-register">Đăng ký</button>
+      <button class="modal-tab active" onclick="switchAuth('login')" id="mtab-login">Đăng nhập</button>
+      <button class="modal-tab" onclick="switchAuth('register')" id="mtab-register">Đăng ký</button>
     </div>
-    <div class="auth-form active" id="auth-login">
-      <div class="form-group">
-        <label>Email hoặc SĐT</label>
-        <input type="text" placeholder="email@example.com hoặc 0909xxxxxx" id="login-user">
-      </div>
-      <div class="form-group">
-        <label>Mật khẩu</label>
-        <input type="password" placeholder="Nhập mật khẩu" id="login-pass">
-      </div>
-      <button class="btn btn-accent" style="width:100%;margin-top:8px" onclick="doLogin()"><i class="fa fa-sign-in-alt"></i> Đăng nhập</button>
-      <p style="text-align:center;margin-top:16px;font-size:13px;color:var(--muted)"><a href="#" style="color:var(--accent)">Quên mật khẩu?</a></p>
-      <div style="display:flex;gap:10px;margin-top:20px">
-        <button class="btn" style="flex:1;border:1.5px solid var(--border);font-size:13px"><i class="fab fa-google" style="color:#ea4335"></i> Google</button>
-        <button class="btn" style="flex:1;border:1.5px solid var(--border);font-size:13px"><i class="fab fa-facebook-f" style="color:#1877f2"></i> Facebook</button>
+    <div class="auth-form active" id="mf-login">
+      <div class="form-group"><label>Email hoặc SĐT</label><input type="text" placeholder="email@example.com hoặc 0909xxxxxx" id="login-user"></div>
+      <div class="form-group"><label>Mật khẩu</label><input type="password" placeholder="Nhập mật khẩu" id="login-pass"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px" onclick="doLogin()"><i class="fa fa-sign-in-alt"></i> Đăng nhập</button>
+      <p class="forgot-link"><a href="#">Quên mật khẩu?</a></p>
+      <div class="social-auth">
+        <button class="btn"><i class="fab fa-google" style="color:#ea4335"></i> Google</button>
+        <button class="btn"><i class="fab fa-facebook-f" style="color:#1877f2"></i> Facebook</button>
       </div>
     </div>
-    <div class="auth-form" id="auth-register">
+    <div class="auth-form" id="mf-register">
       <div class="form-row">
         <div class="form-group"><label>Họ tên *</label><input type="text" placeholder="Nguyễn Văn A" id="reg-name"></div>
         <div class="form-group"><label>SĐT *</label><input type="tel" placeholder="0909xxxxxx" id="reg-phone"></div>
@@ -882,14 +1045,17 @@ footer{background:var(--primary);color:#fff;padding:64px 0 24px}
           <option>Tất cả dịch vụ</option>
         </select>
       </div>
-      <button class="btn btn-accent" style="width:100%;margin-top:8px" onclick="doRegister()"><i class="fa fa-user-plus"></i> Tạo tài khoản miễn phí</button>
-      <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--muted)">Bằng cách đăng ký, bạn đồng ý với <a href="#" style="color:var(--accent)">Điều khoản dịch vụ</a> của chúng tôi.</p>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px" onclick="doRegister()"><i class="fa fa-user-plus"></i> Tạo tài khoản miễn phí</button>
+      <p class="terms-note">Bằng cách đăng ký, bạn đồng ý với <a href="#">Điều khoản dịch vụ</a> của chúng tôi.</p>
     </div>
   </div>
 </div>
 
 <!-- TOAST -->
-<div class="toast" id="toast"><i class="fa fa-check-circle" id="toast-icon"></i> <span id="toast-msg">Thành công!</span></div>
+<div class="toast" id="toast">
+  <i id="toast-icon" class="fa fa-check-circle"></i>
+  <span id="toast-msg">Thành công!</span>
+</div>
 
 <!-- CHAT FAB -->
 <button class="chat-fab" onclick="openChat()" title="Chat với chúng tôi">
@@ -898,14 +1064,14 @@ footer{background:var(--primary);color:#fff;padding:64px 0 24px}
 </button>
 
 <script>
-// ===== DATA =====
-const libraryData = {
+/* ===== DATA ===== */
+const libData = {
   law: [
-    {emoji:'⚖️',cat:'law',title:'Bộ Luật Dân sự 2015',desc:'Các quy định về quyền và nghĩa vụ dân sự, hợp đồng, tài sản',badge:'VN',date:'2015'},
+    {emoji:'⚖️',cat:'law',title:'Bộ Luật Dân sự 2015',desc:'Quy định về quyền và nghĩa vụ dân sự, hợp đồng, tài sản',badge:'VN',date:'2015'},
     {emoji:'📋',cat:'law',title:'Luật Doanh nghiệp 2020',desc:'Quy định về thành lập, tổ chức, quản lý và giải thể doanh nghiệp',badge:'VN',date:'2020'},
     {emoji:'🏦',cat:'law',title:'Luật Đầu tư 2020',desc:'Chính sách ưu đãi và điều kiện đầu tư trong nước và nước ngoài',badge:'VN',date:'2020'},
     {emoji:'🌐',cat:'law',title:'Công ước Vienna 1969',desc:'Luật quốc tế về điều ước quốc tế giữa các quốc gia',badge:'QT',date:'1969'},
-    {emoji:'📑',cat:'law',title:'Luật Lao động 2019',desc:'Quyền và nghĩa vụ người lao động, người sử dụng lao động',badge:'VN',date:'2019'},
+    {emoji:'📑',cat:'law',title:'Luật Lao động 2019',desc:'Quyền và nghĩa vụ người lao động và người sử dụng lao động',badge:'VN',date:'2019'},
     {emoji:'🔒',cat:'law',title:'Luật Bảo vệ Dữ liệu EU (GDPR)',desc:'Quy định bảo vệ dữ liệu cá nhân của Liên minh châu Âu',badge:'EU',date:'2018'},
   ],
   embassy: [
@@ -919,7 +1085,7 @@ const libraryData = {
   school: [
     {emoji:'🏫',cat:'school',title:'Đại học Melbourne',desc:'Top 33 thế giới. Úc. Học bổng Melbourne Model nhiều ngành học',badge:'QS #33',date:'Úc'},
     {emoji:'🎓',cat:'school',title:'University of Toronto',desc:'Top 21 thế giới. Canada. Học bổng Lester B. Pearson dành cho SV QT',badge:'QS #21',date:'Canada'},
-    {emoji:'🏛️',cat:'school',title:'Waseda University',desc:'Top 10 Nhật Bản. Chương trình học bằng tiếng Anh phong phú',badge:'Top 10 JP',date:'Nhật'},
+    {emoji:'🏛️',cat:'school',title:'Waseda University',desc:'Top 10 Nhật Bản. Chương trình học bằng tiếng Anh phong phú',badge:'Top 10',date:'Nhật'},
     {emoji:'🔬',cat:'school',title:'TU München (TUM)',desc:'Top 37 thế giới. Đức. Miễn học phí, nhiều học bổng DAAD',badge:'QS #37',date:'Đức'},
     {emoji:'📚',cat:'school',title:'National University Singapore',desc:'Top 8 thế giới. Singapore. Cổng vào Đông Nam Á',badge:'QS #8',date:'Singapore'},
     {emoji:'🌏',cat:'school',title:'Seoul National University',desc:'Top 41 thế giới. Hàn Quốc. Học bổng GKS Chính phủ Hàn',badge:'QS #41',date:'Hàn Quốc'},
@@ -932,174 +1098,168 @@ const libraryData = {
   ]
 };
 
-const aiData = [
-  {logo:'GPT',color:'linear-gradient(135deg,#10a37f,#1a7a5e)',name:'ChatGPT & OpenAI',desc:'Làm chủ ChatGPT từ cơ bản đến nâng cao. Prompt engineering, GPT-4o, API, Custom GPTs.',topics:['Prompt cơ bản','GPT-4o Vision','DALL-E 3','API OpenAI','Custom GPTs','ChatGPT Business']},
-  {logo:'Cl',color:'linear-gradient(135deg,#d97706,#b45309)',name:'Claude by Anthropic',desc:'Khai thác sức mạnh Claude 3.5 Sonnet. Phân tích tài liệu, lập trình, viết sáng tạo chuyên sâu.',topics:['Claude Sonnet','Artifacts','Projects','Phân tích PDF','Code Review','Claude API']},
-  {logo:'Ge',color:'linear-gradient(135deg,#4285f4,#0d47a1)',name:'Google Gemini',desc:'Gemini Ultra, Pro và tích hợp Google Workspace. Tạo nội dung đa phương thức mạnh mẽ.',topics:['Gemini 2.0','Google AI Studio','NotebookLM','Gemini API','Multimodal','Workspace AI']},
-  {logo:'Ki',color:'linear-gradient(135deg,#7c3aed,#4c1d95)',name:'Kling AI – Tạo phim',desc:'Tạo video AI chuyên nghiệp bằng Kling. Text-to-video, image-to-video, chỉnh sửa video AI.',topics:['Text-to-Video','Image-to-Video','Video chỉnh sửa','Nhân vật AI','Phim ngắn AI','Kỹ xảo AI']},
-  {logo:'♪',color:'linear-gradient(135deg,#ec4899,#9d174d)',name:'Tạo Nhạc AI',desc:'Suno, Udio, MusicGen — tạo nhạc từ văn bản. Sáng tác giai điệu, lời nhạc và bản phối.',topics:['Suno AI','Udio','MusicGen','Lời nhạc AI','Bản phối AI','Mastering AI']},
-  {logo:'🖼',color:'linear-gradient(135deg,#f59e0b,#b45309)',name:'Tạo Ảnh AI',desc:'Midjourney, Stable Diffusion, Firefly — tạo ảnh nghệ thuật, thiết kế và chỉnh sửa hình ảnh AI.',topics:['Midjourney V7','Stable Diffusion','Adobe Firefly','FLUX Model','Photoshop AI','Canva AI']},
+const aiCards = [
+  {logo:'GPT',bg:'#0d7a5f',name:'ChatGPT & OpenAI',desc:'Làm chủ ChatGPT từ cơ bản đến nâng cao. Prompt engineering, GPT-4o, API, Custom GPTs.',topics:['Prompt cơ bản','GPT-4o Vision','DALL-E 3','API OpenAI','Custom GPTs']},
+  {logo:'Cl',bg:'#b45309',name:'Claude by Anthropic',desc:'Khai thác sức mạnh Claude. Phân tích tài liệu, lập trình, viết sáng tạo chuyên sâu.',topics:['Claude Sonnet','Artifacts','Projects','Phân tích PDF','Code Review']},
+  {logo:'Ge',bg:'#1a56db',name:'Google Gemini',desc:'Gemini Ultra, Pro và tích hợp Google Workspace. Tạo nội dung đa phương thức mạnh mẽ.',topics:['Gemini 2.0','Google AI Studio','NotebookLM','Gemini API','Multimodal']},
+  {logo:'Ki',bg:'#6d28d9',name:'Kling AI – Tạo phim',desc:'Tạo video AI chuyên nghiệp. Text-to-video, image-to-video, chỉnh sửa video AI.',topics:['Text-to-Video','Image-to-Video','Nhân vật AI','Phim ngắn AI','Kỹ xảo AI']},
+  {logo:'♪',bg:'#be185d',name:'Tạo Nhạc AI',desc:'Suno, Udio, MusicGen — tạo nhạc từ văn bản. Sáng tác giai điệu và bản phối.',topics:['Suno AI','Udio','MusicGen','Lời nhạc AI','Mastering AI']},
+  {logo:'🖼',bg:'#b45309',name:'Tạo Ảnh AI',desc:'Midjourney, Stable Diffusion, Firefly — tạo ảnh nghệ thuật, thiết kế, chỉnh sửa AI.',topics:['Midjourney V7','Stable Diffusion','Adobe Firefly','FLUX Model','Canva AI']},
 ];
 
-// ===== INIT =====
-function renderLibrary(cat) {
-  const grid = document.getElementById('libraryGrid');
-  const items = libraryData[cat] || [];
+/* ===== RENDER ===== */
+let currentLib = 'law';
+
+function renderLib(cat) {
+  currentLib = cat;
+  const items = libData[cat] || [];
   const q = document.getElementById('libSearch').value.toLowerCase();
   const filtered = items.filter(i => !q || i.title.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q));
-  const catClass = {law:'law',embassy:'embassy',school:'school',visa:'school'}[cat]||'law';
-  grid.innerHTML = filtered.map(item => `
-    <div class="lib-card" onclick="showToast('Mở: '+this.querySelector('h4').textContent,'info')">
-      <div class="lib-card-img ${catClass}">${item.emoji}</div>
-      <div class="lib-card-body">
-        <h4>${item.title}</h4>
-        <p>${item.desc}</p>
-        <div class="lib-card-meta">
-          <span class="lib-badge">${item.badge}</span>
-          <span class="lib-date">${item.date}</span>
+  const catCls = {law:'law', embassy:'embassy', school:'school', visa:'school'}[cat] || 'law';
+  document.getElementById('libraryGrid').innerHTML = filtered.length
+    ? filtered.map(item => `
+      <div class="lib-card" onclick="showToast('Đang mở: '+${JSON.stringify(item.title)},'info')">
+        <div class="lib-card-img ${catCls}">${item.emoji}</div>
+        <div class="lib-card-body">
+          <h4>${item.title}</h4>
+          <p>${item.desc}</p>
+          <div class="lib-meta">
+            <span class="lib-badge">${item.badge}</span>
+            <span class="lib-date">${item.date}</span>
+          </div>
         </div>
-      </div>
-    </div>
-  `).join('') || '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:40px">Không tìm thấy kết quả phù hợp.</p>';
+      </div>`).join('')
+    : '<p style="color:#999;grid-column:1/-1;text-align:center;padding:32px">Không tìm thấy kết quả.</p>';
 }
 
 function renderAI() {
-  const grid = document.getElementById('aiGrid');
-  grid.innerHTML = aiData.map(a => `
+  document.getElementById('aiGrid').innerHTML = aiCards.map(a => `
     <div class="ai-card">
-      <div class="ai-card-logo" style="background:${a.color}">${a.logo}</div>
+      <div class="ai-logo" style="background:${a.bg}">${a.logo}</div>
       <h3>${a.name}</h3>
       <p>${a.desc}</p>
-      <div class="ai-topics">${a.topics.map(t=>`<span class="ai-topic" onclick="showToast('Mở bài học: ${t}','info')">${t}</span>`).join('')}</div>
-    </div>
-  `).join('');
+      <div class="ai-topics">${a.topics.map(t=>`<span class="ai-topic">${t}</span>`).join('')}</div>
+    </div>`).join('');
 }
 
-// ===== TABS =====
-let currentLib = 'law';
-function switchLib(cat) {
-  currentLib = cat;
-  document.querySelectorAll('.lib-tab').forEach((b,i)=>b.classList.toggle('active',['law','embassy','school','visa'][i]===cat));
-  renderLibrary(cat);
-}
-function filterLibrary() { renderLibrary(currentLib); }
+/* ===== TABS ===== */
 function switchTab(id) {
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['dichthuat','congnghe','hoso'][i]===id));
-  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-  const el = document.getElementById('tab-'+id);
-  if(el) el.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ['dichthuat','congnghe','hoso'][i] === id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('panel-' + id);
+  if (el) el.classList.add('active');
 }
 
-// ===== MODAL =====
+function switchLib(cat) {
+  document.querySelectorAll('.lib-tab').forEach((b,i) => b.classList.toggle('active', ['law','embassy','school','visa'][i] === cat));
+  renderLib(cat);
+}
+
+function filterLib() { renderLib(currentLib); }
+
+/* ===== MODAL ===== */
 function openModal(tab) {
   document.getElementById('authModal').classList.add('open');
-  switchAuthTab(tab||'login');
-  document.body.style.overflow='hidden';
+  switchAuth(tab || 'login');
+  document.body.style.overflow = 'hidden';
 }
 function closeModal() {
   document.getElementById('authModal').classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
-function closeModalOnOverlay(e) { if(e.target===e.currentTarget) closeModal(); }
-function switchAuthTab(tab) {
-  ['login','register'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
-    document.getElementById('auth-'+t).classList.toggle('active',t===tab);
+function closeModalOverlay(e) { if (e.target === e.currentTarget) closeModal(); }
+function switchAuth(tab) {
+  ['login','register'].forEach(t => {
+    document.getElementById('mtab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('mf-' + t).classList.toggle('active', t === tab);
   });
 }
 
-// ===== AUTH =====
+/* ===== AUTH ===== */
 function doLogin() {
-  const u=document.getElementById('login-user').value;
-  if(!u){showToast('Vui lòng nhập email hoặc SĐT','error');return;}
-  showToast('Đăng nhập thành công! Chào mừng bạn 👋','success');
+  const u = document.getElementById('login-user').value.trim();
+  if (!u) { showToast('Vui lòng nhập email hoặc SĐT', 'error'); return; }
+  showToast('Đăng nhập thành công! Chào mừng bạn 👋', 'success');
   closeModal();
 }
 function doRegister() {
-  const n=document.getElementById('reg-name').value;
-  const p=document.getElementById('reg-phone').value;
-  const e=document.getElementById('reg-email').value;
-  if(!n||!p||!e){showToast('Vui lòng điền đầy đủ thông tin bắt buộc','error');return;}
-  showToast('Đăng ký thành công! Kiểm tra email để xác nhận 🎉','success');
+  const n = document.getElementById('reg-name').value.trim();
+  const p = document.getElementById('reg-phone').value.trim();
+  const e = document.getElementById('reg-email').value.trim();
+  if (!n || !p || !e) { showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error'); return; }
+  showToast('Đăng ký thành công! Kiểm tra email để xác nhận 🎉', 'success');
   closeModal();
 }
 
-// ===== CONTACT =====
+/* ===== CONTACT ===== */
 function submitContact() {
-  const n=document.getElementById('cf-name').value;
-  const p=document.getElementById('cf-phone').value;
-  const s=document.getElementById('cf-service').value;
-  if(!n||!p||!s){showToast('Vui lòng điền tên, SĐT và chọn dịch vụ','error');return;}
-  showToast('Yêu cầu đã gửi! Chúng tôi sẽ liên hệ trong 30 phút ✅','success');
-  ['cf-name','cf-phone','cf-email','cf-company','cf-message'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('cf-service').value='';
+  const n = document.getElementById('cf-name').value.trim();
+  const p = document.getElementById('cf-phone').value.trim();
+  const s = document.getElementById('cf-service').value;
+  if (!n || !p || !s) { showToast('Vui lòng điền tên, SĐT và chọn dịch vụ', 'error'); return; }
+  showToast('Yêu cầu đã gửi! Chúng tôi sẽ liên hệ trong 30 phút ✅', 'success');
+  ['cf-name','cf-phone','cf-email','cf-company','cf-message'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cf-service').value = '';
 }
 
-// ===== IMPORT =====
+/* ===== IMPORT ===== */
 function triggerUpload() { document.getElementById('fileInput').click(); }
-function handleFileSelect(e) {
-  const file = e.target.files[0];
-  if(!file) return;
-  const zone = document.getElementById('uploadZone');
-  zone.innerHTML = `<i class="fa fa-file-check" style="color:var(--accent);font-size:32px;display:block;margin-bottom:12px"></i><p><strong style="color:#fff">Đã tải: ${file.name}</strong></p><small style="color:rgba(255,255,255,0.5)">${(file.size/1024).toFixed(1)} KB — Sẵn sàng phân tích</small>`;
-  showToast('File đã tải lên: ' + file.name,'success');
+function handleFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  document.getElementById('uploadZone').innerHTML = `<i class="fa fa-check-circle" style="color:var(--green);font-size:28px;display:block;margin-bottom:10px"></i><p><strong>Đã tải: ${f.name}</strong></p><small>${(f.size/1024).toFixed(1)} KB — Sẵn sàng phân tích</small>`;
+  showToast('File đã tải lên: ' + f.name, 'success');
 }
 function analyzeContent() {
   const txt = document.getElementById('pasteArea').value.trim();
-  const result = document.getElementById('analysisResult');
-  if(!txt){showToast('Vui lòng dán nội dung hoặc tải file trước','error');return;}
-  result.style.display='block';
-  result.innerHTML='<i class="fa fa-spinner fa-spin" style="color:var(--accent)"></i> Đang phân tích AI...';
-  setTimeout(()=>{
-    let type = txt.startsWith('{') || txt.startsWith('[') ? 'JSON' : 'văn bản thường';
-    result.innerHTML = `✅ <strong>Phân tích hoàn tất</strong><br>Loại: <span style="color:var(--accent)">${type}</span> · Độ dài: ${txt.length} ký tự<br>Phát hiện ${Math.floor(txt.split(' ').length/10+1)} chủ đề chính · Sẵn sàng nhập vào cơ sở dữ liệu.`;
+  const res = document.getElementById('analysisResult');
+  if (!txt) { showToast('Vui lòng dán nội dung hoặc tải file trước', 'error'); return; }
+  res.style.display = 'block';
+  res.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang phân tích AI...';
+  setTimeout(() => {
+    const type = txt.startsWith('{') || txt.startsWith('[') ? 'JSON' : 'Văn bản thường';
+    res.innerHTML = `✅ <strong>Phân tích hoàn tất</strong> — Loại: ${type} · ${txt.length} ký tự · Sẵn sàng nhập vào hệ thống.`;
   }, 1500);
 }
 function importData() {
   const txt = document.getElementById('pasteArea').value.trim();
-  if(!txt){showToast('Không có dữ liệu để nhập','error');return;}
-  showToast('Dữ liệu đã nhập thành công vào hệ thống ✅','success');
+  if (!txt) { showToast('Không có dữ liệu để nhập', 'error'); return; }
+  showToast('Dữ liệu đã nhập thành công vào hệ thống ✅', 'success');
 }
 
-// ===== TOAST =====
-function showToast(msg, type='success') {
-  const t=document.getElementById('toast');
-  const i=document.getElementById('toast-icon');
-  document.getElementById('toast-msg').textContent=msg;
-  t.className='toast '+(type||'success');
-  i.className='fa '+(type==='error'?'fa-exclamation-circle':type==='info'?'fa-info-circle':'fa-check-circle');
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3500);
+/* ===== TOAST ===== */
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+  document.getElementById('toast-icon').className = 'fa ' + (icons[type] || icons.success);
+  document.getElementById('toast-msg').textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// ===== MOBILE MENU =====
-function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
-function closeMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
+/* ===== MOBILE NAV ===== */
+function toggleMobileNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+function closeMobile() { document.getElementById('mobileNav').classList.remove('open'); }
 
-// ===== CHAT =====
-function openChat() { showToast('Đang kết nối Zalo/WhatsApp: 0909 108 890 📱','info'); }
+/* ===== CHAT ===== */
+function openChat() { showToast('Đang kết nối Zalo/WhatsApp: 0909 108 890 📱', 'info'); }
 
-// ===== NAV SCROLL =====
-window.addEventListener('scroll',()=>{
-  const nav=document.getElementById('mainNav');
-  if(window.scrollY>50){ nav.style.boxShadow='0 4px 24px rgba(0,0,0,0.25)'; }
-  else { nav.style.boxShadow='none'; }
+/* ===== NAV SCROLL ===== */
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').style.boxShadow = window.scrollY > 40
+    ? '0 2px 16px rgba(0,0,0,0.12)' : '0 2px 8px rgba(0,0,0,0.08)';
 });
 
-// ===== DRAG DROP =====
+/* ===== DRAG DROP ===== */
 const zone = document.getElementById('uploadZone');
-if(zone){
-  zone.addEventListener('dragover',e=>{e.preventDefault();zone.style.borderColor='var(--accent)';zone.style.background='rgba(0,194,203,0.15)'});
-  zone.addEventListener('dragleave',()=>{zone.style.borderColor='rgba(0,194,203,0.5)';zone.style.background='rgba(255,255,255,0.08)'});
-  zone.addEventListener('drop',e=>{
-    e.preventDefault();
-    const f=e.dataTransfer.files[0];
-    if(f){ handleFileSelect({target:{files:[f]}}); }
-  });
+if (zone) {
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--accent)'; });
+  zone.addEventListener('dragleave', () => { zone.style.borderColor = 'var(--border)'; });
+  zone.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile({target:{files:[f]}}); });
 }
 
-// ===== INIT =====
-renderLibrary('law');
+/* ===== INIT ===== */
+renderLib('law');
 renderAI();
 </script>
 </body>

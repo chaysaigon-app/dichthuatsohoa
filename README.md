@@ -1,30 +1,32 @@
-# Dịch Thuật Số Hóa — Website Files
+# TECHTRA – Công ty Cổ phần Công nghệ & Dịch thuật Số hoá
 
-Website: dichthuatsohoa.com
-GitHub: github.com/chaysaigon-app/dichthuatsohoa
+Website chính thức của TECHTRA — Giải pháp dịch thuật chuyên nghiệp, thiết kế thương hiệu và phần mềm doanh nghiệp.
 
-## Các file trong thư mục này
+## Cấu trúc
 
-| File | Mục đích |
-|------|----------|
-| `index.html` | Trang chủ website công khai |
-| `admin.html` | Trang quản trị nội bộ |
-| `HUONG_DAN_FIREBASE.html` | Hướng dẫn thiết lập Firebase (mở bằng trình duyệt) |
-| `qr-zalo.jpg` | Ảnh QR code Zalo (thêm ảnh thật vào đây) |
+```
+dichthuatsohoa/
+├── index.html          # Trang chủ chính
+├── index1.html         # Phiên bản dự phòng
+├── admin.html          # Trang quản trị
+├── HUONG_DAN_FIREBASE.html  # Hướng dẫn Firebase
+└── README.md
+```
 
-## Cách upload lên GitHub
+## Tính năng
 
-1. Mở **GitHub Desktop**
-2. Kéo toàn bộ thư mục này vào GitHub Desktop
-3. Điền ghi chú → bấm **Commit to main** → bấm **Push origin**
-4. Vercel tự động cập nhật trong ~1 phút
+- Giới thiệu dịch vụ: Dịch thuật, Công nghệ, Hồ sơ pháp lý
+- Thư viện tra cứu: Pháp luật, Đại sứ quán, Trường du học
+- Trung tâm học AI
+- Gói thành viên
+- Form liên hệ & báo giá
 
-## Thiết lập Firebase
+## Thông tin
 
-Mở file `HUONG_DAN_FIREBASE.html` bằng trình duyệt và làm theo hướng dẫn.
+- **Địa chỉ**: Phòng 14, 35 Nguyễn Văn Tráng, P. Bến Thành, TP.HCM
+- **Zalo/WhatsApp**: 0909 108 890
+- **Email**: info@techtra.vn
 
-## Liên hệ
+## Deploy
 
-- Email: sohoavn@gmail.com
-- Zalo: 0778-752-214
-- WhatsApp: 0909-108-890
+Website được deploy qua GitHub Pages.
