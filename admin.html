@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – Dịch Thuật Số Hóa</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Barlow+Condensed:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060810;--sf:#0c1221;--s2:#121a2e;--s3:#18223a;
+  --ac:#00c896;--ac2:#ff6b35;--ac3:#5b5ef4;--ac4:#f59e0b;
+  --tx:#e2eaf6;--mt:#607090;--br:rgba(0,200,150,.12);
+  --r:12px;--ff:'Nunito',sans-serif;--fh:'Barlow Condensed',sans-serif;--fm:'JetBrains Mono',monospace;
+  --sb:230px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--ff);font-size:14px;display:flex;min-height:100vh}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--ac);border-radius:3px}
+a{text-decoration:none;color:inherit}
+
+/* SIDEBAR */
+.sb{width:var(--sb);min-height:100vh;background:var(--sf);border-right:1px solid var(--br);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.sb-logo{padding:16px 14px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:10px}
+.lm{width:34px;height:34px;background:linear-gradient(135deg,var(--ac),var(--ac3));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.lt b{display:block;font-family:var(--fh);font-size:15px;font-weight:800;line-height:1.1}
+.lt small{font-size:9px;color:var(--ac);font-family:var(--fm);letter-spacing:1.5px}
+.sb-u{padding:12px 14px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:10px}
+.av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac3),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.un{font-size:13px;font-weight:700;line-height:1.2}
+.ur{font-size:10px;color:var(--ac);font-family:var(--fm)}
+.sb-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.ns{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--mt);text-transform:uppercase;padding:10px 8px 5px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;color:var(--mt);font-size:13px;font-weight:700;transition:all .2s;margin-bottom:2px}
+.ni:hover{color:var(--tx);background:rgba(255,255,255,.04)}
+.ni.on{color:var(--ac);background:rgba(0,200,150,.1)}
+.ni .ic{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nbadge{margin-left:auto;background:var(--ac2);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:50px}
+.sb-bot{padding:12px;border-top:1px solid var(--br)}
+.sb-bot button{width:100%;background:none;border:1px solid var(--br);color:var(--mt);font-size:12px;font-weight:700;padding:8px;border-radius:8px;cursor:pointer;font-family:var(--ff);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.sb-bot button:hover{border-color:var(--ac);color:var(--ac)}
+
+/* MAIN */
+.main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--sf);border-bottom:1px solid var(--br);padding:0 22px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.tb-l h2{font-family:var(--fh);font-size:20px;font-weight:800;line-height:1.1}
+.tb-l p{font-size:11px;color:var(--mt)}
+.tb-r{display:flex;gap:8px;align-items:center}
+.tbtn{background:var(--s2);border:1px solid var(--br);color:var(--tx);font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--ff);transition:all .2s;display:flex;align-items:center;gap:6px}
+.tbtn:hover{border-color:var(--ac);color:var(--ac)}
+.tbtn.pr{background:var(--ac);border-color:var(--ac);color:#060810}
+.tbtn.pr:hover{opacity:.85}
+.content{flex:1;padding:22px;overflow-y:auto}
+
+/* PAGES */
+.page{display:none}.page.on{display:block}
+
+/* STATS */
+.srow{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:14px;margin-bottom:22px}
+.sc2{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:18px}
+.sc2-lb{font-size:10px;color:var(--mt);font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px}
+.sc2-n{font-family:var(--fh);font-size:1.9rem;font-weight:800;line-height:1}
+.sc2-s{font-size:11px;color:var(--mt);margin-top:5px}
+.sc2-up{color:#34d399}
+
+/* PANEL */
+.panel{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.ph{padding:14px 18px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ph h3{font-size:14px;font-weight:800}
+.ph-r{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.sinp{background:var(--s2);border:1px solid var(--br);border-radius:8px;padding:7px 11px;color:var(--tx);font-size:12px;font-family:var(--ff);outline:none;width:190px;transition:border-color .2s}
+.sinp:focus{border-color:var(--ac)}
+.sinp::placeholder{color:var(--mt)}
+.ssel{background:var(--s2);border:1px solid var(--br);border-radius:8px;padding:7px 11px;color:var(--tx);font-size:12px;font-family:var(--ff);outline:none;cursor:pointer}
+.ssel option{background:var(--s2)}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{background:var(--s2);color:var(--mt);font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid var(--br)}
+td{padding:11px 14px;border-bottom:1px solid var(--br);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(0,200,150,.018)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:50px;letter-spacing:.2px;white-space:nowrap}
+.bn{background:rgba(91,94,244,.15);color:#9396f8}
+.bp{background:rgba(245,158,11,.12);color:#f59e0b}
+.bd{background:rgba(52,211,153,.12);color:#34d399}
+.bc{background:rgba(255,107,53,.12);color:var(--ac2)}
+.bu{background:rgba(255,107,53,.18);color:var(--ac2)}
+.abts{display:flex;gap:5px;flex-wrap:wrap}
+.ab{background:var(--s2);border:1px solid var(--br);color:var(--mt);font-size:11px;padding:5px 9px;border-radius:7px;cursor:pointer;font-family:var(--ff);font-weight:700;transition:all .2s;white-space:nowrap}
+.ab:hover{border-color:var(--ac);color:var(--ac)}
+.ab.red:hover{border-color:var(--ac2);color:var(--ac2)}
+.mono{font-family:var(--fm)}
+.fw8{font-weight:800}
+.tx-ac{color:var(--ac)}
+.tx-mt{color:var(--mt)}
+.tx-sm{font-size:12px}
+.tx-xs{font-size:11px}
+
+/* PROGRESS STEPS */
+.pstep{display:flex;align-items:center;flex-wrap:nowrap}
+.ps{width:24px;height:24px;border-radius:50%;border:2px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;background:var(--s2);color:var(--mt);flex-shrink:0;transition:all .3s}
+.ps.done{background:var(--ac);border-color:var(--ac);color:#060810}
+.ps.cur{background:var(--ac3);border-color:var(--ac3);color:#fff;box-shadow:0 0 0 3px rgba(91,94,244,.25)}
+.pl{width:26px;height:2px;background:var(--br);margin:0 2px;flex-shrink:0}
+.pl.done{background:var(--ac)}
+
+/* FORM GRID */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:10px;font-weight:800;color:var(--mt);letter-spacing:.4px;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{background:var(--s2);border:1px solid var(--br);border-radius:8px;padding:8px 11px;color:var(--tx);font-size:13px;font-family:var(--ff);outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--ac)}
+.fg select option{background:var(--s2)}
+.fg textarea{resize:vertical;min-height:72px}
+.fg.full{grid-column:1/-1}
+.fma{padding:14px 18px;border-top:1px solid var(--br);display:flex;gap:9px;justify-content:flex-end}
+
+/* REVENUE CHART */
+.rch{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:18px;margin-bottom:18px}
+.bars{display:flex;align-items:flex-end;gap:10px;height:130px;margin-top:18px}
+.bw{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.bar{width:100%;border-radius:5px 5px 0 0;cursor:pointer;min-height:3px;transition:opacity .2s}
+.bar:hover{opacity:.75}
+.bv{font-size:9px;color:var(--tx);font-weight:700;font-family:var(--fm);white-space:nowrap}
+.bl{font-size:9px;color:var(--mt);font-weight:700}
+
+/* CUSTOMER CARDS */
+.kh-card{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:15px 18px;display:flex;align-items:center;gap:13px;margin-bottom:11px;cursor:pointer;transition:border-color .2s}
+.kh-card:hover{border-color:rgba(0,200,150,.25)}
+.kh-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.kh-n{font-size:14px;font-weight:800;margin-bottom:2px}
+.kh-i{font-size:11px;color:var(--mt)}
+
+/* INVOICE */
+.inv{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:18px;margin-bottom:11px}
+.inv-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.inv-n{font-family:var(--fm);font-size:12px;color:var(--ac);font-weight:700}
+.inv-a{font-family:var(--fh);font-size:1.6rem;font-weight:800;color:var(--ac)}
+.inv-d{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:12px}
+.inv-d h5{color:var(--mt);font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(6,8,16,.92);backdrop-filter:blur(10px);z-index:9000;align-items:center;justify-content:center}
+.ov.open{display:flex}
+.modal{background:var(--sf);border:1px solid var(--br);border-radius:16px;padding:30px;width:90%;max-width:480px;position:relative;max-height:92vh;overflow-y:auto;animation:mani .3s ease}
+.modal.wide{max-width:660px}
+@keyframes mani{from{opacity:0;transform:scale(.93) translateY(14px)}to{opacity:1;transform:scale(1)}}
+.mcl{position:absolute;top:12px;right:12px;background:var(--s2);border:1px solid var(--br);color:var(--mt);width:28px;height:28px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-family:var(--ff)}
+.mcl:hover{border-color:var(--ac2);color:var(--ac2)}
+.modal h2{font-family:var(--fh);font-size:22px;font-weight:800;margin-bottom:18px}
+.modal .fg{margin-bottom:13px}
+.modal .fg label{display:block}
+.modal .fg input,.modal .fg select,.modal .fg textarea{width:100%}
+.modal-f{display:flex;gap:9px;margin-top:18px;justify-content:flex-end}
+.mfsub{background:var(--ac);border:none;color:#060810;font-size:13px;font-weight:800;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:var(--ff)}
+
+/* WALK-IN */
+.wi-form{background:var(--s2);border:1px solid var(--br);border-radius:var(--r);padding:18px;margin-bottom:18px}
+.wi-form h3{font-size:14px;font-weight:800;margin-bottom:14px}
+
+/* PCAT */
+.pcat{display:inline-block;font-size:10px;padding:2px 8px;border-radius:50px;font-weight:700;letter-spacing:.4px}
+
+/* PROD GRID */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;padding:16px}
+.pcard{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:16px;transition:border-color .2s}
+.pcard:hover{border-color:rgba(0,200,150,.22)}
+.pcard-ic{font-size:22px;margin-bottom:10px}
+.pcard-n{font-size:14px;font-weight:800;margin-bottom:4px}
+.pcard-d{font-size:12px;color:var(--mt);line-height:1.6;margin-bottom:10px}
+.pcard-p{font-family:var(--fm);font-size:12px;color:var(--ac);font-weight:700}
+.pcard-a{display:flex;gap:7px;margin-top:10px}
+
+/* GRID 2 */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* STAFF ROLE */
+.trole{font-size:9px;padding:2px 8px;border-radius:50px;font-weight:700;letter-spacing:.4px}
+.r-sa{background:rgba(255,107,53,.12);color:var(--ac2)}
+.r-nv{background:rgba(0,200,150,.1);color:var(--ac)}
+.r-xb{background:rgba(91,94,244,.12);color:#9396f8}
+
+/* UPLOAD ZONE */
+.upz{background:var(--s2);border:2px dashed var(--br);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:all .3s;margin-top:10px}
+.upz:hover{border-color:var(--ac);background:rgba(0,200,150,.02)}
+.upz p{font-size:11px;color:var(--mt);margin-top:5px}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--sf);border:1px solid var(--ac);border-radius:10px;padding:11px 16px;font-size:13px;font-weight:700;color:var(--ac);z-index:9999;transform:translateY(70px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* PRINT STAGES */
+.psp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.pss{background:var(--s2);border:1px solid var(--br);border-radius:9px;padding:11px;text-align:center;cursor:pointer;transition:all .2s;font-size:11px;font-weight:700}
+.pss:hover{border-color:rgba(0,200,150,.2)}
+.pss.act{border-color:var(--ac);background:rgba(0,200,150,.06);color:var(--ac)}
+.pss .pic{font-size:18px;margin-bottom:4px}
+
+@media(max-width:768px){.sb{width:54px}.sb .lt,.sb .un,.sb .ur,.sb .ns,.sb-u .flex span{display:none}.main{margin-left:54px}.fg2,.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo"><div class="lm">DTS</div><div class="lt"><b>DIGITRANS</b><small>ADMIN</small></div></div>
+  <div class="sb-u"><div class="av">👤</div><div><div class="un">Quản trị viên</div><div class="ur">Super Admin</div></div></div>
+  <nav class="sb-nav">
+    <div class="ns">Tổng quan</div>
+    <div class="ni on" onclick="go('dashboard')"><span class="ic">📊</span>Dashboard</div>
+    <div class="ns">Đơn hàng</div>
+    <div class="ni" onclick="go('orders')"><span class="ic">📋</span>Quản lý đơn hàng<span class="nbadge">5</span></div>
+    <div class="ni" onclick="go('quotes')"><span class="ic">💰</span>Báo giá</div>
+    <div class="ni" onclick="go('print')"><span class="ic">🖨️</span>Theo dõi in ấn</div>
+    <div class="ni" onclick="go('walkin')"><span class="ic">🚶</span>Khách vãng lai</div>
+    <div class="ns">Khách hàng</div>
+    <div class="ni" onclick="go('customers')"><span class="ic">👥</span>Quản lý KH</div>
+    <div class="ni" onclick="go('members')"><span class="ic">🎖️</span>Thành viên</div>
+    <div class="ns">Tài chính</div>
+    <div class="ni" onclick="go('invoices')"><span class="ic">🧾</span>Hoá đơn & VAT</div>
+    <div class="ni" onclick="go('revenue')"><span class="ic">📈</span>Báo cáo doanh thu</div>
+    <div class="ns">Hệ thống</div>
+    <div class="ni" onclick="go('products')"><span class="ic">🛒</span>Sản phẩm & Dịch vụ</div>
+    <div class="ni" onclick="go('staff')"><span class="ic">👨‍💼</span>Nhân viên & Quyền</div>
+    <div class="ni" onclick="go('settings')"><span class="ic">⚙️</span>Cài đặt</div>
+  </nav>
+  <div class="sb-bot"><button onclick="window.open('index.html','_blank')">🌐 Xem website</button></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tb-l"><h2 id="ptitle">Dashboard</h2><p id="psub">Tổng quan hệ thống</p></div>
+    <div class="tb-r">
+      <button class="tbtn">🔔</button>
+      <button class="tbtn pr" onclick="topAct()">＋ Tạo mới</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page on" id="page-dashboard">
+      <div class="srow">
+        <div class="sc2"><div class="sc2-lb">Đơn hàng hôm nay</div><div class="sc2-n" style="color:var(--ac)">7</div><div class="sc2-s sc2-up">▲ +2 so hôm qua</div></div>
+        <div class="sc2"><div class="sc2-lb">Doanh thu tháng</div><div class="sc2-n" style="color:var(--ac4)">84.5M</div><div class="sc2-s sc2-up">▲ 22%</div></div>
+        <div class="sc2"><div class="sc2-lb">Đang xử lý</div><div class="sc2-n" style="color:var(--ac3)">5</div><div class="sc2-s tx-mt">Cần xử lý hôm nay</div></div>
+        <div class="sc2"><div class="sc2-lb">KH mới tháng này</div><div class="sc2-n" style="color:var(--ac2)">18</div></div>
+        <div class="sc2"><div class="sc2-lb">VAT phải nộp</div><div class="sc2-n" style="color:var(--ac4)">8.45M</div><div class="sc2-s tx-mt">Quý 4/2024</div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>📋 Đơn hàng mới nhất</h3><button class="tbtn" onclick="go('orders')">Xem tất cả →</button></div>
+        <div class="tw"><table>
+          <thead><tr><th>Mã</th><th>Khách hàng</th><th>Dịch vụ</th><th>NV phụ trách</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+          <tbody>
+            <tr><td class="mono tx-ac">#DTS001</td><td><div class="fw8">ABC Corp Ltd</div><div class="tx-xs tx-mt">FDI – Thành lập DN</div></td><td>Hồ sơ FDI</td><td>Lan Anh</td><td><span class="badge bp">⏳ Đang xử lý</span></td><td><div class="abts"><button class="ab" onclick="openDet('DTS001')">Chi tiết</button></div></td></tr>
+            <tr><td class="mono tx-ac">#DTS002</td><td><div class="fw8">Nguyễn Thị B</div><div class="tx-xs tx-mt">Du học Úc</div></td><td>Hồ sơ Du học</td><td>Minh Tuấn</td><td><span class="badge bn">🆕 Mới</span></td><td><div class="abts"><button class="ab" onclick="openDet('DTS002')">Chi tiết</button></div></td></tr>
+            <tr><td class="mono tx-ac">#DTS003</td><td><div class="fw8">Mr. James Wilson</div><div class="tx-xs tx-mt">Visa Business</div></td><td>Visa / Xuất cảnh</td><td>Thu Hằng</td><td><span class="badge bd">✅ Hoàn thành</span></td><td><div class="abts"><button class="ab" onclick="showToast('📤 Gửi file cho KH')">📤 Gửi</button></div></td></tr>
+            <tr><td class="mono tx-ac">#DTS004</td><td><div class="fw8">XYZ Holdings</div><div class="tx-xs tx-mt">Apostille 5 bộ</div></td><td>Hợp pháp hóa LS</td><td>–</td><td><span class="badge bu">🔥 Hỏa tốc</span></td><td><div class="abts"><button class="ab" onclick="openDet('DTS004')">Chi tiết</button><button class="ab" onclick="showToast('👤 Phân công NV')">Phân công</button></div></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="srow">
+        <div class="sc2"><div class="sc2-lb">Tổng đơn</div><div class="sc2-n" style="color:var(--ac)">142</div></div>
+        <div class="sc2"><div class="sc2-lb">Đang xử lý</div><div class="sc2-n" style="color:var(--ac3)">5</div></div>
+        <div class="sc2"><div class="sc2-lb">Hoàn thành T12</div><div class="sc2-n" style="color:#34d399">38</div></div>
+        <div class="sc2"><div class="sc2-lb">Hỏa tốc</div><div class="sc2-n" style="color:var(--ac2)">2</div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>📋 Tất cả đơn hàng</h3>
+          <div class="ph-r">
+            <input class="sinp" placeholder="Tìm mã, khách hàng...">
+            <select class="ssel"><option>Tất cả</option><option>Mới</option><option>Đang xử lý</option><option>Hoàn thành</option><option>Hỏa tốc</option></select>
+            <button class="tbtn pr" onclick="openM('new-order')">＋ Đơn mới</button>
+          </div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Mã</th><th>Ngày</th><th>Khách hàng</th><th>Dịch vụ</th><th>NV</th><th>Giá trị</th><th>Trạng thái</th><th>Tiến độ</th><th>Thao tác</th></tr></thead>
+          <tbody>
+            <tr><td class="mono tx-ac">#DTS001</td><td class="tx-sm tx-mt">15/12</td><td><div class="fw8">ABC Corp</div><div class="tx-xs tx-mt">0909108890</div></td><td>Hồ sơ FDI<br><span class="tx-xs tx-mt">12 tài liệu</span></td><td>Lan Anh</td><td class="mono tx-ac fw8">4.500.000đ</td><td><span class="badge bp">⏳ Xử lý</span></td><td><div class="pstep"><div class="ps done">1</div><div class="pl done"></div><div class="ps done">2</div><div class="pl done"></div><div class="ps cur">3</div><div class="pl"></div><div class="ps">4</div></div></td><td><div class="abts"><button class="ab" onclick="openDet('DTS001')">📋</button><button class="ab" onclick="showToast('📤 Gửi file KH')">📤</button></div></td></tr>
+            <tr><td class="mono tx-ac">#DTS002</td><td class="tx-sm tx-mt">15/12</td><td><div class="fw8">Nguyễn Thị B</div><div class="tx-xs tx-mt">0778752214</div></td><td>Du học Úc<br><span class="tx-xs tx-mt">Bảng điểm, bằng</span></td><td>Minh Tuấn</td><td class="mono tx-ac fw8">1.200.000đ</td><td><span class="badge bn">🆕 Mới</span></td><td><div class="pstep"><div class="ps cur">1</div><div class="pl"></div><div class="ps">2</div><div class="pl"></div><div class="ps">3</div><div class="pl"></div><div class="ps">4</div></div></td><td><div class="abts"><button class="ab" onclick="openDet('DTS002')">📋</button></div></td></tr>
+            <tr><td class="mono tx-ac">#DTS003</td><td class="tx-sm tx-mt">14/12</td><td><div class="fw8">James Wilson</div><div class="tx-xs tx-mt">WhatsApp</div></td><td>Visa Business<br><span class="tx-xs tx-mt">EN–VI</span></td><td>Thu Hằng</td><td class="mono tx-ac fw8">800.000đ</td><td><span class="badge bd">✅ Xong</span></td><td><div class="pstep"><div class="ps done">1</div><div class="pl done"></div><div class="ps done">2</div><div class="pl done"></div><div class="ps done">3</div><div class="pl done"></div><div class="ps done">4</div></div></td><td><div class="abts"><button class="ab" onclick="showToast('🖨️ In phiếu')">🖨️</button><button class="ab" onclick="showToast('📤 Gửi file')">📤</button></div></td></tr>
+            <tr><td class="mono tx-ac">#DTS004</td><td class="tx-sm tx-mt">15/12</td><td><div class="fw8">XYZ Holdings</div></td><td>Apostille 5 bộ</td><td>–</td><td class="mono tx-ac fw8">6.000.000đ</td><td><span class="badge bu">🔥 Hỏa tốc</span></td><td><div class="pstep"><div class="ps done">1</div><div class="pl"></div><div class="ps">2</div><div class="pl"></div><div class="ps">3</div><div class="pl"></div><div class="ps">4</div></div></td><td><div class="abts"><button class="ab" onclick="showToast('👤 Phân công')">👤</button></div></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- QUOTES -->
+    <div class="page" id="page-quotes">
+      <div class="panel">
+        <div class="ph"><h3>💰 Quản lý Báo giá</h3><button class="tbtn pr" onclick="openM('new-quote')">＋ Tạo báo giá</button></div>
+        <div class="tw"><table>
+          <thead><tr><th>Mã BG</th><th>Khách hàng</th><th>Dịch vụ</th><th>Tổng tiền</th><th>File BG</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+          <tbody>
+            <tr><td class="mono tx-ac">#BG001</td><td>ABC Corp Ltd</td><td>Hồ sơ FDI 12 tài liệu</td><td class="mono fw8">4.500.000đ</td><td><button class="ab" onclick="showToast('📎 BG001.pdf')">📎 BG001.pdf</button></td><td><span class="badge bp">⏳ Chờ duyệt</span></td><td><div class="abts"><button class="ab" onclick="showToast('✅ Đã duyệt')">✅ Duyệt</button><button class="ab" onclick="showToast('📤 Gửi KH')">📤 Gửi</button></div></td></tr>
+            <tr><td class="mono tx-ac">#BG002</td><td>Nguyễn Văn C</td><td>Hồ sơ định cư Canada</td><td class="mono fw8">3.200.000đ</td><td><button class="ab" onclick="showToast('📎 BG002.pdf')">📎 BG002.pdf</button></td><td><span class="badge bd">✅ Đã duyệt</span></td><td><div class="abts"><button class="ab" onclick="showToast('📋 Tạo đơn hàng từ BG')">📋 Tạo ĐH</button></div></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PRINT -->
+    <div class="page" id="page-print">
+      <div class="panel">
+        <div class="ph"><h3>🖨️ Theo dõi in ấn</h3><button class="tbtn pr" onclick="openM('new-print')">＋ Đơn in mới</button></div>
+        <div style="padding:16px">
+          <div class="tw"><table>
+            <thead><tr><th>Mã</th><th>Sản phẩm</th><th>Khách hàng</th><th>SL</th><th>File thiết kế</th><th>File thành phẩm</th><th>Giai đoạn</th><th>Thao tác</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="mono tx-ac">#IN001</td>
+                <td><div class="fw8">Name Card</div><div class="tx-xs tx-mt">2 mặt Couche 350gsm</div></td>
+                <td>Trần Thị D</td><td class="mono">200 tờ</td>
+                <td><button class="ab" onclick="showToast('📁 namecardD.ai')">📁 .AI</button></td>
+                <td><button class="ab" onclick="showToast('📁 thanh_pham.pdf')">📁 PDF</button></td>
+                <td><div class="psp">
+                  <div class="pss act"><div class="pic">📥</div>Nhận đơn</div>
+                  <div class="pss act"><div class="pic">🎨</div>Thiết kế</div>
+                  <div class="pss act"><div class="pic">✅</div>KH duyệt</div>
+                  <div class="pss act"><div class="pic">🖨️</div>In xong</div>
+                </div></td>
+                <td><div class="abts"><button class="ab" onclick="showToast('📦 Đã giao hàng')">📦 Giao</button></div></td>
+              </tr>
+              <tr>
+                <td class="mono tx-ac">#IN002</td>
+                <td><div class="fw8">Brochure A4</div><div class="tx-xs tx-mt">4 trang, 2 mặt</div></td>
+                <td>Nam Phát Co.</td><td class="mono">100 bộ</td>
+                <td><button class="ab" onclick="showToast('📁 brochure_namphat.psd')">📁 .PSD</button></td>
+                <td><span class="tx-xs tx-mt">Chưa có</span></td>
+                <td><div class="psp">
+                  <div class="pss act"><div class="pic">📥</div>Nhận đơn</div>
+                  <div class="pss act"><div class="pic">🎨</div>Thiết kế</div>
+                  <div class="pss"><div class="pic">✅</div>KH duyệt</div>
+                  <div class="pss"><div class="pic">🖨️</div>In ấn</div>
+                </div></td>
+                <td><div class="abts"><button class="ab" onclick="showToast('📤 Gửi thiết kế cho KH duyệt')">📤 Gửi KH</button></div></td>
+              </tr>
+            </tbody>
+          </table></div>
+          <div class="upz" onclick="showToast('📁 Mở upload file')"><div style="font-size:26px">📤</div><p>Upload file thiết kế / thành phẩm (AI, PSD, PDF, PNG)</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WALK-IN -->
+    <div class="page" id="page-walkin">
+      <div class="wi-form">
+        <h3>🚶 Tiếp nhận khách vãng lai</h3>
+        <div class="fg2">
+          <div class="fg"><label>Họ tên khách</label><input type="text" placeholder="Nguyễn Văn A"></div>
+          <div class="fg"><label>Điện thoại</label><input type="tel" placeholder="0909 108 890"></div>
+          <div class="fg"><label>Dịch vụ yêu cầu</label><select><option>Dịch thuật phổ thông</option><option>Công chứng bản dịch</option><option>Tư vấn hồ sơ FDI</option><option>Visa / Du học</option><option>Hợp pháp hóa LS</option><option>Khác</option></select></div>
+          <div class="fg"><label>NV tiếp nhận</label><select><option>Lan Anh</option><option>Minh Tuấn</option><option>Thu Hằng</option></select></div>
+          <div class="fg"><label>TT thanh toán</label><select><option>Tiền mặt</option><option>Chuyển khoản</option><option>Zalo Pay</option></select></div>
+          <div class="fg"><label>Tạm ứng (đồng)</label><input type="number" placeholder="0"></div>
+          <div class="fg full"><label>Ghi chú</label><textarea placeholder="Mô tả chi tiết yêu cầu..."></textarea></div>
+        </div>
+        <div class="fma">
+          <button class="tbtn" onclick="showToast('🖨️ In phiếu tiếp nhận')">🖨️ In phiếu</button>
+          <button class="tbtn pr" onclick="showToast('✅ Đã tạo đơn vãng lai #WI001')">✅ Tạo đơn</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>📋 Lịch sử vãng lai hôm nay</h3></div>
+        <div class="tw"><table>
+          <thead><tr><th>Giờ</th><th>Họ tên</th><th>Dịch vụ</th><th>NV tiếp</th><th>TT</th><th>Tạm ứng</th></tr></thead>
+          <tbody>
+            <tr><td class="mono tx-mt">08:45</td><td>Lê Văn E</td><td>Công chứng hộ chiếu Anh–Việt</td><td>Lan Anh</td><td><span class="badge bd">✅ Đã TT</span></td><td class="mono">200.000đ</td></tr>
+            <tr><td class="mono tx-mt">10:20</td><td>Ms. Sarah K.</td><td>Visa Business documents</td><td>Thu Hằng</td><td><span class="badge bp">⏳ Chờ TT</span></td><td class="mono">0đ</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="page" id="page-customers">
+      <div class="panel">
+        <div class="ph"><h3>👥 Quản lý Khách hàng</h3><div class="ph-r"><input class="sinp" placeholder="Tìm khách hàng..."><button class="tbtn pr" onclick="openM('new-customer')">＋ Thêm KH</button></div></div>
+        <div style="padding:14px">
+          <div class="kh-card"><div class="kh-av" style="background:rgba(0,200,150,.12)">🏢</div><div><div class="kh-n">ABC Corp Ltd</div><div class="kh-i">📞 0909108890 • ✉️ abc@corp.com • FDI Client</div><div style="margin-top:7px"><button class="ab" onclick="showToast('📂 Hồ sơ ABC Corp')">📂 Hồ sơ</button><button class="ab" onclick="openM('new-quote')">💰 Báo giá</button><button class="ab" onclick="go('orders')">📋 Đơn hàng</button></div></div><div style="margin-left:auto;text-align:right"><div class="tx-ac fw8" style="font-size:14px">5 đơn</div><div class="tx-xs tx-mt">18.5M tổng GD</div></div></div>
+          <div class="kh-card"><div class="kh-av" style="background:rgba(91,94,244,.12)">👤</div><div><div class="kh-n">Nguyễn Thị B</div><div class="kh-i">📞 0778752214 • ✉️ b@gmail.com • Du học</div><div style="margin-top:7px"><button class="ab" onclick="showToast('📂 Hồ sơ')">📂 Hồ sơ</button><button class="ab" onclick="openM('new-quote')">💰 Báo giá</button></div></div><div style="margin-left:auto;text-align:right"><div class="tx-ac fw8" style="font-size:14px">2 đơn</div><div class="tx-xs tx-mt">2.4M tổng GD</div></div></div>
+          <div class="kh-card"><div class="kh-av" style="background:rgba(255,107,53,.12)">🌏</div><div><div class="kh-n">Mr. James Wilson</div><div class="kh-i">📱 WhatsApp +84909108890 • English client</div><div style="margin-top:7px"><button class="ab" onclick="showToast('📂 Hồ sơ')">📂 Hồ sơ</button><button class="ab" onclick="openM('new-quote')">💰 Quote</button></div></div><div style="margin-left:auto;text-align:right"><div class="tx-ac fw8" style="font-size:14px">3 đơn</div><div class="tx-xs tx-mt">5.2M tổng GD</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBERS -->
+    <div class="page" id="page-members">
+      <div class="panel">
+        <div class="ph"><h3>🎖️ Thành viên website</h3><div class="ph-r"><input class="sinp" placeholder="Tìm thành viên..."></div></div>
+        <div class="tw"><table>
+          <thead><tr><th>ID</th><th>Thành viên</th><th>Loại TK</th><th>Ngày ĐK</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+          <tbody>
+            <tr><td class="mono tx-ac">#TV001</td><td><div class="fw8">Nguyễn Thị Hoa</div><div class="tx-xs tx-mt">hoa@email.vn</div></td><td><span class="pcat" style="background:rgba(0,200,150,.1);color:var(--ac)">Cá nhân</span></td><td class="tx-sm tx-mt">01/11/24</td><td><span class="badge bd">Hoạt động</span></td><td><div class="abts"><button class="ab">👤 Hồ sơ</button><button class="ab red">❌</button></div></td></tr>
+            <tr><td class="mono tx-ac">#TV002</td><td><div class="fw8">ABC Corp Ltd</div><div class="tx-xs tx-mt">info@abc.vn</div></td><td><span class="pcat" style="background:rgba(91,94,244,.1);color:#9396f8">Doanh nghiệp</span></td><td class="tx-sm tx-mt">15/10/24</td><td><span class="badge bd">Hoạt động</span></td><td><div class="abts"><button class="ab">👤 Hồ sơ</button><button class="ab red">❌</button></div></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- INVOICES -->
+    <div class="page" id="page-invoices">
+      <div class="srow">
+        <div class="sc2"><div class="sc2-lb">DT tháng 12</div><div class="sc2-n" style="color:var(--ac)">84.5M</div></div>
+        <div class="sc2"><div class="sc2-lb">VAT 10% đầu ra</div><div class="sc2-n" style="color:var(--ac4)">8.45M</div></div>
+        <div class="sc2"><div class="sc2-lb">HĐ đã xuất</div><div class="sc2-n" style="color:var(--ac3)">28</div></div>
+        <div class="sc2"><div class="sc2-lb">Chưa thanh toán</div><div class="sc2-n" style="color:var(--ac2)">3</div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>🧾 Hoá đơn & VAT</h3><div class="ph-r"><button class="tbtn pr" onclick="openM('new-invoice')">＋ Xuất HĐ</button><button class="tbtn" onclick="showToast('📊 Xuất BC VAT...')">📊 BC VAT</button></div></div>
+        <div style="padding:14px">
+          <div class="inv">
+            <div class="inv-h">
+              <div><div class="inv-n">#HD202412001</div><div class="tx-sm tx-mt">15/12/2024 – Hạn TT: 30/12/2024</div><div class="tx-sm fw8" style="margin-top:3px">ABC Corp Ltd</div></div>
+              <div style="text-align:right"><div class="inv-a">4.500.000đ</div><div style="font-size:11px;color:var(--mt)">VAT: 450.000đ | Tổng: 4.950.000đ</div><span class="badge bp" style="margin-top:5px;display:inline-flex">⏳ Chờ TT</span></div>
+            </div>
+            <div class="inv-d">
+              <div><h5>Dịch vụ</h5><p>Hồ sơ FDI – 12 tài liệu</p></div>
+              <div><h5>Thanh toán</h5><p>Chuyển khoản</p></div>
+              <div><h5>Thao tác</h5><div class="abts" style="margin-top:4px"><button class="ab" onclick="showToast('🖨️ In HĐ')">🖨️</button><button class="ab" onclick="showToast('📤 Email')">📤</button><button class="ab" onclick="showToast('✅ Đã TT!')">✅ TT</button></div></div>
+            </div>
+          </div>
+          <div class="inv">
+            <div class="inv-h">
+              <div><div class="inv-n">#HD202412002</div><div class="tx-sm tx-mt">14/12/2024</div><div class="tx-sm fw8" style="margin-top:3px">James Wilson</div></div>
+              <div style="text-align:right"><div class="inv-a">800.000đ</div><div style="font-size:11px;color:var(--mt)">VAT: 80.000đ | Tổng: 880.000đ</div><span class="badge bd" style="margin-top:5px;display:inline-flex">✅ Đã TT</span></div>
+            </div>
+            <div class="inv-d">
+              <div><h5>Dịch vụ</h5><p>Visa Business – EN/VI</p></div>
+              <div><h5>Thanh toán</h5><p>Tiền mặt</p></div>
+              <div><h5>Thao tác</h5><div class="abts" style="margin-top:4px"><button class="ab" onclick="showToast('🖨️ In HĐ')">🖨️</button><button class="ab" onclick="showToast('📤 Email')">📤</button></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="page" id="page-revenue">
+      <div class="srow">
+        <div class="sc2"><div class="sc2-lb">DT năm 2024</div><div class="sc2-n" style="color:var(--ac)">986M</div><div class="sc2-s sc2-up">▲ 19% vs 2023</div></div>
+        <div class="sc2"><div class="sc2-lb">Dịch thuật / Công chứng</div><div class="sc2-n" style="color:var(--ac3)">78%</div></div>
+        <div class="sc2"><div class="sc2-lb">Hồ sơ FDI</div><div class="sc2-n" style="color:var(--ac2)">22%</div></div>
+      </div>
+      <div class="rch">
+        <div style="display:flex;justify-content:space-between;align-items:center"><h3 class="fw8">📈 Doanh thu 12 tháng 2024 (triệu đồng)</h3></div>
+        <div class="bars" id="bars"></div>
+      </div>
+      <div class="g2">
+        <div class="panel"><div class="ph"><h3>Doanh thu theo dịch vụ</h3></div>
+          <div class="tw"><table><thead><tr><th>Dịch vụ</th><th>DT</th><th>%</th></tr></thead><tbody>
+            <tr><td>Dịch thuật phổ thông</td><td class="mono tx-ac">384M</td><td>39%</td></tr>
+            <tr><td>Công chứng & Pháp lý</td><td class="mono tx-ac">207M</td><td>21%</td></tr>
+            <tr><td>Hồ sơ FDI</td><td class="mono tx-ac">177M</td><td>18%</td></tr>
+            <tr><td>Du học & Định cư</td><td class="mono tx-ac">138M</td><td>14%</td></tr>
+            <tr><td>Hợp pháp hóa LS</td><td class="mono tx-ac">79M</td><td>8%</td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="panel"><div class="ph"><h3>Top nhân viên tháng</h3></div>
+          <div class="tw"><table><thead><tr><th>Nhân viên</th><th>Đơn</th><th>Doanh số</th></tr></thead><tbody>
+            <tr><td class="fw8">Lan Anh</td><td class="mono">16</td><td class="mono tx-ac">34M</td></tr>
+            <tr><td class="fw8">Minh Tuấn</td><td class="mono">12</td><td class="mono tx-ac">28M</td></tr>
+            <tr><td class="fw8">Thu Hằng</td><td class="mono">10</td><td class="mono tx-ac">22M</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div class="panel">
+        <div class="ph"><h3>🛒 Sản phẩm & Dịch vụ</h3><div class="ph-r"><input class="sinp" placeholder="Tìm sản phẩm..."><button class="tbtn pr" onclick="openM('new-product')">＋ Thêm SP/DV</button></div></div>
+        <div class="pgrid">
+          <div class="pcard"><div class="pcard-ic">📄</div><div class="pcard-n">Dịch thuật phổ thông</div><div class="pcard-d">Văn bản thông dụng ≤1000 từ/trang. Nhiều ngôn ngữ.</div><div class="pcard-p">từ 50.000đ/trang</div><div class="pcard-a"><button class="ab" onclick="openM('edit-product')">✏️</button><button class="ab red">🗑️</button></div></div>
+          <div class="pcard"><div class="pcard-ic">🏛️</div><div class="pcard-n">Công chứng bản dịch</div><div class="pcard-d">Công chứng có giá trị pháp lý tại VN và quốc tế.</div><div class="pcard-p">từ 200.000đ/bản</div><div class="pcard-a"><button class="ab" onclick="openM('edit-product')">✏️</button><button class="ab red">🗑️</button></div></div>
+          <div class="pcard"><div class="pcard-ic">🏭</div><div class="pcard-n">Hồ sơ FDI trọn gói</div><div class="pcard-d">Dịch + công chứng báo cáo tài chính, GP kinh doanh.</div><div class="pcard-p">Liên hệ báo giá</div><div class="pcard-a"><button class="ab" onclick="openM('edit-product')">✏️</button><button class="ab red">🗑️</button></div></div>
+          <div class="pcard"><div class="pcard-ic">🎓</div><div class="pcard-n">Hồ sơ du học</div><div class="pcard-d">Bảng điểm, bằng cấp, thư giới thiệu. Chuẩn quốc tế.</div><div class="pcard-p">từ 1.500.000đ/bộ</div><div class="pcard-a"><button class="ab" onclick="openM('edit-product')">✏️</button><button class="ab red">🗑️</button></div></div>
+          <div class="pcard"><div class="pcard-ic">✈️</div><div class="pcard-n">Hồ sơ Visa</div><div class="pcard-d">Du lịch, công tác, thăm thân. Chuẩn ĐSQ.</div><div class="pcard-p">từ 300.000đ/bộ</div><div class="pcard-a"><button class="ab" onclick="openM('edit-product')">✏️</button><button class="ab red">🗑️</button></div></div>
+          <div class="pcard"><div class="pcard-ic">🔏</div><div class="pcard-n">Hợp pháp hóa lãnh sự</div><div class="pcard-d">Apostille, chứng nhận lãnh sự, ĐSQ.</div><div class="pcard-p">Liên hệ báo giá</div><div class="pcard-a"><button class="ab" onclick="openM('edit-product')">✏️</button><button class="ab red">🗑️</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAFF -->
+    <div class="page" id="page-staff">
+      <div class="panel">
+        <div class="ph"><h3>👨‍💼 Nhân viên & Phân quyền</h3><button class="tbtn pr" onclick="openM('new-staff')">＋ Thêm NV</button></div>
+        <div class="tw"><table>
+          <thead><tr><th>Nhân viên</th><th>Liên hệ</th><th>Vai trò</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+          <tbody>
+            <tr><td class="fw8">Nguyễn Quản Trị</td><td class="tx-sm tx-mt">admin@dichthuatsohoa.com</td><td><span class="trole r-sa">Super Admin</span></td><td><span class="badge bd">Hoạt động</span></td><td><div class="abts"><button class="ab" onclick="openM('edit-staff')">✏️</button></div></td></tr>
+            <tr><td class="fw8">Nguyễn Lan Anh</td><td class="tx-sm tx-mt">lananh@dts.vn</td><td><span class="trole r-nv">Nhân viên</span></td><td><span class="badge bd">Hoạt động</span></td><td><div class="abts"><button class="ab" onclick="openM('edit-staff')">✏️</button><button class="ab red">❌</button></div></td></tr>
+            <tr><td class="fw8">Trần Minh Tuấn</td><td class="tx-sm tx-mt">tuantm@dts.vn</td><td><span class="trole r-nv">Nhân viên</span></td><td><span class="badge bd">Hoạt động</span></td><td><div class="abts"><button class="ab" onclick="openM('edit-staff')">✏️</button><button class="ab red">❌</button></div></td></tr>
+            <tr><td class="fw8">Lê Thu Hằng</td><td class="tx-sm tx-mt">hanglt@dts.vn</td><td><span class="trole r-xb">Xem báo cáo</span></td><td><span class="badge bd">Hoạt động</span></td><td><div class="abts"><button class="ab" onclick="openM('edit-staff')">✏️</button><button class="ab red">❌</button></div></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>🔐 Ma trận phân quyền</h3></div>
+        <div class="tw"><table>
+          <thead><tr><th>Tính năng</th><th>Super Admin</th><th>Nhân viên</th><th>Xem BC</th></tr></thead>
+          <tbody>
+            <tr><td>Dashboard</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td>Đơn hàng</td><td>✅ Full</td><td>✅ Đơn mình</td><td>👁️</td></tr>
+            <tr><td>Báo giá</td><td>✅</td><td>✅ Tạo</td><td>❌</td></tr>
+            <tr><td>Hoá đơn & VAT</td><td>✅</td><td>❌</td><td>👁️</td></tr>
+            <tr><td>Báo cáo DT</td><td>✅</td><td>❌</td><td>✅</td></tr>
+            <tr><td>Quản lý NV</td><td>✅</td><td>❌</td><td>❌</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="g2">
+        <div class="panel"><div class="ph"><h3>🏢 Thông tin công ty</h3></div>
+          <div class="fg2" style="grid-template-columns:1fr">
+            <div class="fg"><label>Tên công ty</label><input value="Công ty CP Công nghệ & Dịch thuật Số Hóa"></div>
+            <div class="fg"><label>Tên tiếng Anh</label><input value="Digitization Technology and Translation Corporation"></div>
+            <div class="fg"><label>Địa chỉ</label><input value="Tầng 1, 35 Nguyễn Văn Tráng, Bến Thành, Q.1, TP.HCM"></div>
+            <div class="fg"><label>MST</label><input value="1100791068"></div>
+            <div class="fg"><label>Phone (EN)</label><input value="+84 909-108-890"></div>
+            <div class="fg"><label>Phone (VN)</label><input value="+84 778-752-214"></div>
+            <div class="fg"><label>Email</label><input value="sohoavn@gmail.com"></div>
+            <div class="fg"><label>Website</label><input value="dichthuatsohoa.com"></div>
+          </div>
+          <div class="fma"><button class="tbtn pr" onclick="showToast('✅ Đã lưu')">💾 Lưu</button></div>
+        </div>
+        <div class="panel"><div class="ph"><h3>🔥 Firebase & Thông báo</h3></div>
+          <div class="fg2" style="grid-template-columns:1fr">
+            <div class="fg"><label>Firebase Project ID</label><input placeholder="dichthuatsohoa-xxxxx"></div>
+            <div class="fg"><label>Firebase API Key</label><input placeholder="AIza..."></div>
+            <div class="fg"><label>Zalo OA Access Token</label><input placeholder="Zalo OA token..."></div>
+            <div class="fg"><label>Email SMTP</label><input placeholder="smtp.gmail.com"></div>
+            <div class="fg"><label>Email gửi</label><input value="sohoavn@gmail.com"></div>
+          </div>
+          <div class="fma">
+            <button class="tbtn" onclick="showToast('🔥 Xem hướng dẫn Firebase trong HUONG_DAN_FIREBASE.html')">📖 Hướng dẫn</button>
+            <button class="tbtn pr" onclick="showToast('✅ Đã lưu cài đặt')">💾 Lưu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeM()">
+  <div class="modal" id="modal"><button class="mcl" onclick="closeM()">✕</button><div id="mc"></div></div>
+</div>
+<div class="toast" id="toast"><span id="tm">OK</span></div>
+
+<script>
+const PM={dashboard:{t:'Dashboard',s:'Tổng quan hệ thống'},orders:{t:'Đơn hàng',s:'Quản lý tất cả đơn'},quotes:{t:'Báo giá',s:'Tạo và quản lý báo giá'},print:{t:'Theo dõi In ấn',s:'Tiến độ từng giai đoạn'},walkin:{t:'Khách vãng lai',s:'Tiếp nhận tại quầy'},customers:{t:'Khách hàng',s:'Hồ sơ và lịch sử GD'},members:{t:'Thành viên',s:'Tài khoản website'},invoices:{t:'Hoá đơn & VAT',s:'Xuất HĐ và thuế'},revenue:{t:'Báo cáo DT',s:'Phân tích doanh thu'},products:{t:'Sản phẩm & DV',s:'Danh mục và giá'},staff:{t:'Nhân viên',s:'Phân quyền hệ thống'},settings:{t:'Cài đặt',s:'Thông tin và tích hợp'}};
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  const ni=document.querySelector(`.ni[onclick="go('${id}')"]`);if(ni)ni.classList.add('on');
+  const p=PM[id]||{t:id,s:''};
+  document.getElementById('ptitle').textContent=p.t;
+  document.getElementById('psub').textContent=p.s;
+  if(id==='revenue')renderBars();
+}
+// revenue bars
+const months=['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+const revData=[52,58,72,68,75,82,78,88,92,84,95,84];
+const barColors=['#00c896','#5b5ef4','#ff6b35','#f59e0b'];
+let barsRendered=false;
+function renderBars(){if(barsRendered)return;barsRendered=true;const max=Math.max(...revData);document.getElementById('bars').innerHTML=revData.map((v,i)=>`<div class="bw"><div class="bv">${v}M</div><div class="bar" style="height:${v/max*100}%;background:${barColors[i%barColors.length]};opacity:.8"></div><div class="bl">${months[i]}</div></div>`).join('')}
+// modals
+function openM(t){let h='';
+if(t==='new-order')h=`<h2>📋 Tạo đơn hàng mới</h2><div class="fg"><label>Khách hàng</label><select><option>ABC Corp Ltd</option><option>Nguyễn Thị B</option><option>– Khách vãng lai –</option></select></div><div class="fg"><label>Dịch vụ</label><select><option>Hồ sơ FDI</option><option>Hồ sơ Visa</option><option>Hồ sơ Du học</option><option>Hợp pháp hóa LS</option><option>Dịch thuật chuyên ngành</option></select></div><div class="fg"><label>Số lượng tài liệu</label><input type="number" placeholder="1"></div><div class="fg"><label>NV phụ trách</label><select><option>Lan Anh</option><option>Minh Tuấn</option><option>Thu Hằng</option></select></div><div class="fg"><label>Ghi chú</label><textarea placeholder="Ngôn ngữ, yêu cầu đặc biệt..."></textarea></div><div class="modal-f"><button class="tbtn" onclick="closeM()">Huỷ</button><button class="mfsub" onclick="showToast('✅ Đã tạo đơn!');closeM()">Tạo đơn</button></div>`;
+else if(t==='new-quote')h=`<h2>💰 Tạo báo giá</h2><div class="fg"><label>Khách hàng</label><input placeholder="Tên / công ty"></div><div class="fg"><label>Liên hệ</label><input placeholder="SĐT / email"></div><div class="fg"><label>Dịch vụ</label><select><option>Hồ sơ FDI</option><option>Visa</option><option>Du học</option><option>Định cư</option><option>Hợp pháp hóa</option></select></div><div class="fg"><label>Giá trị báo giá (đồng)</label><input type="number" placeholder="0"></div><div class="fg"><label>Upload file BG</label><div class="upz"><div>📎 Click để đính kèm PDF báo giá</div></div></div><div class="modal-f"><button class="tbtn" onclick="closeM()">Huỷ</button><button class="mfsub" onclick="showToast('✅ Báo giá đã tạo!');closeM()">Tạo</button></div>`;
+else if(t==='new-invoice')h=`<h2>🧾 Xuất hoá đơn VAT</h2><div class="fg"><label>Số HĐ</label><input value="HD202412003"></div><div class="fg"><label>Khách hàng</label><select><option>ABC Corp Ltd</option><option>James Wilson</option></select></div><div class="fg"><label>Giá trị (trước VAT)</label><input type="number" placeholder="0"></div><div class="fg"><label>Thuế suất</label><select><option>10%</option><option>5%</option><option>0%</option></select></div><div class="fg"><label>Diễn giải</label><textarea placeholder="Dịch vụ dịch thuật..."></textarea></div><div class="modal-f"><button class="tbtn" onclick="closeM()">Huỷ</button><button class="mfsub" onclick="showToast('🧾 Đã xuất HĐ!');closeM()">Xuất HĐ</button></div>`;
+else if(t==='new-product'||t==='edit-product')h=`<h2>${t==='new-product'?'🆕 Thêm':'✏️ Sửa'} Sản phẩm</h2><div class="fg"><label>Tên dịch vụ</label><input placeholder="VD: Dịch thuật phổ thông"></div><div class="fg"><label>Danh mục</label><select><option>Dịch thuật</option><option>Công chứng</option><option>Hồ sơ FDI</option><option>Du học</option><option>Định cư</option><option>Hợp pháp hóa</option></select></div><div class="fg"><label>Mô tả</label><textarea placeholder="Mô tả chi tiết..."></textarea></div><div class="fg"><label>Đơn vị</label><input placeholder="trang / bản / bộ"></div><div class="fg"><label>Giá tham khảo (hiển thị)</label><input placeholder="từ 50.000đ/trang"></div><div class="modal-f"><button class="tbtn" onclick="closeM()">Huỷ</button><button class="mfsub" onclick="showToast('✅ Đã lưu!');closeM()">Lưu</button></div>`;
+else if(t==='new-staff'||t==='edit-staff')h=`<h2>${t==='new-staff'?'👤 Thêm':'✏️ Sửa'} Nhân viên</h2><div class="fg"><label>Họ tên</label><input placeholder="Nguyễn Văn A"></div><div class="fg"><label>Email đăng nhập</label><input type="email" placeholder="nhanvien@dts.vn"></div><div class="fg"><label>Số điện thoại</label><input type="tel" placeholder="09xx xxx xxx"></div><div class="fg"><label>Vai trò</label><select><option>Super Admin</option><option>Nhân viên</option><option>Xem báo cáo</option></select></div><div class="fg"><label>Mật khẩu tạm</label><input type="password" placeholder="Đặt mật khẩu"></div><div class="modal-f"><button class="tbtn" onclick="closeM()">Huỷ</button><button class="mfsub" onclick="showToast('✅ Đã lưu NV!');closeM()">Lưu</button></div>`;
+else if(t==='new-customer')h=`<h2>👥 Thêm Khách hàng</h2><div class="fg"><label>Tên KH / Công ty</label><input placeholder="ABC Corp hoặc Nguyễn Văn A"></div><div class="fg"><label>Điện thoại</label><input type="tel" placeholder="09xx xxx xxx"></div><div class="fg"><label>Email</label><input type="email" placeholder="email@company.vn"></div><div class="fg"><label>Loại KH</label><select><option>Cá nhân</option><option>Doanh nghiệp FDI</option><option>Doanh nghiệp VN</option><option>Người nước ngoài</option></select></div><div class="fg"><label>Ghi chú</label><textarea placeholder="Nhu cầu thường xuyên..."></textarea></div><div class="modal-f"><button class="tbtn" onclick="closeM()">Huỷ</button><button class="mfsub" onclick="showToast('✅ Đã thêm KH!');closeM()">Thêm</button></div>`;
+else if(t==='new-print')h=`<h2>🖨️ Đơn in ấn mới</h2><div class="fg"><label>Sản phẩm</label><select><option>Name Card</option><option>Brochure</option><option>Poster</option><option>Banner</option></select></div><div class="fg"><label>Khách hàng</label><input placeholder="Tên KH"></div><div class="fg"><label>Số lượng</label><input type="number" placeholder="100"></div><div class="fg"><label>Quy cách</label><input placeholder="A4, 2 mặt, Couche 300gsm"></div><div class="fg"><label>Upload file thiết kế</label><div class="upz"><div>📁 AI, PSD, PDF</div></div></div><div class="modal-f"><button class="tbtn" onclick="closeM()">Huỷ</button><button class="mfsub" onclick="showToast('✅ Đã tạo đơn in!');closeM()">Tạo</button></div>`;
+document.getElementById('mc').innerHTML=h;
+document.getElementById('ov').classList.add('open');
+document.body.style.overflow='hidden';
+}
+function closeM(){document.getElementById('ov').classList.remove('open');document.body.style.overflow=''}
+function openDet(id){
+  const h=`<h2>📋 Chi tiết đơn #${id}</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div><div style="font-size:10px;color:var(--mt);font-weight:800;margin-bottom:3px">KHÁCH HÀNG</div><div class="fw8">ABC Corp Ltd</div></div>
+    <div><div style="font-size:10px;color:var(--mt);font-weight:800;margin-bottom:3px">GIÁ TRỊ</div><div class="fw8 tx-ac" style="font-family:var(--fm)">4.500.000đ</div></div>
+  </div>
+  <div style="font-size:10px;color:var(--mt);font-weight:800;margin-bottom:8px">TIẾN ĐỘ</div>
+  <div class="pstep" style="margin-bottom:16px">
+    <div class="ps done">1</div><div class="pl done"></div>
+    <div class="ps done">2</div><div class="pl done"></div>
+    <div class="ps cur">3</div><div class="pl"></div>
+    <div class="ps">4</div>
+  </div>
+  <div style="font-size:11px;color:var(--mt);margin-bottom:12px">1-Nhận đơn ✅ → 2-Đang dịch ✅ → 3-Kiểm tra QC ⏳ → 4-Giao hàng</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+    <button class="tbtn" onclick="showToast('📤 File đã gửi KH')">📤 Gửi file KH</button>
+    <button class="tbtn pr" onclick="showToast('✅ Hoàn thành!');closeM()">✅ Hoàn thành</button>
+  </div>
+  <div class="fg"><label>Ghi chú nội bộ</label><textarea style="height:60px" placeholder="Thêm ghi chú..."></textarea></div>`;
+  openM('_raw');
+  document.getElementById('mc').innerHTML=h;
+  document.getElementById('ov').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function topAct(){const p=document.querySelector('.page.on').id.replace('page-','');const m={dashboard:'new-order',orders:'new-order',quotes:'new-quote',invoices:'new-invoice',products:'new-product',staff:'new-staff',customers:'new-customer',print:'new-print'};if(m[p])openM(m[p]);else showToast('Chọn một mục để tạo mới')}
+let tt;function showToast(m){clearTimeout(tt);document.getElementById('tm').textContent=m;const t=document.getElementById('toast');t.classList.add('show');tt=setTimeout(()=>t.classList.remove('show'),3000)}
+</script>
+</body>
+</html>

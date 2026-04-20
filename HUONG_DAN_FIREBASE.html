@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hướng dẫn Firebase – Dịch Thuật Số Hóa</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06080e;--sf:#0c1221;--s2:#121a2e;--ac:#00c896;--ac2:#ff6b35;--ac3:#5b5ef4;--tx:#e2eaf6;--mt:#607090;--br:rgba(0,200,150,.13);--ff:'Nunito',sans-serif;--fm:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--ff);font-size:15px;line-height:1.7;max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2.2rem;font-weight:900;margin-bottom:8px;line-height:1.1}
+.grd{background:linear-gradient(90deg,var(--ac),var(--ac3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.intro{font-size:15px;color:#8ba0bc;margin-bottom:48px;line-height:1.85}
+.intro strong{color:var(--ac)}
+h2{font-size:1.35rem;font-weight:800;margin:40px 0 20px;padding-bottom:10px;border-bottom:1px solid var(--br);color:var(--tx)}
+h2 span{font-size:1rem;color:var(--mt);font-weight:600;margin-left:8px}
+.steps{display:flex;flex-direction:column;gap:16px}
+.step{background:var(--sf);border:1px solid var(--br);border-radius:13px;display:flex;gap:0;overflow:hidden;transition:border-color .2s}
+.step:hover{border-color:rgba(0,200,150,.22)}
+.step-num{background:rgba(0,200,150,.1);padding:18px 16px;display:flex;align-items:flex-start;justify-content:center;flex-shrink:0;min-width:54px;font-size:1.2rem;font-weight:900;color:var(--ac);padding-top:22px}
+.step-body{padding:18px 20px;flex:1}
+.step-body h4{font-size:14px;font-weight:800;margin-bottom:6px}
+.step-body p{font-size:13px;color:#8ba0bc;line-height:1.75}
+.step-body strong{color:var(--tx)}
+.note{background:rgba(0,200,150,.06);border:1px solid rgba(0,200,150,.18);border-left:3px solid var(--ac);border-radius:10px;padding:13px 16px;font-size:13px;color:#8ba0bc;margin:16px 0;line-height:1.7}
+.note strong{color:var(--ac)}
+.warn{background:rgba(255,107,53,.06);border:1px solid rgba(255,107,53,.18);border-left:3px solid var(--ac2);border-radius:10px;padding:13px 16px;font-size:13px;color:#8ba0bc;margin:16px 0;line-height:1.7}
+.warn strong{color:var(--ac2)}
+.code-block{background:#0a0f1e;border:1px solid var(--br);border-radius:11px;overflow:hidden;margin:16px 0}
+.code-header{background:var(--s2);padding:9px 16px;font-size:11px;color:var(--mt);font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center}
+.copy-btn{background:none;border:1px solid var(--br);color:var(--mt);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;font-family:var(--ff);font-weight:700;transition:all .2s}
+.copy-btn:hover{border-color:var(--ac);color:var(--ac)}
+.code-block pre{padding:16px;font-family:var(--fm);font-size:12px;line-height:1.75;overflow-x:auto;color:#c8d8f0}
+.code-block .kw{color:#88ccff}
+.code-block .str{color:#88ff88}
+.code-block .cm{color:#607090}
+.code-block .val{color:#ffaa66}
+.code-block .fn{color:#dd88ff}
+.img-placeholder{background:var(--sf);border:1px solid var(--br);border-radius:11px;padding:40px;text-align:center;margin:16px 0}
+.img-placeholder p{font-size:13px;color:var(--mt)}
+.img-placeholder .ic{font-size:36px;margin-bottom:10px}
+.tbl{width:100%;border-collapse:collapse;margin:16px 0}
+.tbl th{background:var(--s2);color:var(--mt);font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid var(--br)}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--br);font-size:13px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{color:var(--ac);font-family:var(--fm);font-size:12px}
+.summary-box{background:linear-gradient(135deg,rgba(0,200,150,.08),rgba(91,94,244,.06));border:1px solid rgba(0,200,150,.2);border-radius:14px;padding:28px 32px;margin:40px 0}
+.summary-box h3{font-size:1.1rem;font-weight:800;margin-bottom:16px;color:var(--ac)}
+.sum-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:11px;font-size:13px}
+.sum-ic{font-size:16px;flex-shrink:0;margin-top:1px}
+</style>
+</head>
+<body>
+<h1>Hướng dẫn <span class="grd">Firebase</span></h1>
+<p class="intro">Thiết lập Firebase để website <strong>dichthuatsohoa.com</strong> có tính năng đăng nhập thành viên thật sự. Toàn bộ <strong>miễn phí</strong> — không cần biết lập trình, chỉ cần làm theo từng bước.</p>
+
+<h2>Bước 1 <span>— Tạo tài khoản &amp; project Firebase</span></h2>
+<div class="steps">
+  <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Vào trang Firebase</h4><p>Mở trình duyệt → gõ vào thanh địa chỉ: <strong>firebase.google.com</strong></p></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Đăng nhập bằng Gmail</h4><p>Bấm nút <strong>Get started</strong> → đăng nhập bằng tài khoản <strong>Google / Gmail</strong> của công ty (khuyến nghị dùng sohoavn@gmail.com)</p></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Tạo project mới</h4><p>Bấm <strong>Add project</strong> → đặt tên: <strong>dichthuatsohoa</strong> → bấm <strong>Continue</strong></p></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Tắt Google Analytics</h4><p>Bấm công tắc để <strong>tắt Google Analytics</strong> (không cần thiết) → bấm <strong>Create project</strong></p></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Chờ tạo xong</h4><p>Chờ khoảng 20-30 giây → khi thấy dấu ✅ → bấm <strong>Continue</strong></p></div></div>
+</div>
+
+<h2>Bước 2 <span>— Bật tính năng đăng nhập (Authentication)</span></h2>
+<div class="steps">
+  <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Vào Authentication</h4><p>Ở menu bên trái → bấm <strong>Build</strong> → bấm <strong>Authentication</strong></p></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Get started</h4><p>Bấm nút <strong>Get started</strong></p></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Bật Email / Mật khẩu</h4><p>Bấm vào <strong>Email/Password</strong> → bấm công tắc <strong>Enable</strong> (cái đầu tiên) → bấm <strong>Save</strong></p></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Bật đăng nhập Google (tuỳ chọn)</h4><p>Bấm <strong>Google</strong> → bật <strong>Enable</strong> → chọn email hỗ trợ <strong>sohoavn@gmail.com</strong> → bấm <strong>Save</strong></p></div></div>
+</div>
+<div class="note"><strong>Kết quả:</strong> Từ giờ, khách hàng có thể đăng ký và đăng nhập vào website bằng email và mật khẩu — hoặc bằng tài khoản Google.</div>
+
+<h2>Bước 3 <span>— Tạo Firestore Database (lưu thông tin thành viên)</span></h2>
+<div class="steps">
+  <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Vào Firestore</h4><p>Menu bên trái → <strong>Build</strong> → <strong>Firestore Database</strong></p></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Create database</h4><p>Bấm <strong>Create database</strong></p></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Chọn Test mode</h4><p>Chọn <strong>Start in test mode</strong> → bấm <strong>Next</strong></p></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Chọn vùng Singapore</h4><p>Chọn <strong>asia-southeast1</strong> (Singapore — gần nhất với Việt Nam, tốc độ tốt nhất) → bấm <strong>Enable</strong></p></div></div>
+</div>
+
+<h2>Bước 4 <span>— Lấy mã cấu hình Firebase</span></h2>
+<div class="steps">
+  <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Vào Project Settings</h4><p>Bấm biểu tượng <strong>⚙️ bánh răng</strong> bên cạnh chữ "Project Overview" ở menu trái → chọn <strong>Project settings</strong></p></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Thêm ứng dụng Web</h4><p>Cuộn xuống mục <strong>Your apps</strong> → bấm biểu tượng <strong>&lt;/&gt;</strong> (Web app)</p></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Đặt tên app</h4><p>Gõ tên: <strong>DichThuatSoHoa Web</strong> → bấm <strong>Register app</strong></p></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Copy đoạn mã</h4><p>Sẽ hiện ra đoạn mã có <strong>apiKey, authDomain, projectId...</strong> → bấm <strong>Copy</strong> → lưu vào Notepad → bấm <strong>Continue to console</strong></p></div></div>
+</div>
+<div class="warn"><strong>⚠ Quan trọng:</strong> Đoạn mã cấu hình này là "chìa khóa" kết nối website với Firebase. Giữ lại cẩn thận trong Notepad. Đừng chia sẻ cho người lạ.</div>
+
+<h2>Bước 5 <span>— Dán mã vào file index.html và admin.html</span></h2>
+<p style="font-size:14px;color:#8ba0bc;margin-bottom:16px">Mở từng file bằng Notepad (nhấp chuột phải → Open with → Notepad), nhấn <strong style="color:var(--tx)">Ctrl+F</strong>, tìm dòng <code style="background:var(--s2);padding:1px 6px;border-radius:4px;font-family:var(--fm)">&lt;/body&gt;</code>, dán đoạn code bên dưới vào NGAY TRƯỚC dòng đó:</p>
+
+<div class="code-block">
+  <div class="code-header">
+    ĐOẠN MÃ CẦN DÁN VÀO — thay phần màu cam bằng mã của bạn
+    <button class="copy-btn" onclick="copyCode()">Copy</button>
+  </div>
+  <pre id="codeToСopy"><span class="cm">&lt;!-- Firebase SDK – dán ngay trước &lt;/body&gt; --&gt;</span>
+<span class="kw">&lt;script</span> <span class="val">type</span>=<span class="str">"module"</span><span class="kw">&gt;</span>
+  <span class="kw">import</span> { initializeApp } <span class="kw">from</span>
+    <span class="str">"https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"</span>;
+  <span class="kw">import</span> { getAuth, signInWithEmailAndPassword,
+           createUserWithEmailAndPassword, signOut, onAuthStateChanged }
+    <span class="kw">from</span> <span class="str">"https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"</span>;
+  <span class="kw">import</span> { getFirestore, doc, setDoc, getDoc }
+    <span class="kw">from</span> <span class="str">"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"</span>;
+
+  <span class="cm">// ← DÁN MÃ CẤU HÌNH CỦA BẠN VÀO ĐÂY (từ bước 4)</span>
+  <span class="kw">const</span> firebaseConfig = {
+    apiKey:            <span class="val">"AIza..."</span>,              <span class="cm">// thay bằng mã của bạn</span>
+    authDomain:        <span class="val">"dichthuatsohoa-xxx.firebaseapp.com"</span>,
+    projectId:         <span class="val">"dichthuatsohoa-xxx"</span>,
+    storageBucket:     <span class="val">"dichthuatsohoa-xxx.appspot.com"</span>,
+    messagingSenderId: <span class="val">"123456789"</span>,
+    appId:             <span class="val">"1:123456789:web:abcdef"</span>
+  };
+
+  <span class="kw">const</span> app  = <span class="fn">initializeApp</span>(firebaseConfig);
+  <span class="kw">const</span> auth = <span class="fn">getAuth</span>(app);
+  <span class="kw">const</span> db   = <span class="fn">getFirestore</span>(app);
+
+  <span class="cm">// Đăng ký thành viên mới</span>
+  window.<span class="fn">registerUser</span> = <span class="kw">async</span> (email, password, name, phone) => {
+    <span class="kw">const</span> cred = <span class="kw">await</span> <span class="fn">createUserWithEmailAndPassword</span>(auth, email, password);
+    <span class="kw">await</span> <span class="fn">setDoc</span>(<span class="fn">doc</span>(db, <span class="str">"users"</span>, cred.user.uid), {
+      name, email, phone,
+      role: <span class="str">"member"</span>,
+      createdAt: <span class="kw">new</span> Date().toISOString()
+    });
+    <span class="kw">return</span> cred.user;
+  };
+
+  <span class="cm">// Đăng nhập</span>
+  window.<span class="fn">loginUser</span> = <span class="kw">async</span> (email, password) => {
+    <span class="kw">return await</span> <span class="fn">signInWithEmailAndPassword</span>(auth, email, password);
+  };
+
+  <span class="cm">// Đăng xuất</span>
+  window.<span class="fn">logoutUser</span> = () => <span class="fn">signOut</span>(auth);
+
+  <span class="cm">// Theo dõi trạng thái đăng nhập</span>
+  <span class="fn">onAuthStateChanged</span>(auth, user => {
+    <span class="kw">const</span> loginBtn  = document.<span class="fn">querySelector</span>(<span class="str">'.nbtn'</span>);
+    <span class="kw">if</span> (user &amp;&amp; loginBtn) {
+      loginBtn.textContent = <span class="str">'👤 ' + (user.displayName || user.email)</span>;
+    }
+  });
+<span class="kw">&lt;/script&gt;</span></pre>
+</div>
+
+<div class="note"><strong>Lưu ý:</strong> Làm bước này cho <strong>cả 2 file</strong>: index.html và admin.html. Sau đó lưu file (Ctrl+S) và push lên GitHub. Vercel sẽ tự cập nhật.</div>
+
+<h2>Bước 6 <span>— Kiểm tra và bảo mật Firestore</span></h2>
+<div class="steps">
+  <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Test đăng ký</h4><p>Vào website → bấm <strong>Đăng ký</strong> → điền email và mật khẩu → bấm <strong>Đăng ký ngay</strong>. Nếu thành công sẽ hiện thông báo.</p></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Kiểm tra trong Firebase Console</h4><p>Vào Firebase Console → <strong>Authentication</strong> → tab <strong>Users</strong> → sẽ thấy tài khoản vừa đăng ký xuất hiện ở đây.</p></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Bảo mật Firestore (sau 30 ngày)</h4><p>Vào <strong>Firestore Database</strong> → tab <strong>Rules</strong> → thay toàn bộ nội dung bằng đoạn sau để giới hạn quyền truy cập:</p></div></div>
+</div>
+
+<div class="code-block">
+  <div class="code-header">FIRESTORE SECURITY RULES — dán vào tab Rules</div>
+  <pre><span class="kw">rules_version</span> = <span class="str">'2'</span>;
+<span class="kw">service</span> cloud.firestore {
+  <span class="kw">match</span> /databases/{database}/documents {
+    <span class="kw">match</span> /users/{userId} {
+      <span class="cm">// Chỉ người dùng đó mới được đọc/ghi dữ liệu của mình</span>
+      allow read, write: if request.auth != null
+                         &amp;&amp; request.auth.uid == userId;
+    }
+  }
+}</pre>
+</div>
+
+<h2>Tổng kết</h2>
+<div class="summary-box">
+  <h3>✅ Sau khi hoàn thành 6 bước</h3>
+  <div class="sum-row"><div class="sum-ic">🔐</div><div>Khách hàng đăng ký tài khoản bằng email → dữ liệu lưu vào Firebase</div></div>
+  <div class="sum-row"><div class="sum-ic">👤</div><div>Đăng nhập / đăng xuất hoạt động trên cả website công khai và admin</div></div>
+  <div class="sum-row"><div class="sum-ic">📋</div><div>Quản trị viên xem danh sách thành viên trong Firebase Console → Authentication → Users</div></div>
+  <div class="sum-row"><div class="sum-ic">🔥</div><div>Thông tin thành viên (tên, SĐT, ngày đăng ký) lưu trong Firestore Database</div></div>
+  <div class="sum-row"><div class="sum-ic">🆓</div><div>Hoàn toàn miễn phí cho đến 50.000 lượt xác thực / tháng</div></div>
+</div>
+
+<table class="tbl">
+  <thead><tr><th>Cần hỗ trợ thêm</th><th>Làm gì</th></tr></thead>
+  <tbody>
+    <tr><td>firebase.google.com</td><td>Trang chủ Firebase — quản lý project</td></tr>
+    <tr><td>console.firebase.google.com</td><td>Firebase Console — xem users, database</td></tr>
+    <tr><td>github.com/chaysaigon-app/dichthuatsohoa</td><td>Kho lưu code của bạn</td></tr>
+    <tr><td>vercel.com/dashboard</td><td>Xem trạng thái deploy website</td></tr>
+  </tbody>
+</table>
+
+<script>
+function copyCode(){const el=document.getElementById('codeToСopy');const txt=el.innerText;navigator.clipboard.writeText(txt).then(()=>{const btn=document.querySelector('.copy-btn');btn.textContent='✅ Đã copy!';setTimeout(()=>btn.textContent='Copy',2000)}).catch(()=>alert('Nhấn Ctrl+A rồi Ctrl+C để copy'))}
+</script>
+</body>
+</html>
