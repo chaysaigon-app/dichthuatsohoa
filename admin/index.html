@@ -759,6 +759,7 @@ tbody td{padding:11px 14px;font-size:13px}
           <div class="fg"><label>Tiền cọc (VNĐ)</label><input id="qb-deposit" type="number" placeholder="0" oninput="qbCalcTotal()"></div>
           <div class="fg"><label>Ngân hàng nhận cọc</label><input id="qb-bank-name" placeholder="VD: Vietcombank"></div>
         </div>
+        <div class="fr">
           <div class="fg"><label>Số tài khoản</label><input id="qb-bank-acc" placeholder="0011004321234"></div>
           <div class="fg"><label>Chủ tài khoản</label><input id="qb-bank-owner" placeholder="CONG TY CP DICH THUAT SO HOA"></div>
         </div>
@@ -813,13 +814,13 @@ tbody td{padding:11px 14px;font-size:13px}
           </button>
         </div>
       </div>
-    </div>
     <div class="mfoot">
       <button class="bm bm-c" onclick="closeM('qbuilder')">Đóng</button>
       <button class="bm bm-p" onclick="qbGenerate()">⚡ Xem trước & Tạo báo giá →</button>
       <button class="bm bm-g" onclick="qbSendToCustomer()">💾 Lưu báo giá</button>
     </div>
   </div>
+</div>
 </div>
 
 <!-- ===== ORDER WITH TASKS MODAL ===== -->
@@ -2104,7 +2105,7 @@ window.qbSendToCustomer = async function() {
 
     // Chuyển sang trang "Lập Báo Giá" và chờ onSnapshot cập nhật
     // Chuyển sang Lập Báo Giá để thấy báo giá vừa lập
-    const sqNav = document.querySelector('.ni[onclick*="staff-quotes"]') || document.querySelector('.ni[onclick*=\'staff-quotes\']');
+    const sqNav = document.querySelector('.ni[onclick*="staff-quotes"]');
     nav('staff-quotes', sqNav);
     setTimeout(() => { renderStaffQuotes(); }, 600);
 
@@ -2365,7 +2366,7 @@ window.createOrderFromStaffQuote = async function(id) {
     await log('🚀 Tạo đơn từ báo giá', `${oid} – ${sq.name} – ${sq.grandTotal?.toLocaleString('vi-VN')}đ`, 'pu');
     notif(`✅ Đã tạo đơn hàng ${oid}!`, 'ok', 6000);
     renderStaffQuotes();
-    nav('orders', document.querySelector('.ni[onclick*="'orders'"]'));
+    nav('orders', document.querySelector('.ni[onclick*="orders"]'));
   } catch (e) {
     notif('❌ Lỗi: ' + e.message, 'er');
   }
@@ -2535,7 +2536,7 @@ window.renderStaffQuotesFiltered = function() {
           <button class="ab ab-v" onclick="viewStaffQuote('${q.id}')">👁 Xem</button>
           ${q.status !== 'order_created' ? `<button class="ab ab-e" onclick="sqEditQuote('${q.id}')">✏️</button>` : ''}
           ${q.status==='confirmed' ? `<button class="ab ab-g" style="font-weight:700" onclick="createOrderFromStaffQuote('${q.id}')">🚀 Tạo đơn</button>` : ''}
-          ${q.status==='order_created' ? `<button class="ab" style="background:rgba(139,92,246,.15);color:var(--purple)" onclick="nav('orders',document.querySelector('.ni[onclick*=\'orders\']'))">📋 Xem đơn</button>` : ''}
+          ${q.status==='order_created' ? `<button class="ab" style="background:rgba(139,92,246,.15);color:var(--purple)" onclick="nav('orders',null)">📋 Xem đơn</button>` : ''}
           <button class="ab" style="background:rgba(6,182,212,.12);color:var(--cyan)" onclick="sqCopy('${q.id}')">📋</button>
           ${['superadmin','admin'].includes(S.role)?`<button class="ab ab-r" onclick="delStaffQuote('${q.id}')" title="Xóa báo giá">🗑</button>`:''}
         </div>
