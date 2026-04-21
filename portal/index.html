@@ -326,8 +326,9 @@ a{text-decoration:none;color:inherit}
 
   <div class="tab-nav">
     <div class="tn on" onclick="showSec('dashboard',this)"><span class="tn-icon">🏠</span>Tổng quan</div>
-    <div class="tn" onclick="showSec('quotes-mine',this)" id="tab-quotes-mine"><span class="tn-icon">💰</span>Báo Giá & YC<span class="tn-badge" id="badge-quotes" style="display:none">0</span></div>
-    <div class="tn" onclick="showSec('orders',this)"><span class="tn-icon">📋</span>Hồ sơ của tôi</div>
+    <div class="tn" onclick="showSec('my-requests',this)" id="tab-my-requests"><span class="tn-icon">📤</span>Yêu cầu BG<span class="tn-badge" id="badge-requests" style="display:none">0</span></div>
+    <div class="tn" onclick="showSec('my-quotes',this)" id="tab-my-quotes"><span class="tn-icon">💰</span>Báo Giá<span class="tn-badge" id="badge-quotes" style="display:none">0</span></div>
+    <div class="tn" onclick="showSec('orders',this)"><span class="tn-icon">📋</span>Đơn hàng</div>
     <div class="tn" onclick="showSec('invoices',this)"><span class="tn-icon">🧾</span>Hóa đơn</div>
     <div class="tn" onclick="showSec('contact',this)"><span class="tn-icon">✏️</span>Yêu cầu mới</div>
     <div class="tn" onclick="showSec('profile',this)"><span class="tn-icon">👤</span>Tài khoản</div>
@@ -349,15 +350,15 @@ a{text-decoration:none;color:inherit}
       </div>
 
       <div style="margin-bottom:20px">
-        <h3 style="font-size:16px;font-weight:700;color:var(--blue);margin-bottom:14px">🔔 Hồ sơ đang xử lý</h3>
+        <h3 style="font-size:16px;font-weight:700;color:var(--blue);margin-bottom:14px">🔔 Đơn hàng đang xử lý</h3>
         <div id="active-orders"></div>
       </div>
 
       <!-- Báo giá chờ xác nhận -->
       <div id="dash-quotes-section" style="display:none;margin-bottom:20px">
-        <h3 style="font-size:16px;font-weight:700;color:#B45309;margin-bottom:10px">⚡ Cần xử lý</h3>
+        <h3 style="font-size:16px;font-weight:700;color:#B45309;margin-bottom:10px">💰 Báo giá mới — cần xác nhận</h3>
         <div id="dash-quotes-list"></div>
-        <button onclick="showSec('quotes-mine',document.getElementById('tab-quotes-mine'))" style="margin-top:6px;background:none;border:none;color:var(--blue3);font-size:13px;font-weight:600;cursor:pointer;padding:0">Xem tất cả báo giá & yêu cầu →</button>
+        <button onclick="showSec('my-quotes',document.getElementById('tab-my-quotes'))" style="margin-top:6px;background:none;border:none;color:var(--blue3);font-size:13px;font-weight:600;cursor:pointer;padding:0">Xem tất cả báo giá →</button>
       </div>
 
       <div style="background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border:1px solid #FDE68A;border-radius:var(--r2);padding:20px;display:flex;align-items:center;gap:16px">
@@ -369,17 +370,24 @@ a{text-decoration:none;color:inherit}
       </div>
     </div>
 
-    <!-- BÁO GIÁ CỦA TÔI -->
-    <div class="sec" id="sec-quotes-mine">
-      <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">💰 Báo Giá & Yêu Cầu</h2>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Tất cả yêu cầu đã gửi và báo giá từ nhân viên — xem và xác nhận khi có báo giá</p>
+    <!-- YÊU CẦU BÁO GIÁ ĐÃ GỬI -->
+    <div class="sec" id="sec-my-requests">
+      <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">📤 Yêu cầu báo giá</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Các yêu cầu bạn đã gửi — nhân viên đang xem xét và sẽ gửi báo giá sớm</p>
+      <div id="my-requests-list"></div>
+    </div>
+
+    <!-- BÁO GIÁ NHẬN ĐƯỢC -->
+    <div class="sec" id="sec-my-quotes">
+      <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">💰 Báo giá từ nhân viên</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Xem nội dung báo giá và nhấn <strong>Đồng ý</strong> để chúng tôi bắt đầu thực hiện</p>
       <div id="my-quotes-list"></div>
     </div>
 
     <!-- ORDERS -->
     <div class="sec" id="sec-orders">
-      <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">📋 Hồ sơ của tôi</h2>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Nhấn vào từng hồ sơ để xem chi tiết tiến trình và lịch sử xử lý</p>
+      <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">📋 Đơn hàng của tôi</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Đơn hàng được tạo tự động khi bạn xác nhận báo giá — nhấn để xem chi tiết tiến trình</p>
       <div id="all-orders"></div>
     </div>
 
@@ -500,28 +508,6 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
-<!-- REJECT REASON MODAL -->
-<div id="m-reject" style="display:none" class="mo" onclick="if(event.target===this)document.getElementById('m-reject').style.display='none'">
-  <div class="mb" style="max-width:460px">
-    <div class="mh">
-      <h3 style="color:#B91C1C">❌ Từ chối báo giá</h3>
-      <button class="mc" onclick="document.getElementById('m-reject').style.display='none'">×</button>
-    </div>
-    <div class="mbody">
-      <p style="font-size:14px;color:var(--text2);margin-bottom:16px">Vui lòng cho biết lý do để nhân viên điều chỉnh và gửi lại báo giá phù hợp hơn.</p>
-      <div class="fg">
-        <label>Lý do từ chối</label>
-        <textarea id="reject-reason-input" rows="3" placeholder="Ví dụ: Giá quá cao, cần tư vấn thêm, thay đổi dịch vụ..."></textarea>
-      </div>
-      <p style="font-size:12px;color:var(--text3);margin-top:8px">Lý do có thể để trống nếu bạn không muốn ghi rõ.</p>
-    </div>
-    <div class="mfoot">
-      <button class="bm bm-c" onclick="document.getElementById('m-reject').style.display='none'">Hủy</button>
-      <button class="bm" style="background:#FEF2F2;color:#B91C1C;border:1.5px solid #FECACA" onclick="submitReject()">❌ Xác nhận từ chối</button>
-    </div>
-  </div>
-</div>
-
 <!-- FEEDBACK MODAL -->
 <div id="m-feedback" style="display:none" class="mo" onclick="if(event.target===this)document.getElementById('m-feedback').style.display='none'">
   <div class="mb" style="max-width:480px">
@@ -557,9 +543,9 @@ const cfg={apiKey:"AIzaSyCkyAJJm-kj6JReuGOcy1kj3RHn5hqRWwo",authDomain:"sohoa-ba
 const fb=initializeApp(cfg);const db=getFirestore(fb);const auth=getAuth(fb);
 
 const S={user:null,profile:null,orders:[],invoices:[],activity:[],currentOrderId:null,starRating:0};
-const SL={new:'Mới – Chờ báo giá',quoted:'Đã báo giá',confirmed:'Xác nhận – Đặt cọc',processing:'Đang dịch / Xử lý',done:'Hoàn thành',invoiced:'Đã xuất hóa đơn',paid:'Đã thanh toán',cancelled:'Đã hủy'};
-const STEPS=[{k:'new',l:'Tiếp nhận'},{k:'quoted',l:'Báo giá'},{k:'confirmed',l:'Xác nhận'},{k:'processing',l:'Đang dịch'},{k:'done',l:'Hoàn thành'},{k:'paid',l:'Đã thu'}];
-const PROG={new:10,quoted:25,confirmed:40,processing:65,done:90,invoiced:95,paid:100,cancelled:0};
+const SL={new:'Mới',quoted:'Đã báo giá',confirmed:'Đã xác nhận',processing:'Đang thực hiện',done:'Đã hoàn thành',delivered:'Đã giao hàng',invoiced:'Đã xuất HĐ',paid:'Đã thanh toán',cancelled:'Đã hủy'};
+const STEPS=[{k:'confirmed',l:'Xác nhận'},{k:'processing',l:'Đang thực hiện'},{k:'done',l:'Hoàn thành'},{k:'delivered',l:'Đã giao hàng'},{k:'paid',l:'Đã thanh toán'}];
+const PROG={new:10,quoted:25,confirmed:35,processing:65,done:85,invoiced:90,paid:100,delivered:100,cancelled:0};
 
 // ── Tab switch
 window.switchTab=(t)=>{
@@ -696,279 +682,273 @@ onAuthStateChanged(auth,async u=>{
   }
 });
 
-// ── Báo giá từ nhân viên gửi lên portal
-const S_QUOTES_STATE = {};  // local cache
+// ══════════════════════════════════════════════════════════════
+// QUOTES & REQUESTS — Tách biệt rõ ràng
+// Collection quotes      = yêu cầu khách gửi (inbound)
+// Collection customer_quotes = báo giá NV lập, gửi lên portal
+// ══════════════════════════════════════════════════════════════
+const S_QUOTES_STATE = { inbound: null, received: null };
 
-function loadCustomerQuotes(){
-  // Khởi null để biết snapshot nào chưa về
-  S_QUOTES_STATE.staffQuotes   = null;
-  S_QUOTES_STATE.inboundQuotes = null;
+function loadCustomerQuotes() {
+  S_QUOTES_STATE.inbound  = null;
+  S_QUOTES_STATE.received = null;
 
-  // 1. customer_quotes — báo giá do nhân viên lập & gửi lên portal
-  onSnapshot(
-    query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc')),
-    snap => {
-      console.log('[customer_quotes] docs:', snap.docs.length);
-      S_QUOTES_STATE.staffQuotes = snap.docs.map(d=>({id:d.id, ...d.data(), _src:'staff'}));
-      _mergeAndRenderQuotes();
-    },
-    err => {
-      console.error('[customer_quotes] ERROR:', err.code, err.message);
-      // Nếu lỗi index: thử query không orderBy
-      onSnapshot(
-        query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid)),
-        snap2 => {
-          console.log('[customer_quotes fallback] docs:', snap2.docs.length);
-          S_QUOTES_STATE.staffQuotes = snap2.docs.map(d=>({id:d.id, ...d.data(), _src:'staff'}))
-            .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-          _mergeAndRenderQuotes();
-        },
-        err2 => {
-          console.error('[customer_quotes fallback] ERROR:', err2.code, err2.message);
-          S_QUOTES_STATE.staffQuotes = [];
-          _mergeAndRenderQuotes();
-        }
-      );
-    }
-  );
-
-  // 2. quotes — yêu cầu báo giá khách đã gửi qua portal
+  // 1. Yêu cầu báo giá do khách gửi (collection: quotes)
   onSnapshot(
     query(collection(db,'quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc')),
     snap => {
-      console.log('[quotes] docs:', snap.docs.length);
-      S_QUOTES_STATE.inboundQuotes = snap.docs.map(d=>({id:d.id, ...d.data(), _src:'inbound'}));
-      _mergeAndRenderQuotes();
+      S_QUOTES_STATE.inbound = snap.docs.map(d=>({id:d.id,...d.data(),_src:'inbound'}));
+      _renderRequestsAndQuotes();
     },
     err => {
-      console.error('[quotes] ERROR:', err.code, err.message);
-      // Nếu lỗi index: thử query không orderBy
-      onSnapshot(
-        query(collection(db,'quotes'), where('customerUid','==',S.user.uid)),
-        snap2 => {
-          console.log('[quotes fallback] docs:', snap2.docs.length);
-          S_QUOTES_STATE.inboundQuotes = snap2.docs.map(d=>({id:d.id, ...d.data(), _src:'inbound'}))
-            .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-          _mergeAndRenderQuotes();
-        },
-        err2 => {
-          console.error('[quotes fallback] ERROR:', err2.code, err2.message);
-          S_QUOTES_STATE.inboundQuotes = [];
-          _mergeAndRenderQuotes();
-        }
-      );
+      console.error('[quotes]', err.code, err.message);
+      // Fallback không orderBy nếu chưa có index
+      onSnapshot(query(collection(db,'quotes'), where('customerUid','==',S.user.uid)), snap2 => {
+        S_QUOTES_STATE.inbound = snap2.docs.map(d=>({id:d.id,...d.data(),_src:'inbound'}))
+          .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+        _renderRequestsAndQuotes();
+      }, ()=>{ S_QUOTES_STATE.inbound=[]; _renderRequestsAndQuotes(); });
+    }
+  );
+
+  // 2. Báo giá NV đã lập & gửi lên portal (collection: customer_quotes)
+  onSnapshot(
+    query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc')),
+    snap => {
+      S_QUOTES_STATE.received = snap.docs.map(d=>({id:d.id,...d.data(),_src:'received'}));
+      _renderRequestsAndQuotes();
+    },
+    err => {
+      console.error('[customer_quotes]', err.code, err.message);
+      onSnapshot(query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid)), snap2 => {
+        S_QUOTES_STATE.received = snap2.docs.map(d=>({id:d.id,...d.data(),_src:'received'}))
+          .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+        _renderRequestsAndQuotes();
+      }, ()=>{ S_QUOTES_STATE.received=[]; _renderRequestsAndQuotes(); });
     }
   );
 }
 
-function _mergeAndRenderQuotes(){
-  // Chờ cả 2 snapshot đều về (không còn null) mới render
-  if(S_QUOTES_STATE.staffQuotes === null || S_QUOTES_STATE.inboundQuotes === null) return;
+function _renderRequestsAndQuotes() {
+  // Chỉ render khi cả 2 đều đã load
+  if (S_QUOTES_STATE.inbound === null || S_QUOTES_STATE.received === null) return;
 
-  const staffList   = S_QUOTES_STATE.staffQuotes;
-  const inboundList = S_QUOTES_STATE.inboundQuotes;
+  _renderMyRequests();
+  _renderMyQuotes();
+  _renderDashQuotes();
 
-  // Lọc inbound: ẩn những yêu cầu đã có staff_quote liên kết (tránh hiện trùng)
-  const linkedQuoteIds = new Set(staffList.map(q => q.linkedQuoteId).filter(Boolean));
-  const pendingInbound = inboundList.filter(q => !linkedQuoteIds.has(q.id));
-
-  // Gộp: staff quotes trước (có báo giá), inbound chưa có báo giá sau
-  S_QUOTES_STATE.list = [...staffList, ...pendingInbound];
-
-  renderMyQuotes();
-  renderDashQuotes();
-
-  // Badge: chỉ đếm pending_confirm (cần khách xác nhận)
-  const pendingConfirm = staffList.filter(q=>q.status==='pending_confirm').length;
+  // Badge tab Báo Giá: chỉ đếm pending_confirm
+  const pendingCount = (S_QUOTES_STATE.received||[]).filter(q=>q.status==='pending_confirm').length;
   const badge = document.getElementById('badge-quotes');
-  if(badge){
-    badge.textContent = pendingConfirm;
-    badge.style.display = pendingConfirm ? 'inline-flex' : 'none';
-  }
+  if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount ? 'inline-flex' : 'none'; }
+
+  // Badge tab Yêu cầu: đếm new (chưa có báo giá)
+  const linkedIds = new Set((S_QUOTES_STATE.received||[]).map(q=>q.linkedQuoteId).filter(Boolean));
+  const unhandled = (S_QUOTES_STATE.inbound||[]).filter(q=>q.status==='new' && !linkedIds.has(q.id)).length;
+  const bReq = document.getElementById('badge-requests');
+  if (bReq) { bReq.textContent = unhandled; bReq.style.display = unhandled ? 'inline-flex' : 'none'; }
 }
 
-function renderMyQuotes(){
-  const el = document.getElementById('my-quotes-list');
-  if(!el) return;
-  const list = S_QUOTES_STATE.list || [];
-  if(!list.length){
-    el.innerHTML=`<div class="empty"><div class="ei">📋</div><h3>Chưa có yêu cầu nào</h3><p>Nhấn "Yêu cầu mới" để gửi yêu cầu báo giá đầu tiên</p></div>`;
+// ── Tab: Yêu cầu báo giá (inbound từ khách)
+function _renderMyRequests() {
+  const el = document.getElementById('my-requests-list');
+  if (!el) return;
+  const list = S_QUOTES_STATE.inbound || [];
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="ei">📤</div><h3>Chưa có yêu cầu nào</h3><p>Nhấn "Yêu cầu mới" để gửi yêu cầu báo giá đầu tiên</p></div>`;
     return;
   }
-  el.innerHTML = list.map(q => q._src==='inbound' ? inboundCard(q) : quoteCard(q, false)).join('');
+  const linkedIds = new Set((S_QUOTES_STATE.received||[]).map(q=>q.linkedQuoteId).filter(Boolean));
+  el.innerHTML = list.map(q => _requestCard(q, linkedIds.has(q.id))).join('');
 }
 
-function renderDashQuotes(){
-  const staffList = (S_QUOTES_STATE.staffQuotes||[]).filter(q=>q.status==='pending_confirm');
-  const inboundWaiting = (S_QUOTES_STATE.inboundQuotes||[]).filter(q=>q.status==='new'||q.status==='quoted');
-  const linkedIds = new Set((S_QUOTES_STATE.staffQuotes||[]).map(q=>q.linkedQuoteId).filter(Boolean));
-  const pendingInbound = inboundWaiting.filter(q=>!linkedIds.has(q.id));
-
-  const showList = [...staffList.slice(0,2), ...pendingInbound.slice(0,1)];
-  const sec = document.getElementById('dash-quotes-section');
-  const el  = document.getElementById('dash-quotes-list');
-  if(!sec||!el) return;
-  if(!showList.length){ sec.style.display='none'; return; }
-  sec.style.display='block';
-  el.innerHTML = showList.map(q => q._src==='inbound' ? inboundCard(q, true) : quoteCard(q, true)).join('');
-}
-
-// Card cho yêu cầu khách đã gửi, đang chờ nhân viên lập báo giá
-function inboundCard(q, mini){
-  const statusMap = { new:'⏳ Chờ báo giá', quoted:'📝 Đang xử lý', cancelled:'❌ Đã hủy' };
-  const sl = statusMap[q.status] || '⏳ Chờ báo giá';
-  const bgCol = q.status==='new' ? '#FEF9C3' : '#F0FDF4';
-  const txCol = q.status==='new' ? '#B45309' : '#065F46';
+function _requestCard(q, hasQuote) {
   const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
+  const statusLabel = hasQuote ? '📝 Đã có báo giá' : (q.status==='new'?'⏳ Chờ báo giá':'📝 Đang xử lý');
+  const statusBg    = hasQuote ? '#D1FAE5' : '#FEF9C3';
+  const statusTx    = hasQuote ? '#065F46' : '#B45309';
   return `<div class="quote-card" style="border-color:#E2E8F0">
     <div class="qc-head">
-      <div>
+      <div style="flex:1">
         <div class="qc-title">📤 Yêu cầu báo giá</div>
         <div class="qc-sub">${q.services||'—'}</div>
-        <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Gửi lúc: ${dt}${q.deadline&&q.deadline!=='Càng sớm càng tốt'?` · Deadline: <strong>${q.deadline}</strong>`:''}</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Gửi lúc: ${dt}${q.deadline&&q.deadline!=='Càng sớm càng tốt'?` · Hạn: <strong>${q.deadline}</strong>`:''}</div>
+        ${q.note?`<div style="font-size:12px;color:var(--text2);margin-top:4px">📝 ${q.note}</div>`:''}
       </div>
-      <span style="background:${bgCol};color:${txCol};padding:3px 10px;border-radius:10px;font-size:11.5px;font-weight:700;flex-shrink:0;align-self:flex-start">${sl}</span>
+      <span style="background:${statusBg};color:${statusTx};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;flex-shrink:0;align-self:flex-start">${statusLabel}</span>
     </div>
-    ${!mini&&q.note?`<div style="font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);margin-top:6px">📝 Ghi chú: ${q.note}</div>`:''}
-    <div style="margin-top:10px;font-size:12px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)">
-      Nhân viên đang xem xét yêu cầu — báo giá sẽ xuất hiện ở đây khi hoàn tất.
-    </div>
+    ${hasQuote ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12.5px;color:var(--blue2);font-weight:600">
+      ✅ Nhân viên đã gửi báo giá → <button onclick="showSec('my-quotes',document.getElementById('tab-my-quotes'))" style="background:none;border:none;color:var(--blue3);font-weight:700;cursor:pointer;font-size:12.5px;padding:0;font-family:inherit">Xem báo giá →</button>
+    </div>` : `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">
+      Nhân viên đang xem xét — báo giá sẽ xuất hiện trong tab <strong>Báo Giá</strong> khi hoàn tất.
+    </div>`}
   </div>`;
 }
 
-function quoteCard(q, mini){
-  const statusMap = {
-    pending_confirm:'⏳ Chờ xác nhận',
-    confirmed:'✅ Đã xác nhận',
-    rejected:'❌ Đã từ chối',
-    sent:'📤 Nhân viên đã gửi',
-    order_created:'🚀 Đã tạo đơn hàng'
-  };
-  const statusClass = {
-    pending_confirm:'pending',
-    confirmed:'confirmed-q',
-    rejected:'rejected-q'
-  };
-  const sl = statusMap[q.status] || q.status;
-  const sc = statusClass[q.status] || '';
-  const isPending = q.status === 'pending_confirm';
-  const isRejected = q.status === 'rejected';
+// ── Tab: Báo giá nhận được (từ NV)
+function _renderMyQuotes() {
+  const el = document.getElementById('my-quotes-list');
+  if (!el) return;
+  const list = S_QUOTES_STATE.received || [];
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="ei">💰</div><h3>Chưa có báo giá nào</h3><p>Sau khi gửi yêu cầu, nhân viên sẽ gửi báo giá vào đây</p></div>`;
+    return;
+  }
+  el.innerHTML = list.map(q => _quoteCard(q)).join('');
+}
+
+function _quoteCard(q) {
+  const isPending   = q.status === 'pending_confirm';
+  const isConfirmed = q.status === 'confirmed' || q.status === 'order_created';
+  const isCancelled = q.status === 'cancelled';
   const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
 
-  return `<div class="quote-card ${sc}">
+  const statusLabel = isPending ? '⏳ Chờ xác nhận' : isConfirmed ? '✅ Đã xác nhận' : isCancelled ? '🚫 Đã hủy' : q.status==='sent'?'📤 Đã gửi':q.status;
+  const statusBg    = isPending ? '#FEF3C7' : isConfirmed ? '#D1FAE5' : isCancelled ? '#FEE2E2' : '#EFF6FF';
+  const statusTx    = isPending ? '#B45309' : isConfirmed ? '#065F46' : isCancelled ? '#B91C1C' : '#1D4ED8';
+  const cardBorder  = isPending ? '#F59E0B' : isConfirmed ? '#10B981' : isCancelled ? '#EF4444' : '#D1DCF0';
+
+  return `<div class="quote-card" style="border-color:${cardBorder};${isPending?'background:linear-gradient(to right,#FFFBEB,#fff)':''}${isConfirmed?'background:linear-gradient(to right,#F0FDF4,#fff)':''}">
     <div class="qc-head">
-      <div>
+      <div style="flex:1">
         <div class="qc-title">📋 Báo giá dịch vụ</div>
         <div class="qc-sub">${q.services||'—'}</div>
         <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Nhân viên: <strong>${q.staff||'Admin'}</strong> · ${dt}</div>
       </div>
-      <div>
+      <div style="text-align:right;flex-shrink:0">
         <div class="qc-price">${q.grandTotal ? q.grandTotal.toLocaleString('vi-VN')+'đ' : '—'}</div>
-        <div style="font-size:11px;text-align:right;margin-top:4px">
-          <span style="background:${isPending?'#FEF3C7':q.status==='confirmed'?'#D1FAE5':'#FEE2E2'};color:${isPending?'#B45309':q.status==='confirmed'?'#065F46':'#B91C1C'};padding:3px 8px;border-radius:10px;font-weight:700">${sl}</span>
-        </div>
+        <span style="background:${statusBg};color:${statusTx};padding:3px 10px;border-radius:10px;font-size:11.5px;font-weight:700;display:inline-block;margin-top:4px">${statusLabel}</span>
       </div>
     </div>
-    ${isRejected && q.rejectReason ? `
-    <div style="background:#FFF1F2;border:1px solid #FECACA;border-radius:8px;padding:9px 12px;margin-bottom:8px;font-size:12.5px;color:#B91C1C">
-      💬 Lý do từ chối: <em>"${q.rejectReason}"</em><br>
-      <span style="font-size:11.5px;color:var(--text3);margin-top:3px;display:block">Nhân viên sẽ liên hệ để điều chỉnh và gửi lại báo giá.</span>
-    </div>` : ''}
-    ${!mini?`
-    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:6px 0">
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:10px 0">
       <span>💰 Dịch vụ: <strong>${fm(q.subTotal||0)}</strong></span>
       <span>🏛️ VAT 8%: <strong>${fm(q.vat||0)}</strong></span>
       ${q.deposit?`<span>💳 Đặt cọc: <strong style="color:var(--blue)">${fm(q.deposit)}</strong></span>`:''}
-    </div>`:''}
-    <div class="qc-actions">
-      <button class="btn-view-quote" onclick="viewQuoteDetail('${q.id}')">👁 Xem chi tiết báo giá</button>
-      ${isPending?`
-      <button class="btn-confirm" onclick="confirmQuote('${q.id}')">✅ Xác nhận & Đặt cọc</button>
-      <button class="btn-reject" onclick="rejectQuote('${q.id}')">❌ Từ chối</button>`:''}
+    </div>
+
+    ${isConfirmed ? `<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:8px;padding:10px 14px;font-size:13px;color:#065F46;margin-bottom:8px">
+      ✅ Bạn đã xác nhận báo giá này. Đơn hàng đã được tạo — xem tại tab <strong>Đơn hàng</strong>.
+    </div>` : ''}
+    ${isCancelled ? `<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;font-size:13px;color:#B91C1C;margin-bottom:8px">
+      🚫 Báo giá này đã bị hủy. Liên hệ nhân viên nếu cần hỗ trợ.
+    </div>` : ''}
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-view-quote" onclick="viewQuoteDetail('${q.id}')">👁 Xem nội dung báo giá</button>
+      ${isPending ? `<button class="btn-confirm" onclick="confirmQuote('${q.id}')">✅ Đồng ý — Bắt đầu thực hiện</button>` : ''}
     </div>
   </div>`;
 }
 
-window.viewQuoteDetail = function(id){
-  const q = (S_QUOTES_STATE.list||[]).find(x=>x.id===id);
-  if(!q) return;
-  const isPending = q.status==='pending_confirm';
-  const isRejected = q.status==='rejected';
-  document.getElementById('mq-title').textContent = '💰 Chi tiết báo giá';
+// ── Dashboard: hiện báo giá pending
+function _renderDashQuotes() {
+  const pending = (S_QUOTES_STATE.received||[]).filter(q=>q.status==='pending_confirm');
+  const sec = document.getElementById('dash-quotes-section');
+  const el  = document.getElementById('dash-quotes-list');
+  if (!sec||!el) return;
+  if (!pending.length) { sec.style.display='none'; return; }
+  sec.style.display='block';
+  el.innerHTML = pending.slice(0,2).map(q => _quoteCard(q)).join('');
+}
+
+// ── Xem chi tiết nội dung báo giá (modal)
+window.viewQuoteDetail = function(id) {
+  const q = (S_QUOTES_STATE.received||[]).find(x=>x.id===id);
+  if (!q) return;
+  const isPending = q.status === 'pending_confirm';
+  document.getElementById('mq-title').textContent = '💰 Nội dung báo giá';
   document.getElementById('mq-body').innerHTML = `
     <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:12px;padding:14px 16px;margin-bottom:16px">
-      <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:4px">📋 Thông tin báo giá</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-        <div style="font-size:13px;color:var(--text2)">Nhân viên: <strong>${q.staff||'Admin'}</strong></div>
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div style="font-size:13px;color:var(--text2)">NV: <strong>${q.staff||'Admin'}</strong></div>
         <div style="font-size:13px;color:var(--text2)">Ngày: <strong>${q.quotedAt||'—'}</strong></div>
-        <div style="font-size:12px;padding:3px 10px;border-radius:10px;font-weight:700;background:${isPending?'#FEF3C7':q.status==='confirmed'?'#D1FAE5':'#FEE2E2'};color:${isPending?'#B45309':q.status==='confirmed'?'#065F46':'#B91C1C'}">
-          ${isPending?'⏳ Chờ xác nhận':q.status==='confirmed'?'✅ Đã xác nhận':isRejected?'❌ Đã từ chối':'📤 Đã gửi'}
-        </div>
+        <div style="font-size:13px;color:var(--text2)">Tổng: <strong style="color:var(--blue);font-size:15px">${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</strong></div>
       </div>
     </div>
-    ${isRejected && q.rejectReason ? `
-    <div style="background:#FFF1F2;border:1.5px solid #FECACA;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#B91C1C">
-      <strong>Lý do từ chối:</strong> "${q.rejectReason}"<br>
-      <span style="font-size:12px;color:var(--text3);margin-top:4px;display:block">Nhân viên sẽ liên hệ và gửi lại báo giá điều chỉnh.</span>
-    </div>` : ''}
-    <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;margin-bottom:14px">
-      <div style="background:#F3F4F6;padding:7px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)">
-        <span style="width:9px;height:9px;border-radius:50%;background:#EF4444;display:inline-block"></span>
-        <span style="width:9px;height:9px;border-radius:50%;background:#F59E0B;display:inline-block"></span>
-        <span style="width:9px;height:9px;border-radius:50%;background:#10B981;display:inline-block"></span>
-        <span style="font-size:11px;color:#6B7280;margin-left:4px">Nội dung báo giá</span>
-      </div>
-      <div style="padding:20px;max-height:420px;overflow-y:auto;font-size:13.5px;color:#1F2937;font-family:'Be Vietnam Pro',sans-serif;line-height:1.7">${q.htmlContent||'<em style="color:#999">Không có nội dung</em>'}</div>
+    <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff">
+      <div style="background:#F3F4F6;padding:7px 14px;font-size:11px;color:#6B7280">Nội dung báo giá — nền trắng như gửi khách</div>
+      <div style="padding:20px;max-height:420px;overflow-y:auto;font-size:13.5px;color:#1F2937;line-height:1.7">${q.htmlContent||'<em style="color:#999">Không có nội dung</em>'}</div>
     </div>`;
   document.getElementById('mq-foot').innerHTML = `
     <button class="bm bm-c" onclick="document.getElementById('m-quote').style.display='none'">Đóng</button>
-    ${isPending?`
-    <button class="bm" style="background:#FFF1F2;color:#B91C1C;border:1.5px solid #FECACA" onclick="document.getElementById('m-quote').style.display='none';rejectQuote('${id}')">❌ Từ chối</button>
-    <button class="bm bm-p" style="background:linear-gradient(135deg,#10B981,#34D399)" onclick="document.getElementById('m-quote').style.display='none';confirmQuote('${id}')">✅ Xác nhận báo giá</button>`:''}`;
+    ${isPending?`<button class="bm bm-p" style="background:linear-gradient(135deg,#10B981,#34D399)" onclick="document.getElementById('m-quote').style.display='none';confirmQuote('${id}')">✅ Đồng ý — Bắt đầu thực hiện</button>`:''}`;
   document.getElementById('m-quote').style.display='flex';
 };
 
-window.confirmQuote = async function(id){
-  const q = (S_QUOTES_STATE.list||[]).find(x=>x.id===id);
-  if(!q) return;
-  if(!confirm('Bạn xác nhận báo giá này và đồng ý tiến hành dịch vụ?\n\nSau khi xác nhận, nhân viên sẽ bắt đầu xử lý hồ sơ của bạn.')) return;
-  try{
-    await updateDoc(doc(db,'customer_quotes',id),{status:'confirmed',confirmedAt:serverTimestamp()});
-    // Cập nhật staff_quote tương ứng
-    if(q.staffQuoteId){
-      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{status:'confirmed',confirmedAt:serverTimestamp(),updatedAt:serverTimestamp()});
-    }
-    notif('✅ Đã xác nhận báo giá! Nhân viên sẽ liên hệ bạn ngay để tiến hành.','ok',7000);
-    showSec('quotes-mine',document.getElementById('tab-quotes-mine'));
-  }catch(e){
-    notif('❌ Có lỗi xảy ra: '+e.message,'er');
-  }
-};
-
-let _rejectQuoteId = null;
-
-window.rejectQuote = function(id) {
-  _rejectQuoteId = id;
-  const input = document.getElementById('reject-reason-input');
-  if (input) input.value = '';
-  document.getElementById('m-reject').style.display = 'flex';
-};
-
-window.submitReject = async function() {
-  const id = _rejectQuoteId;
-  if (!id) return;
-  const reason = (document.getElementById('reject-reason-input')?.value || '').trim();
-  document.getElementById('m-reject').style.display = 'none';
+// ── XÁC NHẬN BÁO GIÁ → TẠO ĐƠN HÀNG NGAY LẬP TỨC
+window.confirmQuote = async function(id) {
+  const q = (S_QUOTES_STATE.received||[]).find(x=>x.id===id);
+  if (!q) return;
+  if (!confirm('Bạn đồng ý với báo giá này?\n\nSau khi xác nhận, đơn hàng sẽ được tạo ngay và nhân viên sẽ bắt đầu thực hiện.')) return;
   try {
-    await updateDoc(doc(db,'customer_quotes',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectReason:reason});
-    const q = (S_QUOTES_STATE.list||[]).find(x=>x.id===id);
-    if (q?.staffQuoteId) {
-      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{status:'rejected',rejectReason:reason,updatedAt:serverTimestamp()});
+    // Tạo orderId
+    const oid = 'DT-' + Date.now().toString(36).toUpperCase().slice(-6);
+    let tasks = [];
+    try { tasks = JSON.parse(q.tasks||'[]'); } catch(e){}
+
+    // Tạo đơn hàng ngay
+    const orderData = {
+      orderId: oid,
+      customerName: q.name || S.profile?.name || '',
+      company: q.company || '',
+      phone: q.phone || '',
+      email: q.email || S.user.email,
+      customerUid: S.user.uid,
+      service: q.services || '',
+      tasks: JSON.stringify(tasks),
+      subTotal: q.subTotal || 0,
+      vat: q.vat || 0,
+      total: q.grandTotal || 0,
+      deposit: q.deposit || 0,
+      bankName: q.bankName || '',
+      bankAcc: q.bankAcc || '',
+      bankOwner: q.bankOwner || '',
+      staff: q.staff || 'Admin',
+      staffQuoteId: q.staffQuoteId || id,
+      linkedQuoteId: q.linkedQuoteId || null,
+      status: 'confirmed',
+      channel: 'Portal – Khách xác nhận',
+      confirmedAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+
+    const orderRef = await addDoc(collection(db,'orders'), orderData);
+
+    // Cập nhật customer_quotes
+    await updateDoc(doc(db,'customer_quotes',id), {
+      status: 'order_created',
+      orderId: orderRef.id,
+      orderNum: oid,
+      confirmedAt: serverTimestamp()
+    });
+
+    // Cập nhật staff_quotes
+    if (q.staffQuoteId) {
+      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId), {
+        status: 'order_created',
+        orderId: orderRef.id,
+        orderNum: oid,
+        confirmedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
     }
-    _rejectQuoteId = null;
-    notif('Đã từ chối báo giá. Nhân viên sẽ liên hệ để điều chỉnh và gửi lại.','in',6000);
+
+    // Cập nhật quotes gốc nếu có
+    if (q.linkedQuoteId) {
+      await updateDoc(doc(db,'quotes',q.linkedQuoteId), {
+        status: 'confirmed',
+        orderId: orderRef.id
+      });
+    }
+
+    notif(`✅ Đã xác nhận! Đơn hàng ${oid} vừa được tạo. Nhân viên sẽ liên hệ bạn ngay.`, 'ok', 8000);
+    // Chuyển sang tab Đơn hàng
+    showSec('orders', document.querySelector('.tn[onclick*="orders"]'));
   } catch(e) {
-    notif('❌ Có lỗi: '+e.message,'er');
+    console.error(e);
+    notif('❌ Lỗi xác nhận: ' + e.message, 'er');
   }
 };
 
@@ -1014,7 +994,7 @@ function renderDash(){
   const active=S.orders.filter(o=>['new','quoted','confirmed','processing'].includes(o.status));
   const el=document.getElementById('active-orders');
   el.innerHTML=active.length?active.map(o=>orderCard(o,true)).join(''):`<div class="empty"><div class="ei">✅</div><h3>Không có hồ sơ đang xử lý</h3><p>Tất cả hồ sơ của bạn đã hoàn thành</p></div>`;
-  renderDashQuotes();
+  _renderDashQuotes();
 }
 
 function renderOrders(){
@@ -1024,66 +1004,89 @@ function renderOrders(){
 
 function orderCard(o,mini){
   const prog=PROG[o.status]||0;
-  const isDone=['done','invoiced','paid'].includes(o.status);
+  const isDone=['done','invoiced','paid','delivered'].includes(o.status);
   const stepIdx=STEPS.findIndex(s=>s.k===o.status);
   const stepsHTML=STEPS.map((s,i)=>{const cls=i<stepIdx?'done':i===stepIdx?'active':'';const icon=i<stepIdx?'✓':i===stepIdx?'●':'○';return`<div class="cs ${cls}"><div class="cs-dot">${icon}</div><div class="cs-label">${s.l}</div></div>`;}).join('');
+
+  // Nhãn trạng thái đơn hàng thân thiện với KH
+  const ORDER_STATUS_KH = {
+    confirmed:'📋 Đã xác nhận — chờ xử lý',
+    processing:'⚙️ Đang thực hiện',
+    done:'✅ Đã hoàn thành',
+    paid:'💰 Đã thanh toán',
+    delivered:'🚚 Đã giao hàng',
+    invoiced:'🧾 Đã xuất hóa đơn',
+    cancelled:'🚫 Đã hủy',
+    new:'📥 Mới tạo'
+  };
+  const stLabel = ORDER_STATUS_KH[o.status] || sb(o.status);
+
   return`<div class="order-card" onclick="viewOrder('${o.id}')">
     <div class="oc-top">
       <div>
         <div class="oc-id">#${o.orderId||o.id.slice(-6).toUpperCase()}</div>
-        <div class="oc-name">${o.service||'Dịch thuật công chứng'}</div>
-        <div class="oc-service">${o.lang||''} · ${o.customerName||''}</div>
+        <div class="oc-name">${o.service||'Dịch vụ'}</div>
+        <div class="oc-service">NV: ${o.staff||'Admin'} · ${fd(o.createdAt)}</div>
       </div>
-      ${sb(o.status)}
+      <div style="text-align:right">
+        <div style="font-size:14px;font-weight:800;color:var(--blue)">${fm(o.total||0)}</div>
+        <div style="font-size:11.5px;font-weight:600;margin-top:3px">${stLabel}</div>
+      </div>
     </div>
     <div class="oc-progress">
-      <div class="prog-label"><span>Tiến trình xử lý</span><span>${prog}%</span></div>
+      <div class="prog-label"><span>Tiến trình</span><span>${prog}%</span></div>
       <div class="prog-track"><div class="prog-fill ${isDone?'done':''}" style="width:${prog}%"></div></div>
     </div>
     ${mini?'':stepsHTML}
-    <div class="oc-meta">
-      <div class="oc-meta-item">💰 Giá trị: <strong>${fm(o.total||0)}</strong></div>
-      <div class="oc-meta-item">👷 Nhân viên: <strong>${o.staff||'Admin'}</strong></div>
-      <div class="oc-meta-item">📅 Ngày tạo: <strong>${fd(o.createdAt)}</strong></div>
-      ${o.deadline?`<div class="oc-meta-item">⏰ Deadline: <strong style="color:${new Date(o.deadline)<new Date()?'var(--red)':'inherit'}">${fdt(new Date(o.deadline))}</strong></div>`:''}
-    </div>
-    ${o.customerComment?`<div style="background:#FFF7ED;border:1px solid #FDE68A;border-radius:8px;padding:10px 12px;margin-top:12px;font-size:13px;color:#92400E">💬 Đánh giá của bạn: ${'★'.repeat(o.customerRating||0)} "${o.customerComment}"</div>`:''}
   </div>`;
 }
-
 window.viewOrder=(id)=>{
   const o=S.orders.find(x=>x.id===id);if(!o)return;
   S.currentOrderId=id;
-  const logs=S.activity.filter(a=>a.detail?.includes(o.orderId||id));
-  const isDone=['done','invoiced','paid'].includes(o.status);
-  document.getElementById('mo-title').textContent=`Hồ sơ #${o.orderId||id.slice(-6).toUpperCase()}`;
+  const isDone=['done','invoiced','paid','delivered'].includes(o.status);
+  document.getElementById('mo-title').textContent=`Đơn hàng #${o.orderId||id.slice(-6).toUpperCase()}`;
   document.getElementById('mo-feedback-btn').style.display=isDone&&!o.customerComment?'flex':'none';
   const prog=PROG[o.status]||0;
   const stepIdx=STEPS.findIndex(s=>s.k===o.status);
+
+  const STATUS_INFO = {
+    confirmed:{icon:'📋',label:'Đã xác nhận — nhân viên chuẩn bị',color:'#0050B3',bg:'#EFF6FF'},
+    processing:{icon:'⚙️',label:'Đang thực hiện',color:'#6D28D9',bg:'#F5F3FF'},
+    done:{icon:'✅',label:'Đã hoàn thành',color:'#065F46',bg:'#F0FDF4'},
+    delivered:{icon:'🚚',label:'Đã giao hàng',color:'#065F46',bg:'#F0FDF4'},
+    invoiced:{icon:'🧾',label:'Đã xuất hóa đơn',color:'#92400E',bg:'#FFF9E6'},
+    paid:{icon:'💰',label:'Đã thanh toán — hoàn tất',color:'#065F46',bg:'#F0FDF4'},
+    cancelled:{icon:'🚫',label:'Đã hủy',color:'#B91C1C',bg:'#FEF2F2'}
+  };
+  const si = STATUS_INFO[o.status] || {icon:'📋',label:SL[o.status]||o.status,color:'#003580',bg:'#EFF6FF'};
+
   document.getElementById('mo-body').innerHTML=`
-    <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:12px;padding:16px;margin-bottom:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:15px;font-weight:700;color:var(--blue)">${o.service||'—'}</div>
-        ${sb(o.status)}
-      </div>
-      <div class="oc-steps">${STEPS.map((s,i)=>{const cls=i<stepIdx?'done':i===stepIdx?'active':'';const icon=i<stepIdx?'✓':i===stepIdx?'●':'○';return`<div class="cs ${cls}"><div class="cs-dot">${icon}</div><div class="cs-label">${s.l}</div></div>`;}).join('')}</div>
-      <div class="prog-track" style="margin-top:12px"><div class="prog-fill ${isDone?'done':''}" style="width:${prog}%"></div></div>
-      <div style="text-align:right;font-size:12px;color:var(--text2);margin-top:4px">${prog}% hoàn thành</div>
+    <!-- Status banner -->
+    <div style="background:${si.bg};border:1.5px solid ${si.color}30;border-radius:12px;padding:16px;margin-bottom:16px;text-align:center">
+      <div style="font-size:28px;margin-bottom:6px">${si.icon}</div>
+      <div style="font-size:15px;font-weight:700;color:${si.color}">${si.label}</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px">${o.service||'Dịch vụ'}</div>
     </div>
+
+    <!-- Progress steps -->
+    <div class="oc-steps" style="margin-bottom:16px">
+      ${STEPS.map((s,i)=>{const cls=i<stepIdx?'done':i===stepIdx?'active':'';const icon=i<stepIdx?'✓':i===stepIdx?'●':'○';return`<div class="cs ${cls}"><div class="cs-dot">${icon}</div><div class="cs-label">${s.l}</div></div>`;}).join('')}
+    </div>
+    <div class="prog-track" style="margin-bottom:16px">
+      <div class="prog-fill ${isDone?'done':''}" style="width:${prog}%"></div>
+    </div>
+
+    <!-- Details -->
     <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
-      <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">Chi tiết hồ sơ</h4>
+      <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">Thông tin đơn hàng</h4>
+      <div class="df"><span class="dl">Mã đơn</span><span class="dv" style="font-family:monospace;color:var(--blue3)">#${o.orderId||id.slice(-6).toUpperCase()}</span></div>
       <div class="df"><span class="dl">Dịch vụ</span><span class="dv" style="font-size:12.5px">${o.service||'—'}</span></div>
-      <div class="df"><span class="dl">Ngôn ngữ</span><span class="dv">${o.lang||'—'}</span></div>
-      <div class="df"><span class="dl">Số trang</span><span class="dv">${o.pages||'—'}</span></div>
-      <div class="df"><span class="dl">Giá trị</span><span class="dv" style="color:var(--gold);font-size:16px">${fm(o.total||0)}</span></div>
+      <div class="df"><span class="dl">Tổng giá trị</span><span class="dv" style="color:var(--blue);font-size:16px;font-weight:800">${fm(o.total||0)}</span></div>
+      ${o.deposit?`<div class="df"><span class="dl">Đặt cọc</span><span class="dv" style="color:#0050B3">${fm(o.deposit)}</span></div>`:''}
+      ${o.bankAcc?`<div class="df"><span class="dl">TK nhận cọc</span><span class="dv" style="font-size:12px">${o.bankName||''} ${o.bankAcc} — ${o.bankOwner||''}</span></div>`:''}
       <div class="df"><span class="dl">Nhân viên</span><span class="dv">${o.staff||'Admin'}</span></div>
-      <div class="df"><span class="dl">Deadline</span><span class="dv" style="color:var(--red)">${o.deadline?fdt(new Date(o.deadline)):'—'}</span></div>
       <div class="df"><span class="dl">Ngày tạo</span><span class="dv">${fd(o.createdAt)}</span></div>
-      ${o.note?`<div class="df"><span class="dl">Ghi chú</span><span class="dv" style="max-width:60%;font-size:12.5px">${o.note}</span></div>`:''}
-    </div>
-    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px">
-      <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">Lịch sử xử lý (${logs.length} hoạt động)</h4>
-      <div class="tl">${logs.length?logs.map(a=>`<div class="tli"><div class="tld" style="background:${a.color==='g'?'#10B981':a.color==='gold'?'#F59E0B':a.color==='r'?'#EF4444':'#3B82F6'}"></div><div style="flex:1"><div class="tla">${a.action}</div><div class="tlm">${a.detail||''}</div></div><div class="tlt">${a.createdAt?.toDate?fdt2(a.createdAt.toDate()):''}</div></div>`).join(''):'<p style="font-size:13px;color:var(--text3)">Chưa có lịch sử</p>'}</div>
+      ${o.note?`<div class="df"><span class="dl">Ghi chú</span><span class="dv" style="font-size:12.5px;max-width:60%">${o.note}</span></div>`:''}
     </div>`;
   document.getElementById('m-order').style.display='flex';
 };
@@ -1205,9 +1208,9 @@ window.sendRequest=async()=>{
     window._bqFiles=[];
     document.getElementById('bq-upload-list').innerHTML='';
     document.getElementById('bq-gdrive-tip').style.display='none';
-    // Chuyển sang tab Báo Giá để khách thấy yêu cầu vừa gửi
-    const qTab = document.getElementById('tab-quotes-mine');
-    showSec('quotes-mine', qTab);
+    // Chuyển sang tab Yêu cầu báo giá để khách thấy yêu cầu vừa gửi
+    const qTab = document.getElementById('tab-my-requests');
+    showSec('my-requests', qTab);
     notif('✅ Đã gửi yêu cầu báo giá! Nhân viên sẽ liên hệ trong 5–15 phút.','ok',6000);
   }catch(e){
     err.textContent='❌ Có lỗi xảy ra, vui lòng thử lại hoặc liên hệ qua chat.';
