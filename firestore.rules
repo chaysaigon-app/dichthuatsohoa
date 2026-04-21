@@ -52,6 +52,12 @@ service cloud.firestore {
       allow update, delete: if isSuperAdmin();
     }
 
+    // ── quotes (form báo giá từ website — public write) ─────────
+    match /quotes/{id} {
+      allow create: if true;
+      allow read, update, delete: if isStaff();
+    }
+
     // ── contacts (form liên hệ từ website — public write) ────
     match /contacts/{id} {
       allow create: if true;

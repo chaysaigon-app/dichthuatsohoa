@@ -453,3 +453,276 @@ export async function renderChatWidget() {
     delete window.__chatPendingOpen;
   }
 }
+
+// ================================================================
+// MODAL BÁO GIÁ NGAY — mở khi click nút đỏ "💰 Báo Giá Ngay"
+// Form: SĐT · Email · Upload file (hoặc Google Drive) · Dịch vụ · Giao nhận · Ngày hoàn thành
+// Gửi → lưu Firestore collection "quotes"
+// ================================================================
+(function() {
+
+const CSS = `
+  #baogia-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px}
+  #baogia-overlay.open{display:flex}
+  #baogia-box{background:#fff;border-radius:18px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,.25);font-family:'Be Vietnam Pro',sans-serif}
+  .bg-head{background:linear-gradient(135deg,#D72323,#FF4444);color:#fff;padding:18px 20px;border-radius:18px 18px 0 0;display:flex;align-items:center;justify-content:space-between}
+  .bg-head h3{margin:0;font-size:17px;font-weight:700}
+  .bg-head p{margin:4px 0 0;font-size:12px;opacity:.85}
+  .bg-head .bg-close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:1;padding:0}
+  .bg-body{padding:20px}
+  .bg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .bg-row.full{grid-template-columns:1fr}
+  .bg-field{display:flex;flex-direction:column;gap:5px}
+  .bg-field label{font-size:12px;font-weight:600;color:#374151}
+  .bg-field input,.bg-field select,.bg-field input[type=date]{border:1.5px solid #D1D5DB;border-radius:8px;padding:9px 11px;font-size:13px;outline:none;font-family:inherit;transition:border-color .2s;width:100%;box-sizing:border-box}
+  .bg-field input:focus,.bg-field select:focus{border-color:#D72323}
+  .bg-field .hint{font-size:11px;color:#9CA3AF;margin-top:2px}
+  .bg-section{font-size:12px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid #F3F4F6}
+  /* Upload zone */
+  .bg-upload-zone{border:2px dashed #D1D5DB;border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:border-color .2s;background:#FAFAFA;position:relative}
+  .bg-upload-zone:hover{border-color:#D72323;background:#FFF5F5}
+  .bg-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .bg-upload-zone .uz-icon{font-size:28px;margin-bottom:6px}
+  .bg-upload-zone .uz-text{font-size:13px;color:#6B7280;font-weight:600}
+  .bg-upload-zone .uz-sub{font-size:11px;color:#9CA3AF;margin-top:3px}
+  .bg-upload-list{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+  .bg-upload-item{display:flex;align-items:center;gap:7px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:6px;padding:5px 9px;font-size:12px;color:#166534}
+  .bg-upload-item .rm{background:none;border:none;color:#DC2626;cursor:pointer;font-size:14px;margin-left:auto;padding:0;line-height:1}
+  /* Google Drive tip */
+  .bg-gdrive-tip{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:12px;color:#1e40af;line-height:1.7}
+  .bg-gdrive-tip b{display:block;margin-bottom:4px;font-size:13px}
+  .bg-gdrive-tip .gdrive-btn{display:inline-flex;align-items:center;gap:5px;margin-top:8px;background:#4285F4;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none}
+  /* Checkbox options */
+  .bg-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+  .bg-check{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;cursor:pointer;transition:all .15s;font-size:13px;font-weight:500;color:#374151;user-select:none}
+  .bg-check:hover{border-color:#D72323;background:#FFF5F5}
+  .bg-check input{display:none}
+  .bg-check.checked{border-color:#D72323;background:#FFF5F5;color:#D72323;font-weight:700}
+  .bg-check .ck-icon{font-size:18px}
+  /* Delivery address */
+  #bg-delivery-addr{margin-top:8px;display:none}
+  #bg-delivery-addr input{width:100%;box-sizing:border-box}
+  /* Submit */
+  .bg-submit{width:100%;padding:14px;background:linear-gradient(135deg,#D72323,#FF4444);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px;transition:opacity .2s;font-family:inherit}
+  .bg-submit:hover{opacity:.9}
+  .bg-submit:disabled{opacity:.6;cursor:not-allowed}
+  .bg-success{text-align:center;padding:32px 20px}
+  .bg-success .sc-icon{font-size:52px;margin-bottom:12px}
+  .bg-success h4{font-size:18px;font-weight:700;color:#065F46;margin:0 0 8px}
+  .bg-success p{font-size:13px;color:#6B7280;line-height:1.7;margin:0}
+  @media(max-width:480px){.bg-row{grid-template-columns:1fr}.bg-checks{grid-template-columns:1fr}}
+`;
+
+const HTML = `
+<div id="baogia-overlay">
+  <div id="baogia-box">
+    <div class="bg-head">
+      <div>
+        <h3>💰 Yêu Cầu Báo Giá</h3>
+        <p>Điền thông tin — nhân viên báo giá trong 5 phút</p>
+      </div>
+      <button class="bg-close" id="bg-close">✕</button>
+    </div>
+    <div class="bg-body" id="bg-body">
+
+      <div class="bg-section">Thông tin liên hệ</div>
+      <div class="bg-row">
+        <div class="bg-field">
+          <label>Họ tên</label>
+          <input type="text" id="bg-name" placeholder="Nguyễn Văn A">
+        </div>
+        <div class="bg-field">
+          <label>Số điện thoại *</label>
+          <input type="tel" id="bg-phone" placeholder="09xx.xxx.xxx" required>
+          <span class="hint">Zalo / WhatsApp để nhận báo giá</span>
+        </div>
+      </div>
+      <div class="bg-row full">
+        <div class="bg-field">
+          <label>Email</label>
+          <input type="email" id="bg-email" placeholder="email@example.com">
+          <span class="hint">Nhận báo giá & hóa đơn qua email</span>
+        </div>
+      </div>
+
+      <div class="bg-section">Tài liệu cần dịch</div>
+      <div class="bg-upload-zone" id="bg-upload-zone">
+        <input type="file" id="bg-file-input" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip,.rar">
+        <div class="uz-icon">📎</div>
+        <div class="uz-text">Nhấn để chọn file hoặc kéo thả vào đây</div>
+        <div class="uz-sub">PDF, Word, ảnh — tối đa 10MB/file</div>
+      </div>
+      <div class="bg-upload-list" id="bg-upload-list"></div>
+
+      <div class="bg-gdrive-tip" id="bg-gdrive-tip" style="display:none">
+        <b>📁 File lớn hơn 10MB?</b>
+        Vui lòng upload lên <strong>Google Drive</strong> và chia sẻ với chúng tôi:<br>
+        ① Upload file lên Google Drive của bạn<br>
+        ② Click chuột phải → <em>Chia sẻ</em> → Thêm email: <strong>sohoavn@gmail.com</strong><br>
+        ③ Dán link Google Drive vào ô bên dưới:
+        <div style="margin-top:8px">
+          <input type="text" id="bg-gdrive-link" placeholder="https://drive.google.com/..." style="width:100%;box-sizing:border-box;border:1.5px solid #BFDBFE;border-radius:6px;padding:7px 10px;font-size:12px;outline:none;font-family:inherit">
+        </div>
+      </div>
+      <button type="button" id="bg-gdrive-toggle" style="margin-top:8px;background:none;border:1.5px dashed #93C5FD;border-radius:8px;width:100%;padding:8px;font-size:12px;color:#2563EB;cursor:pointer;font-family:inherit">
+        📁 File lớn? Upload Google Drive & chia sẻ với chúng tôi →
+      </button>
+
+      <div class="bg-section">Dịch vụ yêu cầu</div>
+      <div class="bg-checks" id="bg-services">
+        <label class="bg-check" data-val="Dịch thuật"><input type="checkbox"><span class="ck-icon">📝</span>Dịch thuật</label>
+        <label class="bg-check" data-val="Dịch thuật + Công chứng"><input type="checkbox"><span class="ck-icon">🔏</span>Dịch thuật + Công chứng</label>
+        <label class="bg-check" data-val="Hợp pháp hóa lãnh sự"><input type="checkbox"><span class="ck-icon">🏛️</span>Hợp pháp hóa lãnh sự</label>
+        <label class="bg-check" data-val="Đánh máy / Nhập liệu"><input type="checkbox"><span class="ck-icon">⌨️</span>Đánh máy / Nhập liệu</label>
+      </div>
+
+      <div class="bg-section">Nhận hàng</div>
+      <div class="bg-checks" id="bg-delivery">
+        <label class="bg-check" data-val="Lấy tại văn phòng"><input type="checkbox"><span class="ck-icon">🏢</span>Lấy tại văn phòng</label>
+        <label class="bg-check" data-val="Giao hàng tận nơi"><input type="checkbox"><span class="ck-icon">🛵</span>Giao hàng tận nơi</label>
+      </div>
+      <div id="bg-delivery-addr">
+        <div class="bg-field">
+          <label>Địa chỉ giao hàng *</label>
+          <input type="text" id="bg-addr" placeholder="Số nhà, đường, phường, quận, TP...">
+        </div>
+      </div>
+
+      <div class="bg-section">Ngày hoàn thành mong muốn</div>
+      <div class="bg-row full">
+        <div class="bg-field">
+          <input type="date" id="bg-date">
+          <span class="hint">Để trống nếu cần càng sớm càng tốt</span>
+        </div>
+      </div>
+
+      <div class="bg-row full">
+        <div class="bg-field">
+          <label>Ghi chú thêm</label>
+          <input type="text" id="bg-note" placeholder="Loại giấy tờ, ngôn ngữ, yêu cầu đặc biệt...">
+        </div>
+      </div>
+
+      <button class="bg-submit" id="bg-submit">🚀 Gửi Yêu Cầu Báo Giá</button>
+    </div>
+  </div>
+</div>
+`;
+
+// Inject style + HTML
+const s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s);
+document.body.insertAdjacentHTML('beforeend', HTML);
+
+const overlay = document.getElementById('baogia-overlay');
+const gdriveTip = document.getElementById('bg-gdrive-tip');
+let selectedFiles = [];
+
+// Open/close
+window.__openBaoGia = function() { overlay.classList.add('open'); };
+document.getElementById('bg-close').addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+// File upload
+const fileInput = document.getElementById('bg-file-input');
+const uploadList = document.getElementById('bg-upload-list');
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+
+fileInput.addEventListener('change', () => {
+  Array.from(fileInput.files).forEach(f => {
+    if (f.size > MAX_SIZE) {
+      gdriveTip.style.display = 'block';
+      return;
+    }
+    if (!selectedFiles.find(x => x.name === f.name)) selectedFiles.push(f);
+  });
+  renderFileList();
+  fileInput.value = '';
+});
+
+function renderFileList() {
+  uploadList.innerHTML = selectedFiles.map((f,i) => `
+    <div class="bg-upload-item">
+      📄 ${f.name} <span style="color:#6B7280">(${(f.size/1024).toFixed(0)}KB)</span>
+      <button class="rm" data-i="${i}">✕</button>
+    </div>`).join('');
+  uploadList.querySelectorAll('.rm').forEach(btn => {
+    btn.addEventListener('click', () => { selectedFiles.splice(+btn.dataset.i, 1); renderFileList(); });
+  });
+}
+
+// Google Drive toggle
+document.getElementById('bg-gdrive-toggle').addEventListener('click', () => {
+  gdriveTip.style.display = gdriveTip.style.display === 'none' ? 'block' : 'none';
+});
+
+// Checkbox toggles (single-select per group for delivery, multi for services)
+document.querySelectorAll('#bg-services .bg-check').forEach(lbl => {
+  lbl.addEventListener('click', () => { lbl.classList.toggle('checked'); lbl.querySelector('input').checked = lbl.classList.contains('checked'); });
+});
+
+document.querySelectorAll('#bg-delivery .bg-check').forEach(lbl => {
+  lbl.addEventListener('click', () => {
+    document.querySelectorAll('#bg-delivery .bg-check').forEach(l => { l.classList.remove('checked'); l.querySelector('input').checked = false; });
+    lbl.classList.add('checked'); lbl.querySelector('input').checked = true;
+    document.getElementById('bg-delivery-addr').style.display = lbl.dataset.val === 'Giao hàng tận nơi' ? 'block' : 'none';
+  });
+});
+
+// Submit
+document.getElementById('bg-submit').addEventListener('click', async () => {
+  const phone = document.getElementById('bg-phone').value.trim();
+  if (!phone) { document.getElementById('bg-phone').focus(); document.getElementById('bg-phone').style.borderColor='#D72323'; return; }
+
+  const services = [...document.querySelectorAll('#bg-services .bg-check.checked')].map(l => l.dataset.val);
+  const delivery = document.querySelector('#bg-delivery .bg-check.checked')?.dataset.val || '';
+  const addr = document.getElementById('bg-addr').value.trim();
+  if (delivery === 'Giao hàng tận nơi' && !addr) { document.getElementById('bg-addr').focus(); document.getElementById('bg-addr').style.borderColor='#D72323'; return; }
+
+  const btn = document.getElementById('bg-submit');
+  btn.disabled = true; btn.textContent = '⏳ Đang gửi...';
+
+  const payload = {
+    name: document.getElementById('bg-name').value.trim(),
+    phone,
+    email: document.getElementById('bg-email').value.trim(),
+    services: services.join(', ') || 'Chưa chọn',
+    delivery,
+    deliveryAddr: addr,
+    deadline: document.getElementById('bg-date').value || 'Càng sớm càng tốt',
+    note: document.getElementById('bg-note').value.trim(),
+    gdriveLink: document.getElementById('bg-gdrive-link')?.value.trim() || '',
+    fileNames: selectedFiles.map(f => f.name).join(', '),
+    page: window.location.pathname,
+    status: 'new',
+    createdAt: null,
+  };
+
+  try {
+    const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const app = getApps().length ? getApps()[0] : initializeApp({
+      apiKey:"AIzaSyCkyAJJm-kj6JReuGOcy1kj3RHn5hqRWwo",
+      authDomain:"sohoa-baafc.firebaseapp.com",
+      projectId:"sohoa-baafc"
+    });
+    const db = getFirestore(app);
+    payload.createdAt = serverTimestamp();
+    await addDoc(collection(db, 'quotes'), payload);
+
+    // Success screen
+    document.getElementById('bg-body').innerHTML = `
+      <div class="bg-success">
+        <div class="sc-icon">✅</div>
+        <h4>Yêu cầu đã được gửi!</h4>
+        <p>Chúng tôi sẽ báo giá qua <strong>Zalo/WhatsApp ${phone}</strong>${payload.email ? ` hoặc email <strong>${payload.email}</strong>` : ''} trong vòng <strong>5–15 phút</strong> trong giờ làm việc.<br><br>
+        Văn phòng: 35 Nguyễn Văn Tráng, Q.1, TP.HCM<br>T2–T7 · 8:00–17:30</p>
+        <button onclick="document.getElementById('baogia-overlay').classList.remove('open')" style="margin-top:20px;padding:11px 28px;background:#D72323;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Đóng</button>
+      </div>`;
+  } catch(err) {
+    btn.disabled = false; btn.textContent = '🚀 Gửi Yêu Cầu Báo Giá';
+    alert('Có lỗi xảy ra, vui lòng thử lại hoặc nhắn tin trực tiếp qua chat.');
+    console.error(err);
+  }
+});
+
+})();
