@@ -238,6 +238,7 @@ tbody td{padding:11px 14px;font-size:13px}
         <div class="ni" onclick="nav('orders',this)"><span class="ni-icon">📋</span>Đơn hàng<span class="ni-badge" id="b-ord">0</span></div>
       </div>
       <div class="ns"><div class="ns-title">Khách hàng</div>
+        <div class="ni" onclick="nav('messages',this)" id="ni-msg"><span class="ni-icon">💬</span>Tin nhắn<span class="ni-badge" id="b-msg" style="display:none">0</span></div>
         <div class="ni" onclick="nav('leads',this)"><span class="ni-icon">📥</span>Liên hệ mới<span class="ni-badge" id="b-ld">0</span></div>
         <div class="ni" onclick="nav('customers',this)"><span class="ni-icon">👥</span>Khách hàng</div>
         <div class="ni" onclick="nav('accounts',this)" id="ni-acc"><span class="ni-icon">👤</span>Tài khoản KH</div>
@@ -416,6 +417,11 @@ tbody td{padding:11px 14px;font-size:13px}
       </div>
 
       <!-- ACTIVITY -->
+      <div class="pg" id="pg-messages">
+        <div id="chat-admin-container" style="height:calc(100vh - 80px)">
+          <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3)">Đang tải...</div>
+        </div>
+      </div>
       <div class="pg" id="pg-activity">
         <div class="tw">
           <div class="th2"><h3>🕐 Nhật ký hoạt động</h3></div>
@@ -578,6 +584,7 @@ onAuthStateChanged(auth,async u=>{
 });
 
 function loadData(){
+  listenChatBadge();
   onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc')),sn=>{S.orders=sn.docs.map(d=>({id:d.id,...d.data()}));renderDash();renderOrders();renderCustomers();updateBadges();populateOrdDrop();});
   onSnapshot(query(collection(db,'leads'),orderBy('createdAt','desc')),sn=>{S.leads=sn.docs.map(d=>({id:d.id,...d.data()}));renderLeads();updateBadges();});
   onSnapshot(query(collection(db,'invoices'),orderBy('createdAt','desc')),sn=>{S.invoices=sn.docs.map(d=>({id:d.id,...d.data()}));renderInvoices();renderReports();});
@@ -908,13 +915,213 @@ function updateBadges(){
 window.saveSettings=()=>{S.cfg.labor=Number(document.getElementById('cfg-l').value)||15000000;S.cfg.ops=Number(document.getElementById('cfg-o').value)||5000000;renderReports();notif('✅ Đã lưu cài đặt','ok');};
 
 // NAV
+// ── CHAT / TIN NHẮN ──────────────────────────────────────
+let _chatUnsubList=null,_chatUnsubMsgs=null,_activeChatConv=null,_allChats=[];
+
+function renderMessages(){
+  const wrap=document.getElementById('chat-admin-container');
+  if(!wrap)return;
+  wrap.innerHTML=`
+    <div style="display:flex;height:100%;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)">
+      <div id="clist-panel" style="width:300px;min-width:240px;border-right:1px solid var(--border);display:flex;flex-direction:column">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
+          <b style="flex:1;font-size:14px;color:var(--text)">💬 Tin nhắn khách</b>
+          <span id="chat-unread-total" style="background:var(--red);color:#fff;border-radius:12px;padding:1px 7px;font-size:11px;font-weight:700;display:none">0</span>
+        </div>
+        <div style="padding:8px 10px;border-bottom:1px solid var(--border);display:flex;gap:4px">
+          <button class="cfi on" onclick="filterChats('all',this)" style="flex:1;border:1px solid var(--border2);border-radius:6px;padding:3px 4px;font-size:11px;cursor:pointer;background:rgba(37,99,235,.2);color:var(--blue-ll);font-weight:600">Tất cả</button>
+          <button class="cfi" onclick="filterChats('open',this)" style="flex:1;border:1px solid var(--border2);border-radius:6px;padding:3px 4px;font-size:11px;cursor:pointer;background:var(--bg3);color:var(--text2)">Chờ</button>
+          <button class="cfi" onclick="filterChats('assigned',this)" style="flex:1;border:1px solid var(--border2);border-radius:6px;padding:3px 4px;font-size:11px;cursor:pointer;background:var(--bg3);color:var(--text2)">Xử lý</button>
+          <button class="cfi" onclick="filterChats('closed',this)" style="flex:1;border:1px solid var(--border2);border-radius:6px;padding:3px 4px;font-size:11px;cursor:pointer;background:var(--bg3);color:var(--text2)">Đóng</button>
+        </div>
+        <div id="clist" style="flex:1;overflow-y:auto"></div>
+      </div>
+      <div id="cchat-panel" style="flex:1;display:flex;flex-direction:column">
+        <div id="cchat-empty" style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text3)">
+          <div style="font-size:48px">💬</div><div style="font-size:14px">Chọn cuộc trò chuyện</div>
+        </div>
+        <div id="cchat-inner" style="display:none;flex-direction:column;height:100%">
+          <div id="cchat-head" style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;gap:10px;flex-wrap:wrap"></div>
+          <div id="cchat-msgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--bg)"></div>
+          <div id="cchat-guestbar" style="padding:8px 14px;background:var(--bg3);border-top:1px solid var(--border);font-size:12px;color:var(--text2);display:flex;gap:12px;flex-wrap:wrap"></div>
+          <div style="padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--bg2)">
+            <textarea id="creply-input" style="flex:1;border:1px solid var(--border2);border-radius:8px;padding:8px;font-size:13px;resize:none;height:40px;background:var(--bg3);color:var(--text);font-family:inherit;outline:none" placeholder="Nhập tin nhắn trả lời..."></textarea>
+            <button onclick="sendChatReply()" style="background:var(--blue);border:none;color:#fff;border-radius:8px;padding:0 16px;cursor:pointer;font-size:18px">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  loadChatList();
+  setTimeout(()=>{const inp=document.getElementById('creply-input');if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatReply();}});},100);
+}
+
+function loadChatList(){
+  if(_chatUnsubList)_chatUnsubList();
+  const q=query(collection(db,'conversations'),orderBy('lastAt','desc'));
+  _chatUnsubList=onSnapshot(q,sn=>{
+    _allChats=sn.docs.map(d=>({id:d.id,...d.data()}));
+    const curFilter=document.querySelector('.cfi.on');
+    renderChatList(curFilter?curFilter.getAttribute('data-f-val')||'all':'all');
+    const unread=_allChats.filter(c=>c.unreadAdmin>0).length;
+    const b=document.getElementById('chat-unread-total');
+    if(b){b.style.display=unread>0?'inline':'none';b.textContent=unread;}
+  });
+}
+
+window.filterChats=(f,btn)=>{
+  document.querySelectorAll('.cfi').forEach(b=>{b.style.background='var(--bg3)';b.style.color='var(--text2)';b.classList.remove('on');});
+  btn.style.background='rgba(37,99,235,.2)';btn.style.color='var(--blue-ll)';btn.classList.add('on');
+  renderChatList(f);
+};
+
+function renderChatList(filter){
+  const list=document.getElementById('clist');if(!list)return;
+  const f=filter||'all';
+  const fl=f==='all'?_allChats:_allChats.filter(c=>c.status===f);
+  if(!fl.length){list.innerHTML=`<div style="text-align:center;color:var(--text3);padding:32px 16px;font-size:13px">Không có tin nhắn</div>`;return;}
+  const SC={'open':'var(--red)','assigned':'var(--gold)','closed':'var(--text3)'};
+  list.innerHTML=fl.map(c=>{
+    const isAct=c.id===_activeChatConv;
+    const t=c.lastAt&&c.lastAt.toDate?c.lastAt.toDate().toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+    return '<div class="chat-conv-item" data-id="'+c.id+'" onclick="openChat(\''+c.id+'\')" style="padding:11px 13px;border-bottom:1px solid var(--border);cursor:pointer;background:'+(isAct?'rgba(37,99,235,.12)':'transparent')+';transition:background .15s">'+
+      '<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">'+
+      '<div style="width:7px;height:7px;border-radius:50%;background:'+(SC[c.status]||'var(--text3)')+';flex-shrink:0"></div>'+
+      '<b style="font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)">'+(c.guestName||'Khách')+'</b>'+
+      (c.unreadAdmin>0?'<span style="background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700">Mới</span>':'')+
+      '<span style="font-size:10px;color:var(--text3)">'+t+'</span></div>'+
+      '<div style="font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:14px">'+(c.lastMessage||'...')+'</div>'+
+      (c.guestPhone?'<div style="font-size:11px;color:var(--blue-ll);padding-left:14px;margin-top:2px">📞 '+c.guestPhone+'</div>':'')+
+      (c.assignedName?'<div style="font-size:11px;color:var(--green);padding-left:14px">👤 '+c.assignedName+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+window.openChat=async(convId)=>{
+  _activeChatConv=convId;
+  document.querySelectorAll('.chat-conv-item').forEach(el=>el.style.background=el.dataset.id===convId?'rgba(37,99,235,.12)':'transparent');
+  await updateDoc(doc(db,'conversations',convId),{unreadAdmin:0});
+  const conv=_allChats.find(c=>c.id===convId)||{};
+  document.getElementById('cchat-empty').style.display='none';
+  const inner=document.getElementById('cchat-inner');inner.style.display='flex';
+  const SC={'open':'var(--red)','assigned':'var(--gold)','closed':'var(--text3)'};
+  const SL={'open':'Chờ phản hồi','assigned':'Đang xử lý','closed':'Đã đóng'};
+  const isAdmin=['superadmin','admin'].includes(S.role);
+  document.getElementById('cchat-head').innerHTML=
+    '<div style="flex:1">'+
+    '<b style="font-size:14px;color:var(--text)">'+(conv.guestName||'Khách')+'</b>'+
+    '<span style="margin-left:8px;font-size:11px;background:rgba(0,0,0,.3);color:'+(SC[conv.status]||'var(--text3)')+';padding:2px 7px;border-radius:8px;font-weight:600">'+(SL[conv.status]||'Mở')+'</span>'+
+    (conv.guestPhone?'<span style="margin-left:8px;font-size:12px;color:var(--blue-ll)">📞 '+conv.guestPhone+'</span>':'')+
+    (conv.page?'<div style="font-size:11px;color:var(--text3);margin-top:1px">Từ: '+conv.page+'</div>':'')+
+    '</div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+    (isAdmin?'<button onclick="assignChat(\''+convId+'\')" style="border:1px solid var(--border2);border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;background:var(--bg3);color:var(--text)">👤 Giao việc</button>':'')+
+    '<button onclick="createLeadFromChat(\''+convId+'\')" style="border:none;border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;background:var(--green);color:#fff;font-weight:600">➕ Tạo Lead</button>'+
+    '<button onclick="createOrderFromChat(\''+convId+'\')" style="border:none;border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;background:var(--blue);color:#fff;font-weight:600">📋 Tạo đơn</button>'+
+    (conv.status!=='closed'?'<button onclick="closeChat(\''+convId+'\')" style="border:1px solid var(--red);border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;color:var(--red);background:transparent">✖ Đóng</button>':'')+
+    '</div>';
+  document.getElementById('cchat-guestbar').innerHTML=
+    '<span><b>Tên:</b> '+(conv.guestName||'—')+'</span>'+
+    '<span><b>SĐT:</b> '+(conv.guestPhone||'<i>chưa có</i>')+'</span>'+
+    '<span><b>Email:</b> '+(conv.guestEmail||'<i>chưa có</i>')+'</span>'+
+    (conv.assignedName?'<span><b>Nhân viên:</b> '+conv.assignedName+'</span>':'');
+  if(_chatUnsubMsgs)_chatUnsubMsgs();
+  const q=query(collection(db,'conversations',convId,'messages'),orderBy('createdAt','asc'));
+  _chatUnsubMsgs=onSnapshot(q,sn=>{
+    const msgs=document.getElementById('cchat-msgs');if(!msgs)return;
+    msgs.innerHTML='';
+    sn.forEach(d=>{
+      const m=d.data();
+      const isStaff=m.sender==='staff'||m.sender==='admin';
+      const isSys=m.sender==='system';
+      const div=document.createElement('div');
+      if(isSys){div.style.cssText='align-self:center;background:rgba(6,182,212,.1);color:var(--cyan);font-size:12px;max-width:90%;text-align:center;padding:5px 10px;border-radius:8px';}
+      else if(isStaff){div.style.cssText='max-width:72%;padding:8px 12px;border-radius:12px;border-bottom-right-radius:3px;font-size:13px;line-height:1.5;word-break:break-word;align-self:flex-end;background:var(--blue);color:#fff';}
+      else{div.style.cssText='max-width:72%;padding:8px 12px;border-radius:12px;border-bottom-left-radius:3px;font-size:13px;line-height:1.5;word-break:break-word;align-self:flex-start;background:var(--bg3);color:var(--text)';}
+      const t=m.createdAt&&m.createdAt.toDate?m.createdAt.toDate().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'';
+      div.innerHTML=m.text+'<div style="font-size:10px;opacity:.6;margin-top:3px;text-align:right">'+(isStaff?(m.senderName||'Nhân viên')+' · ':'')+t+'</div>';
+      msgs.appendChild(div);
+    });
+    msgs.scrollTop=msgs.scrollHeight;
+  });
+};
+
+window.sendChatReply=async()=>{
+  const inp=document.getElementById('creply-input');
+  const text=inp.value.trim();if(!text||!_activeChatConv)return;
+  inp.value='';
+  const senderName=S.user&&S.user.displayName?S.user.displayName:(S.user&&S.user.email?S.user.email.split('@')[0]:'Nhân viên');
+  await addDoc(collection(db,'conversations',_activeChatConv,'messages'),{
+    text,sender:S.role==='admin'||S.role==='superadmin'?'admin':'staff',
+    senderName,senderUid:S.user?S.user.uid:'',createdAt:serverTimestamp()
+  });
+  await updateDoc(doc(db,'conversations',_activeChatConv),{
+    lastMessage:text.substring(0,60),lastAt:serverTimestamp(),
+    unreadGuest:1,status:'assigned',
+    assignedTo:S.user?S.user.uid:'',assignedName:senderName
+  });
+  await log('💬 Trả lời chat','Conv '+_activeChatConv+': "'+text.substring(0,40)+'"','b');
+};
+
+window.closeChat=async(convId)=>{
+  if(!confirm('Đóng cuộc trò chuyện này?'))return;
+  await updateDoc(doc(db,'conversations',convId),{status:'closed'});
+  notif('Đã đóng cuộc trò chuyện','ok');
+};
+
+window.assignChat=async(convId)=>{
+  const staff=S.users.filter(u=>['staff','admin','superadmin'].includes(u.role));
+  if(!staff.length){notif('Chưa có nhân viên','er');return;}
+  const opts=staff.map((s,i)=>(i+1)+'. '+(s.name||s.email)+' ('+s.role+')').join('\n');
+  const ch=prompt('Giao cho nhân viên (nhập số):\n'+opts);
+  const idx=parseInt(ch)-1;
+  if(isNaN(idx)||idx<0||idx>=staff.length)return;
+  const sv=staff[idx];
+  await updateDoc(doc(db,'conversations',convId),{status:'assigned',assignedTo:sv.id,assignedName:sv.name||sv.email});
+  notif('✅ Đã giao cho '+(sv.name||sv.email),'ok');
+};
+
+window.createLeadFromChat=async(convId)=>{
+  const conv=_allChats.find(c=>c.id===convId);if(!conv)return;
+  const nm=conv.guestName||(prompt('Tên khách:')||'Khách chat');
+  const ph=conv.guestPhone||(prompt('Số điện thoại:')||'');
+  if(!confirm('Tạo lead: '+nm+' — SĐT: '+(ph||'chưa có')+'?'))return;
+  await addDoc(collection(db,'leads'),{
+    name:nm,phone:ph,email:conv.guestEmail||'',channel:'chat_widget',
+    request:'Chat từ website ('+(conv.page||'')+')',status:'new',
+    convId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()
+  });
+  await log('📥 Lead từ chat',nm+' — '+ph,'g');
+  notif('✅ Đã tạo lead cho '+nm+'! Vào tab Liên hệ mới.','ok');
+};
+
+window.createOrderFromChat=async(convId)=>{
+  const conv=_allChats.find(c=>c.id===convId);if(!conv)return;
+  nav('orders',document.querySelector('.ni[onclick*="orders"]'));
+  setTimeout(()=>{
+    openM('order');
+    if(conv.guestName)document.getElementById('o-nm').value=conv.guestName;
+    if(conv.guestPhone)document.getElementById('o-ph').value=conv.guestPhone;
+    if(conv.guestEmail)document.getElementById('o-em').value=conv.guestEmail;
+    notif('📋 Đã điền sẵn thông tin khách từ chat','in');
+  },200);
+};
+
+function listenChatBadge(){
+  onSnapshot(query(collection(db,'conversations'),orderBy('lastAt','desc')),sn=>{
+    const unread=sn.docs.filter(d=>d.data().unreadAdmin>0).length;
+    const b=document.getElementById('b-msg');
+    if(b){b.style.display=unread>0?'inline':'none';b.textContent=unread;}
+  });
+}
+
 window.nav=(pg,el)=>{
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById('pg-'+pg)?.classList.add('on');
   if(el)el.classList.add('active');
-  const t={dashboard:'📊 Dashboard',orders:'📋 Đơn hàng',leads:'📥 Khách liên hệ',customers:'👥 Khách hàng',accounts:'👤 Tài khoản KH',invoices:'🧾 Hóa đơn',reports:'📈 Báo cáo doanh thu',activity:'🕐 Nhật ký',settings:'⚙️ Cài đặt'};
+  const t={dashboard:'📊 Dashboard',messages:'💬 Tin nhắn khách',orders:'📋 Đơn hàng',leads:'📥 Khách liên hệ',customers:'👥 Khách hàng',accounts:'👤 Tài khoản KH',invoices:'🧾 Hóa đơn',reports:'📈 Báo cáo doanh thu',activity:'🕐 Nhật ký',settings:'⚙️ Cài đặt'};
   document.getElementById('tb-title').textContent=t[pg]||pg;
+  if(pg==='messages'){renderMessages();}
 };
 window.openM=(t)=>{if(t==='invoice')populateOrdDrop();document.getElementById('m-'+t).style.display='flex';};
 window.closeM=(t)=>{document.getElementById('m-'+t).style.display='none';};

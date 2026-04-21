@@ -12,6 +12,20 @@ export const firebaseConfig = {
 };
 
 // ============================================================
+// CHAT / CONVERSATIONS — collection "conversations"
+// conversations/{convId}: guestName, guestPhone, guestEmail,
+//   status (open|assigned|closed), assignedTo (uid), assignedName,
+//   unreadAdmin, unreadGuest, lastMessage, lastAt, createdAt, page
+// conversations/{convId}/messages/{msgId}: text, sender (guest|staff|admin|system),
+//   senderName, senderUid, createdAt
+// ============================================================
+export const CONV_STATUS = {
+  open:     { label: 'Chờ phản hồi', color: '#EF4444' },
+  assigned: { label: 'Đang xử lý',   color: '#F59E0B' },
+  closed:   { label: 'Đã đóng',      color: '#6B7280' }
+};
+
+// ============================================================
 // STATUS MAPS — dùng chung
 // ============================================================
 export const ORDER_STATUS = {

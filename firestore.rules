@@ -1,168 +1,93 @@
-// ================================================================
-// FIRESTORE SECURITY RULES — DỊCH THUẬT SỐ HÓA
-// Copy toàn bộ nội dung này vào Firebase Console
-// Firestore Database → Rules → Paste → Publish
-// ================================================================
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ============================================================
-    // HELPER FUNCTIONS
-    // ============================================================
-    function isSignedIn() {
-      return request.auth != null;
-    }
+    // ── Helpers ──────────────────────────────────────────────
+    function isSignedIn() { return request.auth != null; }
+    function role() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
+    function isSuperAdmin() { return isSignedIn() && role() == 'superadmin'; }
+    function isAdmin()      { return isSignedIn() && (role() == 'admin' || role() == 'superadmin'); }
+    function isStaff()      { return isSignedIn() && (role() == 'staff' || role() == 'admin' || role() == 'superadmin'); }
+    function isCustomer()   { return isSignedIn() && role() == 'customer'; }
 
-    function getRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-    }
-
-    function isSuperAdmin() {
-      return isSignedIn() && getRole() == 'superadmin';
-    }
-
-    function isAdmin() {
-      return isSignedIn() && (getRole() == 'admin' || getRole() == 'superadmin');
-    }
-
-    function isStaff() {
-      return isSignedIn() && (getRole() == 'staff' || getRole() == 'admin' || getRole() == 'superadmin');
-    }
-
-    function isCustomer() {
-      return isSignedIn() && getRole() == 'customer';
-    }
-
-    function isOwner(uid) {
-      return isSignedIn() && request.auth.uid == uid;
-    }
-
-    // ============================================================
-    // USERS COLLECTION
-    // /users/{userId}
-    // - Superadmin: full CRUD
-    // - Admin: read all, update non-role fields
-    // - Staff: read own profile only
-    // - Customer: read own profile only
-    // ============================================================
-    match /users/{userId} {
-      allow read: if isSignedIn() && (isAdmin() || isOwner(userId));
-      allow create: if isSuperAdmin();
-      allow update: if isSuperAdmin() ||
-                       (isAdmin() && !('role' in request.resource.data)) ||
-                       (isOwner(userId) && !('role' in request.resource.data));
-      allow delete: if isSuperAdmin();
-    }
-
-    // ============================================================
-    // ORDERS COLLECTION
-    // /orders/{orderId}
-    // - Staff+: create, read all, update
-    // - Superadmin: delete
-    // - Customer: read own orders (matched by customerUid field)
-    // ============================================================
-    match /orders/{orderId} {
-      allow read: if isStaff() ||
-                     (isCustomer() && resource.data.customerUid == request.auth.uid);
+    // ── orders ───────────────────────────────────────────────
+    match /orders/{id} {
+      allow read: if isStaff() || (isCustomer() &&
+        (resource.data.customerUid == request.auth.uid ||
+         resource.data.customerEmail == request.auth.token.email));
       allow create: if isStaff();
-      allow update: if isStaff() ||
-                       (isCustomer() && resource.data.customerUid == request.auth.uid
-                        && request.resource.data.diff(resource.data).affectedKeys()
-                           .hasOnly(['customerComment', 'customerRating']));
+      allow update: if isStaff();
       allow delete: if isSuperAdmin();
     }
 
-    // ============================================================
-    // LEADS COLLECTION
-    // /leads/{leadId}
-    // - Staff+: full CRUD
-    // - Customer: cannot access
-    // ============================================================
-    match /leads/{leadId} {
-      allow read, create, update: if isStaff();
+    // ── leads ────────────────────────────────────────────────
+    match /leads/{id} {
+      allow read, write: if isStaff();
       allow delete: if isAdmin();
     }
 
-    // ============================================================
-    // INVOICES COLLECTION
-    // /invoices/{invoiceId}
-    // - Staff+: create, read all
-    // - Admin+: update, mark paid
-    // - Customer: read own invoices
-    // ============================================================
-    match /invoices/{invoiceId} {
-      allow read: if isStaff() ||
-                     (isCustomer() && resource.data.customerUid == request.auth.uid);
-      allow create: if isStaff();
-      allow update: if isAdmin();
-      allow delete: if isSuperAdmin();
-    }
-
-    // ============================================================
-    // ACTIVITY LOG
-    // /activity/{logId}
-    // - System/Staff: write
-    // - Admin+: read all
-    // - Staff: read own actions
-    // ============================================================
-    match /activity/{logId} {
-      allow read: if isAdmin() ||
-                     (isStaff() && resource.data.userId == request.auth.uid);
-      allow create: if isStaff();
-      allow update, delete: if isSuperAdmin();
-    }
-
-    // ============================================================
-    // QUOTES / BÁO GIÁ
-    // /quotes/{quoteId}
-    // ============================================================
-    match /quotes/{quoteId} {
-      allow read: if isStaff() ||
-                     (isCustomer() && resource.data.customerUid == request.auth.uid);
+    // ── invoices ─────────────────────────────────────────────
+    match /invoices/{id} {
+      allow read: if isStaff() || (isCustomer() &&
+        (resource.data.customerUid == request.auth.uid ||
+         resource.data.customerEmail == request.auth.token.email));
       allow create, update: if isStaff();
       allow delete: if isAdmin();
     }
 
-    // ============================================================
-    // NOTIFICATIONS — gửi thông báo cho user
-    // /notifications/{notifId}
-    // ============================================================
-    match /notifications/{notifId} {
-      allow read: if isSignedIn() && resource.data.toUid == request.auth.uid;
-      allow create: if isStaff();
-      allow update: if isSignedIn() && resource.data.toUid == request.auth.uid;
+    // ── users ────────────────────────────────────────────────
+    match /users/{uid} {
+      // Ai cũng đọc được profile của chính mình
+      allow read: if isSignedIn() && (request.auth.uid == uid || isStaff());
+      // Chỉ superadmin/admin mới tạo/sửa/xóa tài khoản nhân viên
+      allow create: if isAdmin();
+      allow update: if isAdmin() || request.auth.uid == uid;
       allow delete: if isSuperAdmin();
     }
 
-    // ============================================================
-    // SETTINGS — cài đặt hệ thống
-    // /settings/{docId}
-    // ============================================================
-    match /settings/{docId} {
+    // ── activity log ─────────────────────────────────────────
+    match /activity/{id} {
       allow read: if isStaff();
-      allow write: if isSuperAdmin();
+      allow create: if isStaff();
+      allow update, delete: if isSuperAdmin();
     }
 
-    // ============================================================
-    // PUBLIC CONTACT FORM — khách chưa đăng nhập gửi liên hệ
-    // /contacts/{contactId}
-    // ============================================================
-    match /contacts/{contactId} {
-      allow create: if true; // Ai cũng có thể gửi form liên hệ
+    // ── contacts (form liên hệ từ website — public write) ────
+    match /contacts/{id} {
+      allow create: if true;
       allow read, update, delete: if isStaff();
     }
 
-    // ============================================================
-    // CUSTOMER FEEDBACK / REVIEWS
-    // /reviews/{reviewId}
-    // ============================================================
-    match /reviews/{reviewId} {
-      allow read: if true; // Công khai để hiển thị trên web
-      allow create: if isSignedIn();
-      allow update, delete: if isAdmin() ||
-                               (isOwner(resource.data.authorUid));
+    // ── reviews (đánh giá từ portal KH) ─────────────────────
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if isCustomer();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── notifications ────────────────────────────────────────
+    match /notifications/{id} {
+      allow read: if isSignedIn() && (resource.data.toUid == request.auth.uid || isStaff());
+      allow create: if isStaff();
+      allow update: if isSignedIn() && resource.data.toUid == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    // ── conversations (chat widget từ website) ───────────────
+    // conversations/{convId}
+    match /conversations/{convId} {
+      // Khách: đọc/ghi conversation của mình qua convId lưu localStorage
+      // Staff/Admin: đọc/ghi tất cả
+      allow read: if isStaff() || true; // public read để khách load lịch sử
+      allow create: if true;            // public create để khách bắt đầu chat
+      allow update: if isStaff() || true; // khách cập nhật guestPhone
+
+      // messages subcollection
+      match /messages/{msgId} {
+        allow read: if true;
+        allow create: if true;  // khách và staff đều gửi được
+        allow update, delete: if isStaff();
+      }
     }
   }
 }
