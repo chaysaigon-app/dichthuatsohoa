@@ -233,6 +233,11 @@ tbody td{padding:11px 14px;font-size:13px}
 .inv-tr{display:flex;justify-content:flex-end;gap:20px;padding:4px 0;font-size:13px}
 .inv-tr.fin{border-top:2px solid #003580;margin-top:5px;padding-top:9px;font-weight:800;font-size:16px;color:#003580}
 @media(max-width:768px){.stats{grid-template-columns:repeat(2,1fr)}.qa{grid-template-columns:repeat(2,1fr)}.sb{display:none}}
+@media print{
+  body > *:not(#qb-print-frame){display:none!important}
+  #qb-print-frame{display:block!important;position:fixed;inset:0;background:#fff;z-index:99999;padding:20mm 18mm;font-family:'Be Vietnam Pro',Arial,sans-serif;color:#111;font-size:13px}
+  @page{size:A4;margin:0}
+}
 </style>
 </head>
 <body>
@@ -562,21 +567,45 @@ tbody td{padding:11px 14px;font-size:13px}
 <!-- ===== MODALS ===== -->
 <!-- ORDER -->
 <div id="m-order" style="display:none" class="mo" onclick="if(event.target===this)closeM('order')">
-  <div class="mb" style="max-width:740px">
+  <div class="mb" style="max-width:780px">
     <div class="mh"><h3 id="m-ord-title">📋 Tạo đơn hàng mới</h3><button class="mc-btn" onclick="closeM('order')">×</button></div>
     <div class="mbody">
       <input type="hidden" id="oi">
       <div class="sdiv">Thông tin khách hàng</div>
-      <div class="fr"><div class="fg"><label>Họ tên *</label><input id="o-nm" placeholder="Nguyễn Văn A"></div><div class="fg"><label>Điện thoại *</label><input id="o-ph" placeholder="0909.xxx.xxx"></div></div>
-      <div class="fr"><div class="fg"><label>Email</label><input id="o-em" type="email"></div><div class="fg"><label>Kênh liên hệ</label><select id="o-ch"><option>Zalo</option><option>Điện thoại</option><option>Email</option><option>Walk-in</option><option>Google</option><option>Facebook</option><option>Giới thiệu</option></select></div></div>
-      <div class="sdiv">Chi tiết dịch vụ</div>
-      <div class="fr"><div class="fg"><label>Loại dịch vụ *</label><select id="o-sv"><option value="">-- Chọn --</option><option>Dịch thuật CC – Giấy tờ cá nhân</option><option>Dịch thuật CC – Hộ chiếu/CMND</option><option>Dịch thuật CC – Bằng cấp/Học bạ</option><option>Dịch thuật CC – Hồ sơ Visa</option><option>Dịch thuật CC – Hồ sơ Du học</option><option>Dịch thuật CC – Hồ sơ Định cư</option><option>Dịch thuật CC – Hợp đồng KT</option><option>Dịch thuật CC – Hồ sơ FDI</option><option>Dịch thuật chuyên ngành Y tế</option><option>Dịch thuật chuyên ngành Kỹ thuật</option><option>Dịch thuật Luận văn/Đề tài</option><option>Dịch thuật Menu F&B</option><option>Hợp pháp hóa lãnh sự</option><option>Đánh máy / Nhập liệu</option><option>Khác</option></select></div>
-      <div class="fg"><label>Ngôn ngữ</label><select id="o-lg"><option>Tiếng Anh</option><option>Tiếng Nhật</option><option>Tiếng Hàn</option><option>Tiếng Trung</option><option>Tiếng Pháp</option><option>Tiếng Đức</option><option>Tiếng Ý</option><option>Tiếng TBN</option><option>Tiếng Nga</option><option>Tiếng Thái</option><option>Tiếng Lào</option><option>Tiếng Khmer</option><option>Tiếng Miến</option><option>Khác</option></select></div></div>
-      <div class="fr"><div class="fg"><label>Số trang</label><input id="o-pg" type="number" min="1" value="1" oninput="calcT()"></div><div class="fg"><label>Đơn giá (đ/trang)</label><input id="o-pr" type="number" placeholder="60000" oninput="calcT()"></div></div>
-      <div class="fr"><div class="fg"><label>Tổng tiền (VNĐ)</label><input id="o-tt" type="number" placeholder="Tự tính hoặc nhập tay"></div><div class="fg"><label>Deadline</label><input id="o-dl" type="datetime-local"></div></div>
-      <div class="fr"><div class="fg"><label>Nhân viên xử lý</label><select id="o-st"><option>Admin</option><option>Nhân viên 1</option><option>Nhân viên 2</option></select></div>
-      <div class="fg"><label>Trạng thái</label><select id="o-ss"><option value="new">Mới – Chờ báo giá</option><option value="quoted">Đã báo giá</option><option value="confirmed">Xác nhận – Đặt cọc</option><option value="processing">Đang dịch / Xử lý</option><option value="done">Hoàn thành</option><option value="invoiced">Đã xuất hóa đơn</option><option value="paid">Đã thanh toán</option><option value="cancelled">Hủy</option></select></div></div>
-      <div class="fr full"><div class="fg"><label>Ghi chú</label><textarea id="o-nt" placeholder="Yêu cầu đặc biệt..."></textarea></div></div>
+      <div class="fr">
+        <div class="fg"><label>Họ tên *</label><input id="o-nm" placeholder="Nguyễn Văn A"></div>
+        <div class="fg"><label>Điện thoại *</label><input id="o-ph" placeholder="0909.xxx.xxx"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Email</label><input id="o-em" type="email"></div>
+        <div class="fg"><label>Kênh liên hệ</label><select id="o-ch"><option>Zalo</option><option>Điện thoại</option><option>Email</option><option>Walk-in</option><option>Google</option><option>Facebook</option><option>Giới thiệu</option></select></div>
+      </div>
+
+      <div class="sdiv">Tác vụ thực hiện <span style="font-size:10px;color:var(--text3);font-weight:400">(Tick chọn → nhập giá → ghi chú nếu có)</span></div>
+      <div id="o-tasks-list" style="margin-bottom:4px"></div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0">
+          <span style="color:var(--text2)">Tổng dịch vụ</span><span id="o-sub-display" style="font-weight:700">0đ</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0">
+          <span style="color:var(--text2)">VAT 8%</span><span id="o-vat-display" style="font-weight:700;color:var(--gold-l)">0đ</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;padding:8px 0 2px;border-top:1px solid var(--border);margin-top:4px">
+          <span style="color:var(--green-l)">Tổng giá trị hợp đồng</span><span id="o-grand-display" style="color:var(--green-l)">0đ</span>
+        </div>
+      </div>
+
+      <div class="sdiv">Thanh toán & Tiến độ</div>
+      <div class="fr">
+        <div class="fg"><label>Tiền cọc (VNĐ)</label><input id="o-dep" type="number" placeholder="0"></div>
+        <div class="fg"><label>Deadline</label><input id="o-dl" type="datetime-local"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Nhân viên xử lý</label><select id="o-st"><option>Admin</option><option>Nhân viên 1</option><option>Nhân viên 2</option></select></div>
+        <div class="fg"><label>Trạng thái</label><select id="o-ss"><option value="new">Mới – Chờ xử lý</option><option value="quoted">Đã báo giá</option><option value="confirmed">Xác nhận – Đặt cọc</option><option value="processing">Đang xử lý</option><option value="done">Hoàn thành</option><option value="invoiced">Đã xuất hóa đơn</option><option value="paid">Đã thanh toán</option><option value="cancelled">Hủy</option></select></div>
+      </div>
+      <div class="fr full"><div class="fg"><label>Ghi chú chung</label><textarea id="o-nt" placeholder="Yêu cầu đặc biệt, ngôn ngữ, số trang..."></textarea></div></div>
     </div>
     <div class="mfoot"><button class="bm bm-c" onclick="closeM('order')">Hủy</button><button class="bm bm-p" onclick="saveOrder()">💾 Lưu đơn hàng</button></div>
   </div>
@@ -720,19 +749,29 @@ tbody td{padding:11px 14px;font-size:13px}
 
       <!-- TAB 2: Preview + Send -->
       <div class="tab-pane" id="qb-tab2">
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-p" onclick="qbGenerate()">⚡ Tạo văn bản báo giá</button>
-          <button class="btn btn-ghost" onclick="qbCopy()" id="qb-copy-btn" style="display:none">📋 Sao chép nội dung</button>
+          <button class="btn" style="background:#16A34A;color:#fff;display:none" id="qb-copy-btn" onclick="qbCopy()">📋 Sao chép (Zalo/Email)</button>
+          <button class="btn" style="background:#DC2626;color:#fff;display:none" id="qb-pdf-btn" onclick="qbPrintPDF()">⬇️ Tải PDF</button>
         </div>
-        <div class="qb-output" id="qb-output" style="display:none"></div>
+        <!-- White-background preview frame -->
+        <div id="qb-preview-wrap" style="display:none;border:1px solid #D1D5DB;border-radius:10px;overflow:hidden;background:#fff">
+          <div style="background:#F3F4F6;padding:8px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB">
+            <span style="width:10px;height:10px;border-radius:50%;background:#EF4444;display:inline-block"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#F59E0B;display:inline-block"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#10B981;display:inline-block"></span>
+            <span style="font-size:11px;color:#6B7280;margin-left:6px">Xem trước báo giá — nền trắng, sẵn sàng gửi khách</span>
+          </div>
+          <div id="qb-output" style="padding:24px;max-height:480px;overflow-y:auto;background:#fff;color:#111;font-family:'Be Vietnam Pro',sans-serif"></div>
+        </div>
         <div id="qb-send-area" style="display:none;margin-top:14px">
-          <div style="background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--blue-ll);margin-bottom:12px">
-            💡 <strong>Quy trình tiếp theo:</strong> Sau khi gửi, khách hàng sẽ xem báo giá trong tài khoản portal và bấm <strong>Xác nhận</strong>. Khi đó bạn sẽ thấy trạng thái "Đã xác nhận" và có thể <strong>Lên đơn hàng</strong> trực tiếp.
+          <div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--blue-ll);margin-bottom:12px">
+            💡 <strong>Quy trình tiếp theo:</strong> Gửi nội dung này cho khách qua Zalo/Email, hoặc nhập email để lưu vào hệ thống. Sau khi khách xác nhận → bấm <strong>Lên đơn hàng</strong>.
           </div>
           <div class="fr">
-            <div class="fg"><label>Gửi đến tài khoản khách (Email portal)</label><input id="qb-send-email" placeholder="khachhang@gmail.com — để trống nếu chỉ copy gửi Zalo"></div>
+            <div class="fg"><label>Lưu & gửi vào tài khoản portal (Email KH)</label><input id="qb-send-email" placeholder="để trống nếu chỉ copy gửi Zalo/Email"></div>
             <div class="fg" style="align-self:flex-end">
-              <button class="btn btn-g" onclick="qbSendToCustomer()" style="width:100%;justify-content:center">📤 Gửi báo giá cho khách</button>
+              <button class="btn btn-g" onclick="qbSendToCustomer()" style="width:100%;justify-content:center">💾 Lưu báo giá vào hệ thống</button>
             </div>
           </div>
         </div>
@@ -923,22 +962,104 @@ window.editOrder=(id)=>{
   document.getElementById('o-ph').value=o.phone||'';
   document.getElementById('o-em').value=o.email||'';
   document.getElementById('o-ch').value=o.channel||'Zalo';
-  document.getElementById('o-sv').value=o.service||'';
-  document.getElementById('o-lg').value=o.lang||'Tiếng Anh';
-  document.getElementById('o-pg').value=o.pages||1;
-  document.getElementById('o-pr').value=o.price||'';
-  document.getElementById('o-tt').value=o.total||'';
+  document.getElementById('o-dep').value=o.deposit||'';
   document.getElementById('o-dl').value=o.deadline||'';
   document.getElementById('o-st').value=o.staff||'Admin';
   document.getElementById('o-ss').value=o.status||'new';
   document.getElementById('o-nt').value=o.note||'';
+  // Render task list with pre-filled data
+  let existingTasks = [];
+  try { existingTasks = JSON.parse(o.tasks || '[]'); } catch(e) {}
+  renderOrderTaskList(existingTasks);
   document.getElementById('m-order').style.display='flex';
+};
+
+function renderOrderTaskList(existingTasks) {
+  const list = document.getElementById('o-tasks-list');
+  if (!list) return;
+  list.innerHTML = QB_SERVICES.map(s => {
+    const existing = existingTasks.find(t => t.id === s.id);
+    const isChecked = !!existing;
+    return `
+    <div class="svc-item${isChecked ? ' selected' : ''}" id="ot-wrap-${s.id}">
+      <div class="svc-header" onclick="ordToggleSvc('${s.id}')">
+        <input type="checkbox" class="svc-cb" id="ot-cb-${s.id}" ${isChecked?'checked':''} onclick="event.stopPropagation();ordToggleSvc('${s.id}')">
+        <span style="font-size:16px">${s.icon}</span>
+        <span class="svc-label">${s.label}</span>
+        <input type="number" class="svc-price" id="ot-price-${s.id}" placeholder="Nhập giá (đ)" min="0"
+          value="${existing?.price||''}" onclick="event.stopPropagation()" oninput="ordCalcTotal()">
+      </div>
+      <textarea class="svc-note${isChecked?' show':''}" id="ot-note-${s.id}"
+        placeholder="Ghi chú tác vụ này..." rows="2"
+        onclick="event.stopPropagation()">${existing?.note||''}</textarea>
+    </div>`;
+  }).join('');
+  ordCalcTotal();
+}
+
+window.ordToggleSvc = function(id) {
+  const cb = document.getElementById('ot-cb-' + id);
+  const wrap = document.getElementById('ot-wrap-' + id);
+  const note = document.getElementById('ot-note-' + id);
+  cb.checked = !cb.checked;
+  wrap.classList.toggle('selected', cb.checked);
+  note.classList.toggle('show', cb.checked);
+  ordCalcTotal();
+};
+
+window.ordCalcTotal = function() {
+  let sub = 0;
+  QB_SERVICES.forEach(s => {
+    if (document.getElementById('ot-cb-' + s.id)?.checked) {
+      sub += Number(document.getElementById('ot-price-' + s.id)?.value || 0);
+    }
+  });
+  const vat = Math.round(sub * 0.08);
+  const grand = sub + vat;
+  const subEl = document.getElementById('o-sub-display');
+  const vatEl = document.getElementById('o-vat-display');
+  const grandEl = document.getElementById('o-grand-display');
+  if (subEl) subEl.textContent = sub.toLocaleString('vi-VN') + 'đ';
+  if (vatEl) vatEl.textContent = vat.toLocaleString('vi-VN') + 'đ';
+  if (grandEl) grandEl.textContent = grand.toLocaleString('vi-VN') + 'đ';
 };
 
 window.saveOrder=async()=>{
   const id=document.getElementById('oi').value;
-  const data={customerName:document.getElementById('o-nm').value,phone:document.getElementById('o-ph').value,email:document.getElementById('o-em').value,channel:document.getElementById('o-ch').value,service:document.getElementById('o-sv').value,lang:document.getElementById('o-lg').value,pages:Number(document.getElementById('o-pg').value)||1,price:Number(document.getElementById('o-pr').value)||0,total:Number(document.getElementById('o-tt').value)||0,deadline:document.getElementById('o-dl').value,staff:document.getElementById('o-st').value,status:document.getElementById('o-ss').value,note:document.getElementById('o-nt').value,updatedAt:serverTimestamp()};
-  if(!data.customerName||!data.phone){notif('⚠️ Nhập họ tên và điện thoại','er');return;}
+  const nm=document.getElementById('o-nm').value;
+  const ph=document.getElementById('o-ph').value;
+  if(!nm||!ph){notif('⚠️ Nhập họ tên và điện thoại','er');return;}
+
+  // Collect tasks
+  const tasks = QB_SERVICES
+    .filter(s => document.getElementById('ot-cb-' + s.id)?.checked)
+    .map(s => ({
+      id: s.id, label: s.label, icon: s.icon,
+      price: Number(document.getElementById('ot-price-' + s.id)?.value || 0),
+      note: document.getElementById('ot-note-' + s.id)?.value?.trim() || '',
+      done: false
+    }));
+
+  const sub = tasks.reduce((a,t) => a + t.price, 0);
+  const vat = Math.round(sub * 0.08);
+  const grand = sub + vat;
+  const serviceLabel = tasks.map(t=>t.label).join(', ') || 'Chưa chọn tác vụ';
+
+  const data={
+    customerName:nm, phone:ph,
+    email:document.getElementById('o-em').value,
+    channel:document.getElementById('o-ch').value,
+    service:serviceLabel,
+    tasks: JSON.stringify(tasks),
+    subTotal: sub, vat, total: grand,
+    deposit: Number(document.getElementById('o-dep').value)||0,
+    deadline:document.getElementById('o-dl').value,
+    staff:document.getElementById('o-st').value,
+    status:document.getElementById('o-ss').value,
+    note:document.getElementById('o-nt').value,
+    updatedAt:serverTimestamp()
+  };
+
   if(id){
     await updateDoc(doc(db,'orders',id),data);
     await log('Cập nhật đơn hàng',`${data.customerName} → ${SL[data.status]}`,'gold');
@@ -946,13 +1067,19 @@ window.saveOrder=async()=>{
   }else{
     const oid='DT-'+Date.now().toString(36).toUpperCase().slice(-6);
     await addDoc(collection(db,'orders'),{...data,orderId:oid,createdAt:serverTimestamp()});
-    await log('Tạo đơn hàng mới',`${oid} – ${data.customerName} – ${data.service}`,'b');
+    await log('Tạo đơn hàng mới',`${oid} – ${nm} – ${serviceLabel}`,'b');
     notif('✅ Đã tạo đơn hàng mới','ok');
   }
   closeM('order');resetOrd();
 };
-function resetOrd(){document.getElementById('oi').value='';document.getElementById('m-ord-title').textContent='📋 Tạo đơn hàng mới';['o-nm','o-ph','o-em','o-sv','o-pg','o-pr','o-tt','o-dl','o-nt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=id==='o-pg'?1:''});}
-window.calcT=()=>{const p=Number(document.getElementById('o-pg').value)||0;const pr=Number(document.getElementById('o-pr').value)||0;if(p&&pr)document.getElementById('o-tt').value=p*pr;};
+
+function resetOrd(){
+  document.getElementById('oi').value='';
+  document.getElementById('m-ord-title').textContent='📋 Tạo đơn hàng mới';
+  ['o-nm','o-ph','o-em','o-dep','o-dl','o-nt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renderOrderTaskList([]);
+}
+window.calcT=()=>{}; // kept for compatibility
 
 function renderLeads(){
   let l=S.leads;const q=document.getElementById('q-ld')?.value?.toLowerCase()||'';
@@ -1470,7 +1597,11 @@ window.nav=(pg,el)=>{
   if(pg==='quotes'){renderQuotes();}
   if(pg==='staff-quotes'){renderStaffQuotes();}
 };
-window.openM=(t)=>{if(t==='invoice')populateOrdDrop();document.getElementById('m-'+t).style.display='flex';};
+window.openM=(t)=>{
+  if(t==='invoice')populateOrdDrop();
+  if(t==='order'){renderOrderTaskList([]);}
+  document.getElementById('m-'+t).style.display='flex';
+};
 window.closeM=(t)=>{document.getElementById('m-'+t).style.display='none';};
 window.switchTab=(btn,pid)=>{
   btn.closest('.mbody')?.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
@@ -1712,8 +1843,9 @@ Ngày: ${dateStr}`;
 
   const out = document.getElementById('qb-output');
   out.innerHTML = html;
-  out.style.display = 'block';
+  document.getElementById('qb-preview-wrap').style.display = 'block';
   document.getElementById('qb-copy-btn').style.display = 'inline-flex';
+  document.getElementById('qb-pdf-btn').style.display = 'inline-flex';
   document.getElementById('qb-send-area').style.display = 'block';
   document.getElementById('qb-send-email').value = email || '';
 
@@ -1741,6 +1873,24 @@ window.qbCopy = function() {
     document.body.removeChild(ta);
     notif('📋 Đã sao chép!', 'ok');
   });
+};
+
+window.qbPrintPDF = function() {
+  if (!_qbData) return;
+  // Create or reuse a print frame
+  let frame = document.getElementById('qb-print-frame');
+  if (!frame) {
+    frame = document.createElement('div');
+    frame.id = 'qb-print-frame';
+    frame.style.cssText = 'display:none;position:fixed;inset:0;background:#fff;z-index:99999;padding:30px 40px;overflow:auto;font-family:Arial,sans-serif;color:#111;font-size:13px';
+    document.body.appendChild(frame);
+  }
+  frame.innerHTML = _qbData.html;
+  frame.style.display = 'block';
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => { frame.style.display = 'none'; }, 500);
+  }, 150);
 };
 
 window.qbSendToCustomer = async function() {
@@ -1827,16 +1977,22 @@ window.viewStaffQuote = function(id) {
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
       <span style="background:${sc}18;color:${sc};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">${sl}</span>
       <span style="font-size:12px;color:var(--text3)">👤 ${q.name}${q.company?' · '+q.company:''}</span>
-      <span style="font-size:12px;color:var(--gold-l);font-weight:700">💰 ${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</span>
+      <span style="font-size:13px;color:var(--gold-l);font-weight:800">💰 ${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</span>
     </div>
-    <div style="margin-bottom:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Nội dung báo giá</div>
-      <div style="background:#fff;border-radius:8px;padding:16px;border:1px solid #E5E7EB;max-height:380px;overflow-y:auto">${q.htmlContent||'<em>Không có nội dung</em>'}</div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="bm" style="background:rgba(37,99,235,.15);color:var(--blue-ll);border:none" onclick="sqCopy('${id}')">📋 Sao chép gửi Zalo/Email</button>
-      ${q.status==='confirmed'?`<button class="bm bm-g" onclick="closeM('order-tasks');createOrderFromStaffQuote('${id}')">🚀 Tạo đơn hàng từ báo giá này</button>`:''}
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="bm" style="background:#16A34A;color:#fff;border:none" onclick="sqCopy('${id}')">📋 Sao chép (Zalo/Email)</button>
+      <button class="bm" style="background:#DC2626;color:#fff;border:none" onclick="sqPrintPDF('${id}')">⬇️ Tải PDF</button>
+      ${q.status==='confirmed'?`<button class="bm bm-g" onclick="closeM('order-tasks');createOrderFromStaffQuote('${id}')">🚀 Tạo đơn hàng</button>`:''}
       ${(q.status==='ready'||q.status==='sent')?`<button class="bm" style="background:rgba(16,185,129,.15);color:var(--green-l);border:none" onclick="markQuoteConfirmed('${id}')">✅ Đánh dấu KH đã xác nhận</button>`:''}
+    </div>
+    <div style="border:1px solid #D1D5DB;border-radius:10px;overflow:hidden;background:#fff">
+      <div style="background:#F3F4F6;padding:7px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB">
+        <span style="width:9px;height:9px;border-radius:50%;background:#EF4444;display:inline-block"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:#F59E0B;display:inline-block"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:#10B981;display:inline-block"></span>
+        <span style="font-size:11px;color:#6B7280;margin-left:4px">Nội dung báo giá – nền trắng chữ đen</span>
+      </div>
+      <div style="padding:20px;max-height:400px;overflow-y:auto;background:#fff;color:#111;font-family:'Be Vietnam Pro',sans-serif;font-size:13px">${q.htmlContent||'<em style="color:#999">Không có nội dung</em>'}</div>
     </div>`;
   document.getElementById('ot-foot').innerHTML = `<button class="bm bm-c" onclick="closeM('order-tasks')">Đóng</button>`;
   document.getElementById('m-order-tasks').style.display = 'flex';
@@ -1846,7 +2002,7 @@ window.sqCopy = function(id) {
   const q = allStaffQuotes.find(x => x.id === id);
   if (!q || !q.plainContent) return;
   navigator.clipboard.writeText(q.plainContent).then(() => {
-    notif('📋 Đã sao chép nội dung báo giá!', 'ok');
+    notif('📋 Đã sao chép nội dung báo giá! Dán vào Zalo/Email để gửi khách.', 'ok', 5000);
   }).catch(() => {
     const ta = document.createElement('textarea');
     ta.value = q.plainContent;
@@ -1856,6 +2012,24 @@ window.sqCopy = function(id) {
     document.body.removeChild(ta);
     notif('📋 Đã sao chép!', 'ok');
   });
+};
+
+window.sqPrintPDF = function(id) {
+  const q = allStaffQuotes.find(x => x.id === id);
+  if (!q || !q.htmlContent) return;
+  let frame = document.getElementById('qb-print-frame');
+  if (!frame) {
+    frame = document.createElement('div');
+    frame.id = 'qb-print-frame';
+    frame.style.cssText = 'display:none;position:fixed;inset:0;background:#fff;z-index:99999;padding:30px 40px;overflow:auto;font-family:Arial,sans-serif;color:#111;font-size:13px';
+    document.body.appendChild(frame);
+  }
+  frame.innerHTML = q.htmlContent;
+  frame.style.display = 'block';
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => { frame.style.display = 'none'; }, 500);
+  }, 150);
 };
 
 window.markQuoteConfirmed = async function(id) {
