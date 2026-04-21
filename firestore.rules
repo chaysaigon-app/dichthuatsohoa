@@ -2,98 +2,141 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Helpers ──────────────────────────────────────────────
-    function isSignedIn() { return request.auth != null; }
-    function role() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
-    function isSuperAdmin() { return isSignedIn() && role() == 'superadmin'; }
-    function isAdmin()      { return isSignedIn() && (role() == 'admin' || role() == 'superadmin'); }
-    function isStaff()      { return isSignedIn() && (role() == 'staff' || role() == 'admin' || role() == 'superadmin'); }
-    function isCustomer()   { return isSignedIn() && role() == 'customer'; }
+    // ─── Helper functions ───────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    // Safe role: trả về '' nếu user doc chưa tồn tại (user mới đăng ký)
+    function userRole() {
+      let snap = get(/databases/$(database)/documents/users/$(request.auth.uid));
+      return snap.data.get('role', '');
+    }
+    function isSuperAdmin() {
+      return isSignedIn() && userRole() == 'superadmin';
+    }
+    function isAdmin() {
+      return isSignedIn() && userRole() in ['admin', 'superadmin'];
+    }
+    function isStaff() {
+      return isSignedIn() && userRole() in ['staff', 'admin', 'superadmin'];
+    }
+    function isCustomer() {
+      return isSignedIn() && userRole() == 'customer';
+    }
+    // Cho phép user mới (chưa có doc) hoặc customer
+    function isCustomerOrNew() {
+      return isSignedIn() && (userRole() == 'customer' || userRole() == '');
+    }
 
-    // ── orders ───────────────────────────────────────────────
+    // ─── users ──────────────────────────────────────────────────────
+    match /users/{uid} {
+      // Đọc: chính mình hoặc staff trở lên
+      allow read: if isSignedIn() && (request.auth.uid == uid || isStaff());
+
+      // Tạo mới:
+      //   - Chính mình tự tạo (đăng ký email/Google) → role phải là 'customer'
+      //   - Admin/superadmin tạo cho người khác
+      allow create: if isSignedIn() && (
+        (request.auth.uid == uid && request.resource.data.get('role','customer') == 'customer')
+        || isAdmin()
+      );
+
+      // Cập nhật:
+      //   - Admin trở lên: toàn quyền
+      //   - Chính mình: được sửa name/phone/photoURL, KHÔNG được tự nâng role
+      allow update: if isAdmin()
+        || (isSignedIn() && request.auth.uid == uid
+            && !('role' in request.resource.data.diff(resource.data).affectedKeys()));
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── orders ─────────────────────────────────────────────────────
     match /orders/{id} {
-      allow read: if isStaff() || (isCustomer() &&
-        (resource.data.customerUid == request.auth.uid ||
-         resource.data.customerEmail == request.auth.token.email));
+      allow read: if isStaff()
+        || (isCustomerOrNew() && (
+              resource.data.customerUid == request.auth.uid
+           || resource.data.customerEmail == request.auth.token.email
+           ));
       allow create: if isStaff();
       allow update: if isStaff();
       allow delete: if isSuperAdmin();
     }
 
-    // ── leads ────────────────────────────────────────────────
+    // ─── leads ──────────────────────────────────────────────────────
     match /leads/{id} {
-      allow read, write: if isStaff();
+      // Khách hàng (kể cả user mới) được tạo lead từ portal
+      allow create: if isSignedIn();
+      allow read, update: if isStaff();
       allow delete: if isAdmin();
     }
 
-    // ── invoices ─────────────────────────────────────────────
+    // ─── invoices ───────────────────────────────────────────────────
     match /invoices/{id} {
-      allow read: if isStaff() || (isCustomer() &&
-        (resource.data.customerUid == request.auth.uid ||
-         resource.data.customerEmail == request.auth.token.email));
+      allow read: if isStaff()
+        || (isCustomerOrNew() && (
+              resource.data.customerUid == request.auth.uid
+           || resource.data.customerEmail == request.auth.token.email
+           ));
       allow create, update: if isStaff();
       allow delete: if isAdmin();
     }
 
-    // ── users ────────────────────────────────────────────────
-    match /users/{uid} {
-      // Ai cũng đọc được profile của chính mình
-      allow read: if isSignedIn() && (request.auth.uid == uid || isStaff());
-      // Chỉ superadmin/admin mới tạo/sửa/xóa tài khoản nhân viên
-      allow create: if isAdmin();
-      allow update: if isAdmin() || request.auth.uid == uid;
-      allow delete: if isSuperAdmin();
-    }
-
-    // ── activity log ─────────────────────────────────────────
+    // ─── activity ───────────────────────────────────────────────────
     match /activity/{id} {
       allow read: if isStaff();
       allow create: if isStaff();
       allow update, delete: if isSuperAdmin();
     }
 
-    // ── quotes (form báo giá từ website — public write) ─────────
+    // ─── quotes (inbound – từ website khách) ────────────────────────
     match /quotes/{id} {
       allow create: if true;
       allow read, update, delete: if isStaff();
     }
 
-    // ── contacts (form liên hệ từ website — public write) ────
+    // ─── staff_quotes (báo giá nội bộ – do nhân viên lập) ───────────
+    match /staff_quotes/{id} {
+      allow read: if isStaff()
+        || (isCustomerOrNew() && resource.data.customerUid == request.auth.uid);
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // ─── contacts ───────────────────────────────────────────────────
     match /contacts/{id} {
       allow create: if true;
       allow read, update, delete: if isStaff();
     }
 
-    // ── reviews (đánh giá từ portal KH) ─────────────────────
+    // ─── reviews ────────────────────────────────────────────────────
     match /reviews/{id} {
       allow read: if true;
-      allow create: if isCustomer();
+      allow create: if isCustomerOrNew();
       allow update, delete: if isAdmin();
     }
 
-    // ── notifications ────────────────────────────────────────
+    // ─── notifications ──────────────────────────────────────────────
     match /notifications/{id} {
-      allow read: if isSignedIn() && (resource.data.toUid == request.auth.uid || isStaff());
+      allow read: if isSignedIn()
+        && (resource.data.toUid == request.auth.uid || isStaff());
       allow create: if isStaff();
       allow update: if isSignedIn() && resource.data.toUid == request.auth.uid;
       allow delete: if isAdmin();
     }
 
-    // ── conversations (chat widget từ website) ───────────────
-    // conversations/{convId}
+    // ─── conversations + messages ────────────────────────────────────
     match /conversations/{convId} {
-      // Khách: đọc/ghi conversation của mình qua convId lưu localStorage
-      // Staff/Admin: đọc/ghi tất cả
-      allow read: if isStaff() || true; // public read để khách load lịch sử
-      allow create: if true;            // public create để khách bắt đầu chat
-      allow update: if isStaff() || true; // khách cập nhật guestPhone
+      allow read:   if true;
+      allow create: if true;
+      allow update: if true;
 
-      // messages subcollection
       match /messages/{msgId} {
-        allow read: if true;
-        allow create: if true;  // khách và staff đều gửi được
+        allow read:           if true;
+        allow create:         if true;
         allow update, delete: if isStaff();
       }
     }
+
   }
 }
