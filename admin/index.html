@@ -1903,6 +1903,11 @@ window.qbGenerate = function() {
     </div>
     <hr style="border:none;border-top:2px solid #003580;margin-bottom:16px">
     <p>${recipientLine}</p>
+    ${(company || phone || email) ? `<div style="background:#F8FAFC;border:1px solid #E5E7EB;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;line-height:1.9">
+      ${company ? `<div>🏢 <strong>Công ty:</strong> ${company}</div>` : ''}
+      ${phone   ? `<div>📞 <strong>Điện thoại:</strong> ${phone}</div>` : ''}
+      ${email   ? `<div>✉️ <strong>Email:</strong> ${email}</div>` : ''}
+    </div>` : ''}
     <p>Thông qua trao đổi về nhu cầu của Quý khách, Công ty chúng tôi xin trân trọng gửi đến Quý khách bảng báo giá dịch vụ như sau:</p>
     ${htmlTable}
     ${depositSection}
