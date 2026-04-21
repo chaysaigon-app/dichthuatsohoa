@@ -239,6 +239,7 @@ tbody td{padding:11px 14px;font-size:13px}
       </div>
       <div class="ns"><div class="ns-title">Khách hàng</div>
         <div class="ni" onclick="nav('messages',this)" id="ni-msg"><span class="ni-icon">💬</span>Tin nhắn<span class="ni-badge" id="b-msg" style="display:none">0</span></div>
+        <div class="ni" onclick="nav('quotes',this)" id="ni-qt"><span class="ni-icon">💰</span>Báo Giá<span class="ni-badge" id="b-qt" style="display:none">0</span></div>
         <div class="ni" onclick="nav('leads',this)"><span class="ni-icon">📥</span>Liên hệ mới<span class="ni-badge" id="b-ld">0</span></div>
         <div class="ni" onclick="nav('customers',this)"><span class="ni-icon">👥</span>Khách hàng</div>
         <div class="ni" onclick="nav('accounts',this)" id="ni-acc"><span class="ni-icon">👤</span>Tài khoản KH</div>
@@ -276,6 +277,7 @@ tbody td{padding:11px 14px;font-size:13px}
           <div class="sc g" onclick="nav('reports',null)"><div class="sc-lbl">Doanh thu tháng</div><div class="sc-val" id="s-rev">0đ</div><div class="sc-ico">💰</div><div class="sc-tr up">Đã thu</div></div>
           <div class="sc gold" onclick="nav('orders',null)"><div class="sc-lbl">Đang xử lý</div><div class="sc-val" id="s-proc">0</div><div class="sc-ico">⚙️</div><div class="sc-tr up">Theo dõi</div></div>
           <div class="sc r" onclick="nav('leads',null)"><div class="sc-lbl">Liên hệ chưa xử lý</div><div class="sc-val" id="s-ld">0</div><div class="sc-ico">📥</div><div class="sc-tr dn">Cần phản hồi</div></div>
+          <div class="sc" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border-left:3px solid #D72323;cursor:pointer" onclick="nav('quotes',null)"><div class="sc-lbl">Báo giá mới</div><div class="sc-val" id="s-qt">0</div><div class="sc-ico">💰</div><div class="sc-tr dn" id="s-qt-sub">Chờ xử lý</div></div>
         </div>
         <div class="qa">
           <div class="qab" onclick="openM('lead')"><div class="qab-i">📥</div><div class="qab-l">Nhận liên hệ</div><div class="qab-s">Tạo lead mới</div></div>
@@ -420,6 +422,46 @@ tbody td{padding:11px 14px;font-size:13px}
       <div class="pg" id="pg-messages">
         <div id="chat-admin-container" style="height:calc(100vh - 80px)">
           <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3)">Đang tải...</div>
+        </div>
+      </div>
+
+      <!-- QUOTES — yêu cầu báo giá từ website -->
+      <div class="pg" id="pg-quotes">
+        <div class="tw">
+          <div class="th2">
+            <h3>💰 Yêu Cầu Báo Giá</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="qt-filter" onchange="renderQuotes()" style="border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;background:#fff">
+                <option value="">Tất cả</option>
+                <option value="new">Mới</option>
+                <option value="quoted">Đã báo giá</option>
+                <option value="confirmed">Đã xác nhận</option>
+                <option value="done">Hoàn thành</option>
+              </select>
+              <input id="qt-search" type="text" placeholder="🔍 Tìm tên / SĐT..." oninput="renderQuotes()" style="border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;width:180px">
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Thời gian</th><th>Khách hàng</th><th>Liên hệ</th>
+                <th>Dịch vụ</th><th>Nhận hàng</th><th>Deadline</th>
+                <th>File/GDrive</th><th>Trạng thái</th><th>Thao tác</th>
+              </tr></thead>
+              <tbody id="qt-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUOTE DETAIL MODAL -->
+      <div id="m-quote-detail" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px">
+        <div style="background:#fff;border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+          <div style="background:linear-gradient(135deg,#D72323,#FF4444);color:#fff;padding:16px 20px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center">
+            <div><b style="font-size:16px">💰 Chi tiết Báo Giá</b><div id="qd-id" style="font-size:11px;opacity:.8;margin-top:2px"></div></div>
+            <button onclick="closeM('quote-detail')" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer">✕</button>
+          </div>
+          <div style="padding:20px" id="qd-body"></div>
         </div>
       </div>
       <div class="pg" id="pg-activity">
@@ -590,6 +632,13 @@ function loadData(){
   onSnapshot(query(collection(db,'invoices'),orderBy('createdAt','desc')),sn=>{S.invoices=sn.docs.map(d=>({id:d.id,...d.data()}));renderInvoices();renderReports();});
   onSnapshot(query(collection(db,'activity'),orderBy('createdAt','desc')),sn=>{S.activity=sn.docs.map(d=>({id:d.id,...d.data()}));renderActivity();});
   onSnapshot(collection(db,'users'),sn=>{S.users=sn.docs.map(d=>({id:d.id,...d.data()}));renderStaff();renderAccounts();});
+  loadQuotes();
+}
+
+async function getFSMod(){
+  // Returns Firestore functions already imported in scope
+  const {collection,addDoc,doc,updateDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+  return {collection,addDoc,doc,updateDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs};
 }
 
 async function log(action,detail,color='b'){await addDoc(collection(db,'activity'),{action,detail,color,userId:S.user?.uid,user:S.user?.email||'system',createdAt:serverTimestamp()});}
@@ -1114,14 +1163,143 @@ function listenChatBadge(){
   });
 }
 
+
+// ================================================================
+// QUOTES — Yêu cầu báo giá từ website (collection: quotes)
+// ================================================================
+const QS = {new:'🆕 Mới', quoted:'💬 Đã báo giá', confirmed:'✅ Đã xác nhận', done:'🏁 Hoàn thành'};
+const QS_COLOR = {new:'#D72323', quoted:'#2563EB', confirmed:'#059669', done:'#6B7280'};
+let allQuotes = [];
+
+async function loadQuotes() {
+  const { collection, query, orderBy, onSnapshot } = await getFSMod();
+  const q = query(collection(db, 'quotes'), orderBy('createdAt', 'desc'));
+  onSnapshot(q, snap => {
+    allQuotes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Badge + dashboard counter
+    const newCount = allQuotes.filter(q => q.status === 'new').length;
+    const badge = document.getElementById('b-qt');
+    if (badge) { badge.textContent = newCount; badge.style.display = newCount ? 'inline' : 'none'; }
+    const sQt = document.getElementById('s-qt');
+    if (sQt) sQt.textContent = newCount;
+    renderQuotes();
+  });
+}
+
+window.renderQuotes = function() {
+  const filter = document.getElementById('qt-filter')?.value || '';
+  const search = (document.getElementById('qt-search')?.value || '').toLowerCase();
+  const tbody = document.getElementById('qt-tbody');
+  if (!tbody) return;
+
+  let list = allQuotes.filter(q => {
+    if (filter && q.status !== filter) return false;
+    if (search && !((q.name||'').toLowerCase().includes(search) || (q.phone||'').includes(search))) return false;
+    return true;
+  });
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#9CA3AF">Chưa có yêu cầu báo giá nào</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(q => {
+    const dt = q.createdAt?.toDate ? q.createdAt.toDate().toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+    const statusColor = QS_COLOR[q.status] || '#6B7280';
+    const hasFile = q.fileNames || q.gdriveLink;
+    const fileHtml = hasFile
+      ? `<span style="font-size:11px;color:#2563EB" title="${q.fileNames||''}${q.gdriveLink?'\nGDrive: '+q.gdriveLink:''}">${q.fileNames ? '📎 '+q.fileNames.split(',').length+' file' : ''}${q.gdriveLink ? ' 📁 GDrive' : ''}</span>`
+      : '<span style="color:#9CA3AF;font-size:11px">—</span>';
+    return `<tr>
+      <td style="font-size:11px;color:#6B7280;white-space:nowrap">${dt}</td>
+      <td><div style="font-weight:600">${q.name||'Khách'}</div>${q.note?`<div style="font-size:11px;color:#9CA3AF">${q.note.substring(0,30)}...</div>`:''}</td>
+      <td><div>${q.phone||'—'}</div>${q.email?`<div style="font-size:11px;color:#6B7280">${q.email}</div>`:''}</td>
+      <td style="font-size:12px">${q.services||'—'}</td>
+      <td style="font-size:12px">${q.delivery||'—'}${q.deliveryAddr?`<div style="font-size:11px;color:#6B7280">${q.deliveryAddr}</div>`:''}</td>
+      <td style="font-size:12px;white-space:nowrap">${q.deadline||'—'}</td>
+      <td>${fileHtml}</td>
+      <td><span style="background:${statusColor}15;color:${statusColor};padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700">${QS[q.status]||q.status}</span></td>
+      <td>
+        <button class="btn btn-ghost" onclick="openQuoteDetail('${q.id}')" style="font-size:12px;padding:4px 8px">👁 Xem</button>
+        <select onchange="updateQuoteStatus('${q.id}',this.value)" style="font-size:11px;border:1px solid var(--border);border-radius:4px;padding:3px 6px;cursor:pointer;background:#fff;margin-top:4px">
+          <option value="">Đổi TT...</option>
+          ${Object.entries(QS).map(([v,l])=>`<option value="${v}" ${q.status===v?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+};
+
+window.openQuoteDetail = function(id) {
+  const q = allQuotes.find(x => x.id === id);
+  if (!q) return;
+  const dt = q.createdAt?.toDate ? q.createdAt.toDate().toLocaleString('vi-VN') : '—';
+  document.getElementById('qd-id').textContent = 'ID: ' + id + ' · ' + dt;
+  document.getElementById('qd-body').innerHTML = `
+    <div style="display:grid;gap:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Họ tên</div><div style="font-weight:600">${q.name||'—'}</div></div>
+        <div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Điện thoại</div><div style="font-weight:600;color:#D72323">${q.phone||'—'}</div></div>
+        <div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Email</div><div>${q.email||'—'}</div></div>
+        <div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Deadline</div><div>${q.deadline||'Càng sớm càng tốt'}</div></div>
+      </div>
+      <div style="background:#F8FAFF;border-radius:8px;padding:12px">
+        <div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:6px">Dịch vụ yêu cầu</div>
+        <div style="font-size:14px;font-weight:600;color:#1e3a8a">${q.services||'Chưa chọn'}</div>
+      </div>
+      <div style="background:#F8FAFF;border-radius:8px;padding:12px">
+        <div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:6px">Nhận hàng</div>
+        <div>${q.delivery||'—'}</div>
+        ${q.deliveryAddr?`<div style="font-size:13px;color:#374151;margin-top:4px">📍 ${q.deliveryAddr}</div>`:''}
+      </div>
+      ${q.fileNames?`<div style="background:#F0FDF4;border-radius:8px;padding:12px"><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:6px">Files đính kèm</div><div>📎 ${q.fileNames}</div></div>`:''}
+      ${q.gdriveLink?`<div style="background:#EFF6FF;border-radius:8px;padding:12px"><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:6px">Google Drive</div><a href="${q.gdriveLink}" target="_blank" style="color:#2563EB;word-break:break-all">📁 ${q.gdriveLink}</a></div>`:''}
+      ${q.note?`<div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Ghi chú</div><div>${q.note}</div></div>`:''}
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <select id="qd-status-sel" style="border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:13px;background:#fff;flex:1">
+          ${Object.entries(QS).map(([v,l])=>`<option value="${v}" ${q.status===v?'selected':''}>${l}</option>`).join('')}
+        </select>
+        <button onclick="updateQuoteStatus('${id}',document.getElementById('qd-status-sel').value);closeM('quote-detail')" style="background:#2563EB;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer">Lưu trạng thái</button>
+        <button onclick="createLeadFromQuote('${id}')" style="background:#059669;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer">→ Tạo Lead</button>
+      </div>
+    </div>`;
+  document.getElementById('m-quote-detail').style.display = 'flex';
+};
+
+window.updateQuoteStatus = async function(id, status) {
+  if (!status) return;
+  const { doc, updateDoc } = await getFSMod();
+  await updateDoc(doc(db, 'quotes', id), { status });
+  const q = allQuotes.find(x => x.id === id);
+  if (q) q.status = status;
+  renderQuotes();
+};
+
+window.createLeadFromQuote = async function(id) {
+  const q = allQuotes.find(x => x.id === id);
+  if (!q) return;
+  const { collection, addDoc, serverTimestamp } = await getFSMod();
+  await addDoc(collection(db, 'leads'), {
+    name: q.name||'Khách', phone: q.phone||'', email: q.email||'',
+    channel: 'Báo giá website', request: q.services||'',
+    note: `Dịch vụ: ${q.services||'—'} | Nhận: ${q.delivery||'—'} | Deadline: ${q.deadline||'—'} | ${q.note||''}`,
+    status: 'new', quoteId: id, createdAt: serverTimestamp()
+  });
+  await updateQuoteStatus(id, 'quoted');
+  closeM('quote-detail');
+  nav('leads', document.querySelector('.ni[onclick*="leads"]'));
+  showToast('✅ Đã tạo Lead từ báo giá!', 'success');
+};
+
 window.nav=(pg,el)=>{
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById('pg-'+pg)?.classList.add('on');
   if(el)el.classList.add('active');
-  const t={dashboard:'📊 Dashboard',messages:'💬 Tin nhắn khách',orders:'📋 Đơn hàng',leads:'📥 Khách liên hệ',customers:'👥 Khách hàng',accounts:'👤 Tài khoản KH',invoices:'🧾 Hóa đơn',reports:'📈 Báo cáo doanh thu',activity:'🕐 Nhật ký',settings:'⚙️ Cài đặt'};
+  const t={dashboard:'📊 Dashboard',messages:'💬 Tin nhắn khách',quotes:'💰 Báo Giá',orders:'📋 Đơn hàng',leads:'📥 Khách liên hệ',customers:'👥 Khách hàng',accounts:'👤 Tài khoản KH',invoices:'🧾 Hóa đơn',reports:'📈 Báo cáo doanh thu',activity:'🕐 Nhật ký',settings:'⚙️ Cài đặt'};
   document.getElementById('tb-title').textContent=t[pg]||pg;
   if(pg==='messages'){renderMessages();}
+  if(pg==='quotes'){renderQuotes();}
 };
 window.openM=(t)=>{if(t==='invoice')populateOrdDrop();document.getElementById('m-'+t).style.display='flex';};
 window.closeM=(t)=>{document.getElementById('m-'+t).style.display='none';};
