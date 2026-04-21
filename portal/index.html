@@ -350,7 +350,7 @@ a{text-decoration:none;color:inherit}
       </div>
 
       <div style="margin-bottom:20px">
-        <h3 style="font-size:16px;font-weight:700;color:var(--blue);margin-bottom:14px">🔔 Đơn hàng đang xử lý</h3>
+        <h3 style="font-size:16px;font-weight:700;color:var(--blue);margin-bottom:14px">🔔 Hồ sơ đang xử lý</h3>
         <div id="active-orders"></div>
       </div>
 
@@ -370,24 +370,24 @@ a{text-decoration:none;color:inherit}
       </div>
     </div>
 
-    <!-- YÊU CẦU BÁO GIÁ ĐÃ GỬI -->
+    <!-- YÊU CẦU ĐÃ GỬI -->
     <div class="sec" id="sec-my-requests">
       <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">📤 Yêu cầu báo giá</h2>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Các yêu cầu bạn đã gửi — nhân viên đang xem xét và sẽ gửi báo giá sớm</p>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Các yêu cầu bạn đã gửi — nhân viên sẽ gửi báo giá vào tab <strong>Báo Giá</strong> khi hoàn tất</p>
       <div id="my-requests-list"></div>
     </div>
 
     <!-- BÁO GIÁ NHẬN ĐƯỢC -->
     <div class="sec" id="sec-my-quotes">
       <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">💰 Báo giá từ nhân viên</h2>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Xem nội dung báo giá và nhấn <strong>Đồng ý</strong> để chúng tôi bắt đầu thực hiện</p>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Xem nội dung và nhấn <strong style="color:var(--green)">Đồng ý</strong> để tạo đơn hàng ngay lập tức</p>
       <div id="my-quotes-list"></div>
     </div>
 
     <!-- ORDERS -->
     <div class="sec" id="sec-orders">
       <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">📋 Đơn hàng của tôi</h2>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Đơn hàng được tạo tự động khi bạn xác nhận báo giá — nhấn để xem chi tiết tiến trình</p>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Đơn hàng được tạo tự động khi bạn xác nhận báo giá — nhấn để xem tiến trình</p>
       <div id="all-orders"></div>
     </div>
 
@@ -543,9 +543,9 @@ const cfg={apiKey:"AIzaSyCkyAJJm-kj6JReuGOcy1kj3RHn5hqRWwo",authDomain:"sohoa-ba
 const fb=initializeApp(cfg);const db=getFirestore(fb);const auth=getAuth(fb);
 
 const S={user:null,profile:null,orders:[],invoices:[],activity:[],currentOrderId:null,starRating:0};
-const SL={new:'Mới',quoted:'Đã báo giá',confirmed:'Đã xác nhận',processing:'Đang thực hiện',done:'Đã hoàn thành',delivered:'Đã giao hàng',invoiced:'Đã xuất HĐ',paid:'Đã thanh toán',cancelled:'Đã hủy'};
-const STEPS=[{k:'confirmed',l:'Xác nhận'},{k:'processing',l:'Đang thực hiện'},{k:'done',l:'Hoàn thành'},{k:'delivered',l:'Đã giao hàng'},{k:'paid',l:'Đã thanh toán'}];
-const PROG={new:10,quoted:25,confirmed:35,processing:65,done:85,invoiced:90,paid:100,delivered:100,cancelled:0};
+const SL={new:'Mới – Chờ báo giá',quoted:'Đã báo giá',confirmed:'Xác nhận – Đặt cọc',processing:'Đang dịch / Xử lý',done:'Hoàn thành',invoiced:'Đã xuất hóa đơn',paid:'Đã thanh toán',cancelled:'Đã hủy'};
+const STEPS=[{k:'new',l:'Tiếp nhận'},{k:'quoted',l:'Báo giá'},{k:'confirmed',l:'Xác nhận'},{k:'processing',l:'Đang dịch'},{k:'done',l:'Hoàn thành'},{k:'paid',l:'Đã thu'}];
+const PROG={new:10,quoted:25,confirmed:40,processing:65,done:90,invoiced:95,paid:100,cancelled:0};
 
 // ── Tab switch
 window.switchTab=(t)=>{
@@ -682,161 +682,130 @@ onAuthStateChanged(auth,async u=>{
   }
 });
 
-// ══════════════════════════════════════════════════════════════
-// QUOTES & REQUESTS — Tách biệt rõ ràng
-// Collection quotes      = yêu cầu khách gửi (inbound)
-// Collection customer_quotes = báo giá NV lập, gửi lên portal
-// ══════════════════════════════════════════════════════════════
-const S_QUOTES_STATE = { inbound: null, received: null };
+// ══════════════════════════════════════════════════════
+// QUOTES STATE — tách biệt yêu cầu (inbound) vs báo giá (received)
+// quotes collection      = yêu cầu khách gửi
+// customer_quotes coll   = báo giá NV lập, gửi lên portal
+// ══════════════════════════════════════════════════════
+const S_QUOTES_STATE = {inbound:null, received:null};
 
 function loadCustomerQuotes() {
   S_QUOTES_STATE.inbound  = null;
   S_QUOTES_STATE.received = null;
 
-  // 1. Yêu cầu báo giá do khách gửi (collection: quotes)
-  onSnapshot(
-    query(collection(db,'quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc')),
-    snap => {
-      S_QUOTES_STATE.inbound = snap.docs.map(d=>({id:d.id,...d.data(),_src:'inbound'}));
-      _renderRequestsAndQuotes();
-    },
-    err => {
-      console.error('[quotes]', err.code, err.message);
-      // Fallback không orderBy nếu chưa có index
+  // 1. Yêu cầu do khách gửi
+  const q1 = query(collection(db,'quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc'));
+  onSnapshot(q1,
+    snap => { S_QUOTES_STATE.inbound = snap.docs.map(d=>({id:d.id,...d.data(),_src:'inbound'})); _mergeQuotes(); },
+    ()    => {
       onSnapshot(query(collection(db,'quotes'), where('customerUid','==',S.user.uid)), snap2 => {
-        S_QUOTES_STATE.inbound = snap2.docs.map(d=>({id:d.id,...d.data(),_src:'inbound'}))
-          .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-        _renderRequestsAndQuotes();
-      }, ()=>{ S_QUOTES_STATE.inbound=[]; _renderRequestsAndQuotes(); });
+        S_QUOTES_STATE.inbound = snap2.docs.map(d=>({id:d.id,...d.data(),_src:'inbound'})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+        _mergeQuotes();
+      }, ()=>{ S_QUOTES_STATE.inbound=[]; _mergeQuotes(); });
     }
   );
 
-  // 2. Báo giá NV đã lập & gửi lên portal (collection: customer_quotes)
-  onSnapshot(
-    query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc')),
-    snap => {
-      S_QUOTES_STATE.received = snap.docs.map(d=>({id:d.id,...d.data(),_src:'received'}));
-      _renderRequestsAndQuotes();
-    },
-    err => {
-      console.error('[customer_quotes]', err.code, err.message);
+  // 2. Báo giá NV đã gửi lên portal
+  const q2 = query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc'));
+  onSnapshot(q2,
+    snap => { S_QUOTES_STATE.received = snap.docs.map(d=>({id:d.id,...d.data(),_src:'received'})); _mergeQuotes(); },
+    ()    => {
       onSnapshot(query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid)), snap2 => {
-        S_QUOTES_STATE.received = snap2.docs.map(d=>({id:d.id,...d.data(),_src:'received'}))
-          .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-        _renderRequestsAndQuotes();
-      }, ()=>{ S_QUOTES_STATE.received=[]; _renderRequestsAndQuotes(); });
+        S_QUOTES_STATE.received = snap2.docs.map(d=>({id:d.id,...d.data(),_src:'received'})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+        _mergeQuotes();
+      }, ()=>{ S_QUOTES_STATE.received=[]; _mergeQuotes(); });
     }
   );
 }
 
-function _renderRequestsAndQuotes() {
-  // Chỉ render khi cả 2 đều đã load
-  if (S_QUOTES_STATE.inbound === null || S_QUOTES_STATE.received === null) return;
-
-  _renderMyRequests();
-  _renderMyQuotes();
+function _mergeQuotes() {
+  if (S_QUOTES_STATE.inbound===null || S_QUOTES_STATE.received===null) return;
+  _renderRequests();
+  _renderQuotes();
   _renderDashQuotes();
-
-  // Badge tab Báo Giá: chỉ đếm pending_confirm
-  const pendingCount = (S_QUOTES_STATE.received||[]).filter(q=>q.status==='pending_confirm').length;
-  const badge = document.getElementById('badge-quotes');
-  if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount ? 'inline-flex' : 'none'; }
-
-  // Badge tab Yêu cầu: đếm new (chưa có báo giá)
-  const linkedIds = new Set((S_QUOTES_STATE.received||[]).map(q=>q.linkedQuoteId).filter(Boolean));
-  const unhandled = (S_QUOTES_STATE.inbound||[]).filter(q=>q.status==='new' && !linkedIds.has(q.id)).length;
-  const bReq = document.getElementById('badge-requests');
-  if (bReq) { bReq.textContent = unhandled; bReq.style.display = unhandled ? 'inline-flex' : 'none'; }
+  // Badge: pending_confirm
+  const pq = (S_QUOTES_STATE.received||[]).filter(q=>q.status==='pending_confirm').length;
+  const bq = document.getElementById('badge-quotes');
+  if (bq) { bq.textContent=pq; bq.style.display=pq?'inline-flex':'none'; }
+  // Badge: yêu cầu chưa có báo giá
+  const linked = new Set((S_QUOTES_STATE.received||[]).map(q=>q.linkedQuoteId).filter(Boolean));
+  const pr = (S_QUOTES_STATE.inbound||[]).filter(q=>q.status==='new'&&!linked.has(q.id)).length;
+  const br = document.getElementById('badge-requests');
+  if (br) { br.textContent=pr; br.style.display=pr?'inline-flex':'none'; }
 }
 
-// ── Tab: Yêu cầu báo giá (inbound từ khách)
-function _renderMyRequests() {
+// ── Tab: Yêu cầu báo giá
+function _renderRequests() {
   const el = document.getElementById('my-requests-list');
   if (!el) return;
   const list = S_QUOTES_STATE.inbound || [];
-  if (!list.length) {
-    el.innerHTML = `<div class="empty"><div class="ei">📤</div><h3>Chưa có yêu cầu nào</h3><p>Nhấn "Yêu cầu mới" để gửi yêu cầu báo giá đầu tiên</p></div>`;
-    return;
-  }
-  const linkedIds = new Set((S_QUOTES_STATE.received||[]).map(q=>q.linkedQuoteId).filter(Boolean));
-  el.innerHTML = list.map(q => _requestCard(q, linkedIds.has(q.id))).join('');
+  if (!list.length) { el.innerHTML='<div class="empty"><div class="ei">📤</div><h3>Chưa có yêu cầu nào</h3><p>Nhấn "Yêu cầu mới" để gửi báo giá đầu tiên</p></div>'; return; }
+  const linked = new Set((S_QUOTES_STATE.received||[]).map(q=>q.linkedQuoteId).filter(Boolean));
+  el.innerHTML = list.map(q => _reqCard(q, linked.has(q.id))).join('');
 }
 
-function _requestCard(q, hasQuote) {
+function _reqCard(q, hasQuote) {
   const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
-  const statusLabel = hasQuote ? '📝 Đã có báo giá' : (q.status==='new'?'⏳ Chờ báo giá':'📝 Đang xử lý');
-  const statusBg    = hasQuote ? '#D1FAE5' : '#FEF9C3';
-  const statusTx    = hasQuote ? '#065F46' : '#B45309';
+  const sl = hasQuote ? '📝 Đã có báo giá' : '⏳ Chờ báo giá';
+  const bg = hasQuote ? '#D1FAE5' : '#FEF9C3';
+  const tx = hasQuote ? '#065F46' : '#B45309';
   return `<div class="quote-card" style="border-color:#E2E8F0">
     <div class="qc-head">
       <div style="flex:1">
         <div class="qc-title">📤 Yêu cầu báo giá</div>
         <div class="qc-sub">${q.services||'—'}</div>
-        <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Gửi lúc: ${dt}${q.deadline&&q.deadline!=='Càng sớm càng tốt'?` · Hạn: <strong>${q.deadline}</strong>`:''}</div>
-        ${q.note?`<div style="font-size:12px;color:var(--text2);margin-top:4px">📝 ${q.note}</div>`:''}
+        <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Gửi: ${dt}${q.deadline&&q.deadline!=='Càng sớm càng tốt'?` · Hạn: <strong>${q.deadline}</strong>`:''}</div>
       </div>
-      <span style="background:${statusBg};color:${statusTx};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;flex-shrink:0;align-self:flex-start">${statusLabel}</span>
+      <span style="background:${bg};color:${tx};padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:700;flex-shrink:0">${sl}</span>
     </div>
-    ${hasQuote ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12.5px;color:var(--blue2);font-weight:600">
-      ✅ Nhân viên đã gửi báo giá → <button onclick="showSec('my-quotes',document.getElementById('tab-my-quotes'))" style="background:none;border:none;color:var(--blue3);font-weight:700;cursor:pointer;font-size:12.5px;padding:0;font-family:inherit">Xem báo giá →</button>
-    </div>` : `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">
-      Nhân viên đang xem xét — báo giá sẽ xuất hiện trong tab <strong>Báo Giá</strong> khi hoàn tất.
+    ${hasQuote?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12.5px">
+      ✅ Đã có báo giá → <button onclick="showSec('my-quotes',document.getElementById('tab-my-quotes'))" style="background:none;border:none;color:var(--blue3);font-weight:700;cursor:pointer;font-size:12.5px;padding:0;font-family:inherit">Xem báo giá →</button>
+    </div>`:`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">
+      Nhân viên đang xử lý — báo giá sẽ xuất hiện trong tab <strong>Báo Giá</strong> khi hoàn tất.
     </div>`}
   </div>`;
 }
 
-// ── Tab: Báo giá nhận được (từ NV)
-function _renderMyQuotes() {
+// ── Tab: Báo giá nhận được
+function _renderQuotes() {
   const el = document.getElementById('my-quotes-list');
   if (!el) return;
   const list = S_QUOTES_STATE.received || [];
-  if (!list.length) {
-    el.innerHTML = `<div class="empty"><div class="ei">💰</div><h3>Chưa có báo giá nào</h3><p>Sau khi gửi yêu cầu, nhân viên sẽ gửi báo giá vào đây</p></div>`;
-    return;
-  }
+  if (!list.length) { el.innerHTML='<div class="empty"><div class="ei">💰</div><h3>Chưa có báo giá nào</h3><p>Sau khi gửi yêu cầu, báo giá sẽ xuất hiện ở đây</p></div>'; return; }
   el.innerHTML = list.map(q => _quoteCard(q)).join('');
 }
 
 function _quoteCard(q) {
-  const isPending   = q.status === 'pending_confirm';
-  const isConfirmed = q.status === 'confirmed' || q.status === 'order_created';
-  const isCancelled = q.status === 'cancelled';
+  const isPending   = q.status==='pending_confirm';
+  const isConfirmed = q.status==='confirmed'||q.status==='order_created';
+  const isCancelled = q.status==='cancelled';
   const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
-
-  const statusLabel = isPending ? '⏳ Chờ xác nhận' : isConfirmed ? '✅ Đã xác nhận' : isCancelled ? '🚫 Đã hủy' : q.status==='sent'?'📤 Đã gửi':q.status;
-  const statusBg    = isPending ? '#FEF3C7' : isConfirmed ? '#D1FAE5' : isCancelled ? '#FEE2E2' : '#EFF6FF';
-  const statusTx    = isPending ? '#B45309' : isConfirmed ? '#065F46' : isCancelled ? '#B91C1C' : '#1D4ED8';
-  const cardBorder  = isPending ? '#F59E0B' : isConfirmed ? '#10B981' : isCancelled ? '#EF4444' : '#D1DCF0';
-
-  return `<div class="quote-card" style="border-color:${cardBorder};${isPending?'background:linear-gradient(to right,#FFFBEB,#fff)':''}${isConfirmed?'background:linear-gradient(to right,#F0FDF4,#fff)':''}">
+  const sl = isPending?'⏳ Chờ xác nhận':isConfirmed?'✅ Đã xác nhận':isCancelled?'🚫 Đã hủy':'📤 Đã gửi';
+  const cardBg  = isPending?'linear-gradient(to right,#FFFBEB,#fff)':isConfirmed?'linear-gradient(to right,#F0FDF4,#fff)':'';
+  const bdrCol  = isPending?'#F59E0B':isConfirmed?'#10B981':isCancelled?'#EF4444':'#D1DCF0';
+  const tagBg   = isPending?'#FEF3C7':isConfirmed?'#D1FAE5':isCancelled?'#FEE2E2':'#EFF6FF';
+  const tagTx   = isPending?'#B45309':isConfirmed?'#065F46':isCancelled?'#B91C1C':'#1D4ED8';
+  return `<div class="quote-card" style="border-color:${bdrCol};${cardBg?'background:'+cardBg:''}">
     <div class="qc-head">
       <div style="flex:1">
         <div class="qc-title">📋 Báo giá dịch vụ</div>
         <div class="qc-sub">${q.services||'—'}</div>
-        <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Nhân viên: <strong>${q.staff||'Admin'}</strong> · ${dt}</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:4px">NV: <strong>${q.staff||'Admin'}</strong> · ${dt}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
-        <div class="qc-price">${q.grandTotal ? q.grandTotal.toLocaleString('vi-VN')+'đ' : '—'}</div>
-        <span style="background:${statusBg};color:${statusTx};padding:3px 10px;border-radius:10px;font-size:11.5px;font-weight:700;display:inline-block;margin-top:4px">${statusLabel}</span>
+        <div class="qc-price">${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</div>
+        <span style="background:${tagBg};color:${tagTx};padding:3px 10px;border-radius:10px;font-size:11.5px;font-weight:700;display:inline-block;margin-top:4px">${sl}</span>
       </div>
     </div>
-
-    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:10px 0">
-      <span>💰 Dịch vụ: <strong>${fm(q.subTotal||0)}</strong></span>
-      <span>🏛️ VAT 8%: <strong>${fm(q.vat||0)}</strong></span>
-      ${q.deposit?`<span>💳 Đặt cọc: <strong style="color:var(--blue)">${fm(q.deposit)}</strong></span>`:''}
+    <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:10px 0">
+      <span>💰 DV: <strong>${fm(q.subTotal||0)}</strong></span>
+      <span>🏛️ VAT: <strong>${fm(q.vat||0)}</strong></span>
+      ${q.deposit?`<span>💳 Cọc: <strong style="color:var(--blue)">${fm(q.deposit)}</strong></span>`:''}
     </div>
-
-    ${isConfirmed ? `<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:8px;padding:10px 14px;font-size:13px;color:#065F46;margin-bottom:8px">
-      ✅ Bạn đã xác nhận báo giá này. Đơn hàng đã được tạo — xem tại tab <strong>Đơn hàng</strong>.
-    </div>` : ''}
-    ${isCancelled ? `<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;font-size:13px;color:#B91C1C;margin-bottom:8px">
-      🚫 Báo giá này đã bị hủy. Liên hệ nhân viên nếu cần hỗ trợ.
-    </div>` : ''}
-
+    ${isConfirmed?`<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:8px;padding:10px 14px;font-size:13px;color:#065F46;margin-bottom:8px">✅ Đã xác nhận. Đơn hàng đã được tạo — xem tại tab <strong>Đơn hàng</strong>.</div>`:''}
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn-view-quote" onclick="viewQuoteDetail('${q.id}')">👁 Xem nội dung báo giá</button>
-      ${isPending ? `<button class="btn-confirm" onclick="confirmQuote('${q.id}')">✅ Đồng ý — Bắt đầu thực hiện</button>` : ''}
+      ${isPending?`<button class="btn-confirm" onclick="confirmQuote('${q.id}')">✅ Đồng ý — Tạo đơn ngay</button>`:''}
     </div>
   </div>`;
 }
@@ -849,109 +818,82 @@ function _renderDashQuotes() {
   if (!sec||!el) return;
   if (!pending.length) { sec.style.display='none'; return; }
   sec.style.display='block';
-  el.innerHTML = pending.slice(0,2).map(q => _quoteCard(q)).join('');
+  el.innerHTML = pending.slice(0,2).map(q=>_quoteCard(q)).join('');
 }
 
-// ── Xem chi tiết nội dung báo giá (modal)
+// ── Xem chi tiết báo giá
 window.viewQuoteDetail = function(id) {
-  const q = (S_QUOTES_STATE.received||[]).find(x=>x.id===id);
-  if (!q) return;
-  const isPending = q.status === 'pending_confirm';
-  document.getElementById('mq-title').textContent = '💰 Nội dung báo giá';
-  document.getElementById('mq-body').innerHTML = `
-    <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:12px;padding:14px 16px;margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <div style="font-size:13px;color:var(--text2)">NV: <strong>${q.staff||'Admin'}</strong></div>
-        <div style="font-size:13px;color:var(--text2)">Ngày: <strong>${q.quotedAt||'—'}</strong></div>
-        <div style="font-size:13px;color:var(--text2)">Tổng: <strong style="color:var(--blue);font-size:15px">${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</strong></div>
+  const q=(S_QUOTES_STATE.received||[]).find(x=>x.id===id);
+  if(!q) return;
+  const isPending=q.status==='pending_confirm';
+  document.getElementById('mq-title').textContent='💰 Nội dung báo giá';
+  document.getElementById('mq-body').innerHTML=`
+    <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--text2)">
+        <span>NV: <strong>${q.staff||'Admin'}</strong></span>
+        <span>Ngày: <strong>${q.quotedAt||'—'}</strong></span>
+        <span>Tổng: <strong style="color:var(--blue);font-size:15px">${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</strong></span>
       </div>
     </div>
     <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff">
-      <div style="background:#F3F4F6;padding:7px 14px;font-size:11px;color:#6B7280">Nội dung báo giá — nền trắng như gửi khách</div>
+      <div style="background:#F3F4F6;padding:7px 14px;font-size:11px;color:#6B7280">Nội dung báo giá</div>
       <div style="padding:20px;max-height:420px;overflow-y:auto;font-size:13.5px;color:#1F2937;line-height:1.7">${q.htmlContent||'<em style="color:#999">Không có nội dung</em>'}</div>
     </div>`;
-  document.getElementById('mq-foot').innerHTML = `
+  document.getElementById('mq-foot').innerHTML=`
     <button class="bm bm-c" onclick="document.getElementById('m-quote').style.display='none'">Đóng</button>
-    ${isPending?`<button class="bm bm-p" style="background:linear-gradient(135deg,#10B981,#34D399)" onclick="document.getElementById('m-quote').style.display='none';confirmQuote('${id}')">✅ Đồng ý — Bắt đầu thực hiện</button>`:''}`;
+    ${isPending?`<button class="bm bm-p" style="background:linear-gradient(135deg,#10B981,#34D399)" onclick="document.getElementById('m-quote').style.display='none';confirmQuote('${id}')">✅ Đồng ý — Tạo đơn ngay</button>`:''}`;
   document.getElementById('m-quote').style.display='flex';
 };
 
-// ── XÁC NHẬN BÁO GIÁ → TẠO ĐƠN HÀNG NGAY LẬP TỨC
+// ── XÁC NHẬN → TẠO ĐƠN HÀNG NGAY LẬP TỨC
 window.confirmQuote = async function(id) {
-  const q = (S_QUOTES_STATE.received||[]).find(x=>x.id===id);
-  if (!q) return;
-  if (!confirm('Bạn đồng ý với báo giá này?\n\nSau khi xác nhận, đơn hàng sẽ được tạo ngay và nhân viên sẽ bắt đầu thực hiện.')) return;
+  const q=(S_QUOTES_STATE.received||[]).find(x=>x.id===id);
+  if(!q) return;
+  if(!confirm('Bạn đồng ý với báo giá này?\n\nĐơn hàng sẽ được tạo ngay và nhân viên bắt đầu thực hiện.')) return;
   try {
-    // Tạo orderId
-    const oid = 'DT-' + Date.now().toString(36).toUpperCase().slice(-6);
-    let tasks = [];
-    try { tasks = JSON.parse(q.tasks||'[]'); } catch(e){}
-
-    // Tạo đơn hàng ngay
-    const orderData = {
-      orderId: oid,
-      customerName: q.name || S.profile?.name || '',
-      company: q.company || '',
-      phone: q.phone || '',
-      email: q.email || S.user.email,
-      customerUid: S.user.uid,
-      service: q.services || '',
-      tasks: JSON.stringify(tasks),
-      subTotal: q.subTotal || 0,
-      vat: q.vat || 0,
-      total: q.grandTotal || 0,
-      deposit: q.deposit || 0,
-      bankName: q.bankName || '',
-      bankAcc: q.bankAcc || '',
-      bankOwner: q.bankOwner || '',
-      staff: q.staff || 'Admin',
-      staffQuoteId: q.staffQuoteId || id,
-      linkedQuoteId: q.linkedQuoteId || null,
-      status: 'confirmed',
-      channel: 'Portal – Khách xác nhận',
-      confirmedAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+    const oid='DT-'+Date.now().toString(36).toUpperCase().slice(-6);
+    let tasks=[];
+    try{tasks=JSON.parse(q.tasks||'[]');}catch(e){}
+    const orderData={
+      orderId:oid,
+      customerName:q.name||S.profile?.name||'',
+      company:q.company||'',
+      phone:q.phone||'',
+      email:q.email||S.user.email,
+      customerUid:S.user.uid,
+      service:q.services||'',
+      tasks:JSON.stringify(tasks),
+      subTotal:q.subTotal||0,
+      vat:q.vat||0,
+      total:q.grandTotal||0,
+      deposit:q.deposit||0,
+      bankName:q.bankName||'',
+      bankAcc:q.bankAcc||'',
+      bankOwner:q.bankOwner||'',
+      staff:q.staff||'Admin',
+      staffQuoteId:q.staffQuoteId||id,
+      linkedQuoteId:q.linkedQuoteId||null,
+      status:'confirmed',
+      channel:'Portal – KH xác nhận',
+      confirmedAt:serverTimestamp(),
+      createdAt:serverTimestamp(),
+      updatedAt:serverTimestamp()
     };
-
-    const orderRef = await addDoc(collection(db,'orders'), orderData);
-
-    // Cập nhật customer_quotes
-    await updateDoc(doc(db,'customer_quotes',id), {
-      status: 'order_created',
-      orderId: orderRef.id,
-      orderNum: oid,
-      confirmedAt: serverTimestamp()
-    });
-
-    // Cập nhật staff_quotes
-    if (q.staffQuoteId) {
-      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId), {
-        status: 'order_created',
-        orderId: orderRef.id,
-        orderNum: oid,
-        confirmedAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+    const orderRef=await addDoc(collection(db,'orders'),orderData);
+    await updateDoc(doc(db,'customer_quotes',id),{status:'order_created',orderId:orderRef.id,orderNum:oid,confirmedAt:serverTimestamp()});
+    if(q.staffQuoteId){
+      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{status:'order_created',orderId:orderRef.id,orderNum:oid,confirmedAt:serverTimestamp(),updatedAt:serverTimestamp()});
     }
-
-    // Cập nhật quotes gốc nếu có
-    if (q.linkedQuoteId) {
-      await updateDoc(doc(db,'quotes',q.linkedQuoteId), {
-        status: 'confirmed',
-        orderId: orderRef.id
-      });
+    if(q.linkedQuoteId){
+      try{await updateDoc(doc(db,'quotes',q.linkedQuoteId),{status:'confirmed',orderId:orderRef.id});}catch(e2){}
     }
-
-    notif(`✅ Đã xác nhận! Đơn hàng ${oid} vừa được tạo. Nhân viên sẽ liên hệ bạn ngay.`, 'ok', 8000);
-    // Chuyển sang tab Đơn hàng
-    showSec('orders', document.querySelector('.tn[onclick*="orders"]'));
+    notif(`✅ Đã xác nhận! Đơn hàng ${oid} vừa được tạo. Nhân viên sẽ liên hệ ngay.`,'ok',8000);
+    showSec('orders',document.querySelector('.tn[onclick*="orders"]'));
   } catch(e) {
     console.error(e);
-    notif('❌ Lỗi xác nhận: ' + e.message, 'er');
+    notif('❌ Lỗi: '+e.message,'er');
   }
 };
-
 function loadOrders(){
   const emailQ=query(collection(db,'orders'),where('email','==',S.user.email),orderBy('createdAt','desc'));
   const uidQ=query(collection(db,'orders'),where('customerUid','==',S.user.uid),orderBy('createdAt','desc'));
@@ -1004,89 +946,66 @@ function renderOrders(){
 
 function orderCard(o,mini){
   const prog=PROG[o.status]||0;
-  const isDone=['done','invoiced','paid','delivered'].includes(o.status);
+  const isDone=['done','invoiced','paid'].includes(o.status);
   const stepIdx=STEPS.findIndex(s=>s.k===o.status);
   const stepsHTML=STEPS.map((s,i)=>{const cls=i<stepIdx?'done':i===stepIdx?'active':'';const icon=i<stepIdx?'✓':i===stepIdx?'●':'○';return`<div class="cs ${cls}"><div class="cs-dot">${icon}</div><div class="cs-label">${s.l}</div></div>`;}).join('');
-
-  // Nhãn trạng thái đơn hàng thân thiện với KH
-  const ORDER_STATUS_KH = {
-    confirmed:'📋 Đã xác nhận — chờ xử lý',
-    processing:'⚙️ Đang thực hiện',
-    done:'✅ Đã hoàn thành',
-    paid:'💰 Đã thanh toán',
-    delivered:'🚚 Đã giao hàng',
-    invoiced:'🧾 Đã xuất hóa đơn',
-    cancelled:'🚫 Đã hủy',
-    new:'📥 Mới tạo'
-  };
-  const stLabel = ORDER_STATUS_KH[o.status] || sb(o.status);
-
   return`<div class="order-card" onclick="viewOrder('${o.id}')">
     <div class="oc-top">
       <div>
         <div class="oc-id">#${o.orderId||o.id.slice(-6).toUpperCase()}</div>
-        <div class="oc-name">${o.service||'Dịch vụ'}</div>
-        <div class="oc-service">NV: ${o.staff||'Admin'} · ${fd(o.createdAt)}</div>
+        <div class="oc-name">${o.service||'Dịch thuật công chứng'}</div>
+        <div class="oc-service">${o.lang||''} · ${o.customerName||''}</div>
       </div>
-      <div style="text-align:right">
-        <div style="font-size:14px;font-weight:800;color:var(--blue)">${fm(o.total||0)}</div>
-        <div style="font-size:11.5px;font-weight:600;margin-top:3px">${stLabel}</div>
-      </div>
+      ${sb(o.status)}
     </div>
     <div class="oc-progress">
-      <div class="prog-label"><span>Tiến trình</span><span>${prog}%</span></div>
+      <div class="prog-label"><span>Tiến trình xử lý</span><span>${prog}%</span></div>
       <div class="prog-track"><div class="prog-fill ${isDone?'done':''}" style="width:${prog}%"></div></div>
     </div>
     ${mini?'':stepsHTML}
+    <div class="oc-meta">
+      <div class="oc-meta-item">💰 Giá trị: <strong>${fm(o.total||0)}</strong></div>
+      <div class="oc-meta-item">👷 Nhân viên: <strong>${o.staff||'Admin'}</strong></div>
+      <div class="oc-meta-item">📅 Ngày tạo: <strong>${fd(o.createdAt)}</strong></div>
+      ${o.deadline?`<div class="oc-meta-item">⏰ Deadline: <strong style="color:${new Date(o.deadline)<new Date()?'var(--red)':'inherit'}">${fdt(new Date(o.deadline))}</strong></div>`:''}
+    </div>
+    ${o.customerComment?`<div style="background:#FFF7ED;border:1px solid #FDE68A;border-radius:8px;padding:10px 12px;margin-top:12px;font-size:13px;color:#92400E">💬 Đánh giá của bạn: ${'★'.repeat(o.customerRating||0)} "${o.customerComment}"</div>`:''}
   </div>`;
 }
+
 window.viewOrder=(id)=>{
   const o=S.orders.find(x=>x.id===id);if(!o)return;
   S.currentOrderId=id;
-  const isDone=['done','invoiced','paid','delivered'].includes(o.status);
-  document.getElementById('mo-title').textContent=`Đơn hàng #${o.orderId||id.slice(-6).toUpperCase()}`;
+  const logs=S.activity.filter(a=>a.detail?.includes(o.orderId||id));
+  const isDone=['done','invoiced','paid'].includes(o.status);
+  document.getElementById('mo-title').textContent=`Hồ sơ #${o.orderId||id.slice(-6).toUpperCase()}`;
   document.getElementById('mo-feedback-btn').style.display=isDone&&!o.customerComment?'flex':'none';
   const prog=PROG[o.status]||0;
   const stepIdx=STEPS.findIndex(s=>s.k===o.status);
-
-  const STATUS_INFO = {
-    confirmed:{icon:'📋',label:'Đã xác nhận — nhân viên chuẩn bị',color:'#0050B3',bg:'#EFF6FF'},
-    processing:{icon:'⚙️',label:'Đang thực hiện',color:'#6D28D9',bg:'#F5F3FF'},
-    done:{icon:'✅',label:'Đã hoàn thành',color:'#065F46',bg:'#F0FDF4'},
-    delivered:{icon:'🚚',label:'Đã giao hàng',color:'#065F46',bg:'#F0FDF4'},
-    invoiced:{icon:'🧾',label:'Đã xuất hóa đơn',color:'#92400E',bg:'#FFF9E6'},
-    paid:{icon:'💰',label:'Đã thanh toán — hoàn tất',color:'#065F46',bg:'#F0FDF4'},
-    cancelled:{icon:'🚫',label:'Đã hủy',color:'#B91C1C',bg:'#FEF2F2'}
-  };
-  const si = STATUS_INFO[o.status] || {icon:'📋',label:SL[o.status]||o.status,color:'#003580',bg:'#EFF6FF'};
-
   document.getElementById('mo-body').innerHTML=`
-    <!-- Status banner -->
-    <div style="background:${si.bg};border:1.5px solid ${si.color}30;border-radius:12px;padding:16px;margin-bottom:16px;text-align:center">
-      <div style="font-size:28px;margin-bottom:6px">${si.icon}</div>
-      <div style="font-size:15px;font-weight:700;color:${si.color}">${si.label}</div>
-      <div style="font-size:13px;color:var(--text2);margin-top:4px">${o.service||'Dịch vụ'}</div>
+    <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:12px;padding:16px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:15px;font-weight:700;color:var(--blue)">${o.service||'—'}</div>
+        ${sb(o.status)}
+      </div>
+      <div class="oc-steps">${STEPS.map((s,i)=>{const cls=i<stepIdx?'done':i===stepIdx?'active':'';const icon=i<stepIdx?'✓':i===stepIdx?'●':'○';return`<div class="cs ${cls}"><div class="cs-dot">${icon}</div><div class="cs-label">${s.l}</div></div>`;}).join('')}</div>
+      <div class="prog-track" style="margin-top:12px"><div class="prog-fill ${isDone?'done':''}" style="width:${prog}%"></div></div>
+      <div style="text-align:right;font-size:12px;color:var(--text2);margin-top:4px">${prog}% hoàn thành</div>
     </div>
-
-    <!-- Progress steps -->
-    <div class="oc-steps" style="margin-bottom:16px">
-      ${STEPS.map((s,i)=>{const cls=i<stepIdx?'done':i===stepIdx?'active':'';const icon=i<stepIdx?'✓':i===stepIdx?'●':'○';return`<div class="cs ${cls}"><div class="cs-dot">${icon}</div><div class="cs-label">${s.l}</div></div>`;}).join('')}
-    </div>
-    <div class="prog-track" style="margin-bottom:16px">
-      <div class="prog-fill ${isDone?'done':''}" style="width:${prog}%"></div>
-    </div>
-
-    <!-- Details -->
     <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
-      <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">Thông tin đơn hàng</h4>
-      <div class="df"><span class="dl">Mã đơn</span><span class="dv" style="font-family:monospace;color:var(--blue3)">#${o.orderId||id.slice(-6).toUpperCase()}</span></div>
+      <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">Chi tiết hồ sơ</h4>
       <div class="df"><span class="dl">Dịch vụ</span><span class="dv" style="font-size:12.5px">${o.service||'—'}</span></div>
-      <div class="df"><span class="dl">Tổng giá trị</span><span class="dv" style="color:var(--blue);font-size:16px;font-weight:800">${fm(o.total||0)}</span></div>
-      ${o.deposit?`<div class="df"><span class="dl">Đặt cọc</span><span class="dv" style="color:#0050B3">${fm(o.deposit)}</span></div>`:''}
-      ${o.bankAcc?`<div class="df"><span class="dl">TK nhận cọc</span><span class="dv" style="font-size:12px">${o.bankName||''} ${o.bankAcc} — ${o.bankOwner||''}</span></div>`:''}
+      <div class="df"><span class="dl">Ngôn ngữ</span><span class="dv">${o.lang||'—'}</span></div>
+      <div class="df"><span class="dl">Số trang</span><span class="dv">${o.pages||'—'}</span></div>
+      <div class="df"><span class="dl">Giá trị</span><span class="dv" style="color:var(--gold);font-size:16px">${fm(o.total||0)}</span></div>
       <div class="df"><span class="dl">Nhân viên</span><span class="dv">${o.staff||'Admin'}</span></div>
+      <div class="df"><span class="dl">Deadline</span><span class="dv" style="color:var(--red)">${o.deadline?fdt(new Date(o.deadline)):'—'}</span></div>
       <div class="df"><span class="dl">Ngày tạo</span><span class="dv">${fd(o.createdAt)}</span></div>
-      ${o.note?`<div class="df"><span class="dl">Ghi chú</span><span class="dv" style="font-size:12.5px;max-width:60%">${o.note}</span></div>`:''}
+      ${o.note?`<div class="df"><span class="dl">Ghi chú</span><span class="dv" style="max-width:60%;font-size:12.5px">${o.note}</span></div>`:''}
+    </div>
+    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px">
+      <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">Lịch sử xử lý (${logs.length} hoạt động)</h4>
+      <div class="tl">${logs.length?logs.map(a=>`<div class="tli"><div class="tld" style="background:${a.color==='g'?'#10B981':a.color==='gold'?'#F59E0B':a.color==='r'?'#EF4444':'#3B82F6'}"></div><div style="flex:1"><div class="tla">${a.action}</div><div class="tlm">${a.detail||''}</div></div><div class="tlt">${a.createdAt?.toDate?fdt2(a.createdAt.toDate()):''}</div></div>`).join(''):'<p style="font-size:13px;color:var(--text3)">Chưa có lịch sử</p>'}</div>
     </div>`;
   document.getElementById('m-order').style.display='flex';
 };
@@ -1208,9 +1127,8 @@ window.sendRequest=async()=>{
     window._bqFiles=[];
     document.getElementById('bq-upload-list').innerHTML='';
     document.getElementById('bq-gdrive-tip').style.display='none';
-    // Chuyển sang tab Yêu cầu báo giá để khách thấy yêu cầu vừa gửi
-    const qTab = document.getElementById('tab-my-requests');
-    showSec('my-requests', qTab);
+    // Chuyển sang tab Báo Giá để khách thấy yêu cầu vừa gửi
+    showSec('my-requests', document.getElementById('tab-my-requests'));
     notif('✅ Đã gửi yêu cầu báo giá! Nhân viên sẽ liên hệ trong 5–15 phút.','ok',6000);
   }catch(e){
     err.textContent='❌ Có lỗi xảy ra, vui lòng thử lại hoặc liên hệ qua chat.';
