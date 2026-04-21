@@ -489,6 +489,19 @@ tbody td{padding:11px 14px;font-size:13px}
 
       <!-- STAFF QUOTES — Báo giá nội bộ do nhân viên lập -->
       <div class="pg" id="pg-staff-quotes">
+
+        <!-- Nhắc nhở bắt buộc: KH phải có tài khoản portal -->
+        <div style="background:rgba(239,68,68,.07);border:1.5px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px">
+          <span style="font-size:20px;flex-shrink:0">⚠️</span>
+          <div style="font-size:12.5px;color:var(--text2);line-height:1.8">
+            <strong style="color:var(--red-l)">Bắt buộc:</strong> Để hệ thống báo giá & theo dõi đơn hàng hoạt động đúng, khách hàng phải
+            <strong style="color:var(--text)">tự tạo tài khoản trên Customer Portal</strong> trước khi nhân viên lập báo giá.
+            Nếu khách chưa có tài khoản → gửi link đăng ký portal cho khách, hướng dẫn họ tự tạo và quản lý mật khẩu.
+            Sau khi khách có tài khoản → nhân viên tìm và chọn khách trong phần <strong>"Lưu &amp; Gửi"</strong> của báo giá.
+            <br><span style="color:var(--text3)">Khách không đăng ký → chỉ gửi thủ công qua Zalo/Email, không dùng được portal.</span>
+          </div>
+        </div>
+
         <div class="tw" style="margin-bottom:14px">
           <div class="th2">
             <h3>📝 Báo Giá Nội Bộ</h3>
@@ -871,8 +884,8 @@ function loadData(){
 
 async function getFSMod(){
   // Returns Firestore functions already imported in scope
-  const {collection,addDoc,doc,updateDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-  return {collection,addDoc,doc,updateDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs};
+  const {collection,addDoc,doc,updateDoc,deleteDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+  return {collection,addDoc,doc,updateDoc,deleteDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs};
 }
 
 async function log(action,detail,color='b'){await addDoc(collection(db,'activity'),{action,detail,color,userId:S.user?.uid,user:S.user?.email||'system',createdAt:serverTimestamp()});}
@@ -907,6 +920,7 @@ function renderDash(){
 }
 
 function orderRow(o){
+  const isAdm=['superadmin','admin'].includes(S.role);
   return`<tr>
     <td><span class="mono">${o.orderId||o.id.slice(-6).toUpperCase()}</span></td>
     <td><div class="td-name">${o.customerName||'—'}</div><div class="td-s">${o.phone||''}</div></td>
@@ -921,6 +935,7 @@ function orderRow(o){
       <button class="ab ab-e" onclick="editOrder('${o.id}')">✏️</button>
       <button class="ab ab-g" onclick="qst('${o.id}','done')" title="Hoàn thành">✓</button>
       <button class="ab ab-v" onclick="createInvFor('${o.id}')" title="Xuất HĐ">🧾</button>
+      ${isAdm?`<button class="ab ab-r" onclick="delOrder('${o.id}')" title="Xóa đơn">🗑</button>`:''}
     </div></td>
   </tr>`;
 }
@@ -1110,6 +1125,13 @@ function resetOrd(){
   renderOrderTaskList([]);
 }
 window.calcT=()=>{}; // kept for compatibility
+window.delOrder=async(id)=>{
+  if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
+  if(!confirm('Xóa đơn hàng này? Hành động không thể hoàn tác.'))return;
+  await deleteDoc(doc(db,'orders',id));
+  await log('🗑️ Xóa đơn hàng',id,'r');
+  notif('🗑️ Đã xóa đơn hàng','in');
+};
 
 function renderLeads(){
   let l=S.leads;const q=document.getElementById('q-ld')?.value?.toLowerCase()||'';
@@ -1122,7 +1144,7 @@ function renderLeads(){
     <td><div class="acts">
       <button class="ab ab-g" onclick="uls('${x.id}','quoted')">📨 Báo giá</button>
       <button class="ab ab-v" onclick="c2o('${x.id}')">➕ Tạo đơn</button>
-      <button class="ab ab-r" onclick="delLead('${x.id}')">🗑</button>
+      ${['superadmin','admin'].includes(S.role)?`<button class="ab ab-r" onclick="delLead('${x.id}')" title="Xóa">🗑</button>`:''}
     </div></td>
   </tr>`).join(''):`<tr><td colspan="7"><div class="empty"><div class="ei">📥</div><p>Chưa có liên hệ</p></div></td></tr>`;
 }
@@ -1137,7 +1159,7 @@ window.saveLead=async()=>{
 };
 window.uls=async(id,st)=>{await updateDoc(doc(db,'leads',id),{status:st,updatedAt:serverTimestamp()});notif('✅ Đã cập nhật','ok');};
 window.c2o=(id)=>{const l=S.leads.find(x=>x.id===id);if(!l)return;resetOrd();document.getElementById('o-nm').value=l.name||'';document.getElementById('o-ph').value=l.phone||'';document.getElementById('o-ch').value=l.channel||'Zalo';document.getElementById('o-nt').value=l.request||'';openM('order');uls(id,'converted');};
-window.delLead=async(id)=>{if(!confirm('Xóa liên hệ?'))return;await deleteDoc(doc(db,'leads',id));notif('🗑️ Đã xóa','in');};
+window.delLead=async(id)=>{if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}if(!confirm('Xóa liên hệ?'))return;await deleteDoc(doc(db,'leads',id));await log('🗑️ Xóa lead',id,'r');notif('🗑️ Đã xóa','in');};
 
 function renderCustomers(){
   const map={};
@@ -1155,13 +1177,13 @@ function renderAccounts(){
     <td style="font-size:12.5px">${u.phone||'—'}</td>
     <td>${S.orders.filter(o=>o.customerEmail===u.email).length} đơn</td>
     <td style="font-size:11px;color:var(--text3)">${u.createdAt?.toDate?fd2(u.createdAt.toDate()):''}</td>
-    <td><button class="ab ab-r" onclick="delAcc('${u.id}')">🗑</button></td>
+    <td>${['superadmin','admin'].includes(S.role)?`<button class="ab ab-r" onclick="delAcc('${u.id}')" title="Xóa TK">🗑</button>`:''}</td>
   </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text3)">Khách hàng chưa có tài khoản — khách tự đăng ký trên portal.</td></tr>`;
 }
 
 function renderStaff(){
   const staff=S.users.filter(u=>['superadmin','admin','staff'].includes(u.role));
-  document.getElementById('staff-tb').innerHTML=staff.map(u=>`<tr><td>${u.name||u.email?.split('@')[0]||'—'}</td><td style="font-size:12px">${u.email||'—'}</td><td><span style="background:rgba(245,158,11,.1);color:var(--gold-l);padding:2px 7px;border-radius:8px;font-size:11px;font-weight:700">${u.role==='superadmin'?'Super Admin':u.role==='admin'?'Admin':'NV'}</span></td><td><button class="ab ab-r" onclick="delAcc('${u.id}')">🗑</button></td></tr>`).join('')||`<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:12px">Chưa có nhân viên</td></tr>`;
+  document.getElementById('staff-tb').innerHTML=staff.map(u=>`<tr><td>${u.name||u.email?.split('@')[0]||'—'}</td><td style="font-size:12px">${u.email||'—'}</td><td><span style="background:rgba(245,158,11,.1);color:var(--gold-l);padding:2px 7px;border-radius:8px;font-size:11px;font-weight:700">${u.role==='superadmin'?'Super Admin':u.role==='admin'?'Admin':'NV'}</span></td><td><button class="ab ab-r" onclick="delAcc('${u.id}')">🗑</button>`:''}</td></tr>`).join('')||`<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:12px">Chưa có nhân viên</td></tr>`;
 }
 
 window.createStaffAcc=async()=>{
@@ -1175,7 +1197,7 @@ window.createStaffAcc=async()=>{
   }catch(e){notif('❌ '+e.message,'er');}
 };
 
-window.delAcc=async(id)=>{if(!confirm('Xóa tài khoản?'))return;await deleteDoc(doc(db,'users',id));notif('🗑️ Đã xóa','in');};
+window.delAcc=async(id)=>{if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}if(!confirm('Xóa tài khoản?'))return;await deleteDoc(doc(db,'users',id));await log('🗑️ Xóa tài khoản',id,'r');notif('🗑️ Đã xóa','in');};
 
 function populateOrdDrop(){
   const sel=document.getElementById('iv-ord');if(!sel)return;
@@ -1215,9 +1237,17 @@ function renderInvoices(){
     <td><div class="acts">
       <button class="ab ab-v" onclick="viewInv('${i.id}')">👁</button>
       <button class="ab ab-g" onclick="markPaid('${i.id}')">✓ Thu</button>
+      ${['superadmin','admin'].includes(S.role)?`<button class="ab ab-r" onclick="delInvoice('${i.id}')" title="Xóa HĐ">🗑</button>`:''}
     </div></td>
   </tr>`).join(''):`<tr><td colspan="9"><div class="empty"><div class="ei">🧾</div><p>Chưa có HĐ</p></div></td></tr>`;
 }
+window.delInvoice=async(id)=>{
+  if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
+  if(!confirm('Xóa hóa đơn này? Hành động không thể hoàn tác.'))return;
+  await deleteDoc(doc(db,'invoices',id));
+  await log('🗑️ Xóa hóa đơn',id,'r');
+  notif('🗑️ Đã xóa hóa đơn','in');
+};
 window.fis=(s,btn)=>{S.fInv=s;document.querySelectorAll('#pg-invoices .fi').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderInvoices();};
 window.markPaid=async(id)=>{await updateDoc(doc(db,'invoices',id),{status:'paid',paidAt:serverTimestamp()});const i=S.invoices.find(x=>x.id===id);await log('Thu tiền HĐ',`${i?.invoiceNum} – ${fm(i?.total||0)}`,'g');notif('✅ Đã đánh dấu thu tiền','ok');};
 window.viewInv=(id)=>{
@@ -1655,10 +1685,12 @@ const QB_SERVICES = [
 
 let _qbData = null; // current quote being built
 let _qbQuoteId = null; // linked inbound quote id (if opened from quotes list)
+let _sqEditingId = null; // if editing an existing staff_quote, its id
 
 window.openQuoteBuilder = function(quoteId) {
   _qbQuoteId = quoteId || null;
   _qbData = null;
+  _sqEditingId = null;
 
   // Render service list
   const list = document.getElementById('qb-services-list');
@@ -1957,9 +1989,20 @@ window.qbSendToCustomer = async function() {
   };
 
   try {
-    const { collection: col, addDoc: aDoc } = await getFSMod();
-    const ref = await aDoc(col(db, 'staff_quotes'), quoteDoc);
-    await log('📝 Lập báo giá', `${_qbData.name} – ${_qbData.grand.toLocaleString('vi-VN')}đ – ${sendEmail ? 'Gửi: ' + sendEmail : 'Tạo sẵn'}`, 'gold');
+    const { collection: col, addDoc: aDoc, doc: dRef, updateDoc: upDoc } = await getFSMod();
+    let ref;
+    if (_sqEditingId) {
+      // Editing existing quote → update, reset status to 'sent' (mới gửi lại)
+      await upDoc(dRef(db, 'staff_quotes', _sqEditingId), {
+        ...quoteDoc, status: hasPortalCustomer ? 'sent' : sendEmail ? 'sent' : 'ready',
+        updatedAt: serverTimestamp()
+      });
+      ref = { id: _sqEditingId };
+      await log('✏️ Cập nhật báo giá', `${_qbData.name} – ${_qbData.grand.toLocaleString('vi-VN')}đ (đã chỉnh sửa)`, 'gold');
+    } else {
+      ref = await aDoc(col(db, 'staff_quotes'), quoteDoc);
+      await log('📝 Lập báo giá', `${_qbData.name} – ${_qbData.grand.toLocaleString('vi-VN')}đ – ${sendEmail ? 'Gửi: ' + sendEmail : 'Tạo sẵn'}`, 'gold');
+    }
 
     // If linked to inbound quote, update status
     if (_qbQuoteId) {
@@ -1967,12 +2010,13 @@ window.qbSendToCustomer = async function() {
       await upDoc(dRef(db, 'quotes', _qbQuoteId), { status: 'quoted', staffQuoteId: ref.id });
     }
 
+    const editedMsg = _sqEditingId ? '(đã chỉnh sửa) ' : '';
     notif(
       hasPortalCustomer
-        ? `✅ Đã gửi báo giá lên portal của ${_qbSelectedCustomer.name || sendEmail}! Họ sẽ thấy ngay trên dashboard.`
+        ? `✅ ${editedMsg}Đã gửi báo giá lên portal của ${_qbSelectedCustomer.name || sendEmail}! Họ sẽ thấy ngay trên dashboard.`
         : sendEmail
-          ? `✅ Đã lưu báo giá! Dùng Sao chép / PDF để gửi thủ công cho khách.`
-          : `✅ Đã lưu báo giá nháp! Dùng Sao chép / PDF để gửi qua Zalo/Email.`,
+          ? `✅ ${editedMsg}Đã lưu báo giá! Dùng Sao chép / PDF để gửi thủ công cho khách.`
+          : `✅ ${editedMsg}Đã lưu báo giá nháp! Dùng Sao chép / PDF để gửi qua Zalo/Email.`,
       'ok', 6000
     );
     closeM('qbuilder');
@@ -2003,24 +2047,53 @@ async function loadStaffQuotes() {
 window.viewStaffQuote = function(id) {
   const q = allStaffQuotes.find(x => x.id === id);
   if (!q) return;
-  const statusLabel = {ready:'📋 Đã lập', sent:'📤 Đã gửi', confirmed:'✅ KH đã xác nhận', order_created:'🚀 Đã tạo đơn'};
-  const statusColor = {ready:'#6B7280', sent:'#2563EB', confirmed:'#059669', order_created:'#8B5CF6'};
+  _renderSQModal(id);
+};
+
+function _renderSQModal(id) {
+  const q = allStaffQuotes.find(x => x.id === id);
+  if (!q) return;
+
+  const statusLabel = {ready:'📋 Đã lập', sent:'📤 Đã gửi KH', confirmed:'✅ KH đã xác nhận', rejected:'❌ KH từ chối', order_created:'🚀 Đã tạo đơn'};
+  const statusColor = {ready:'#6B7280', sent:'#2563EB', confirmed:'#059669', rejected:'#EF4444', order_created:'#8B5CF6'};
   const sc = statusColor[q.status] || '#6B7280';
   const sl = statusLabel[q.status] || q.status;
+  const canEdit = q.status !== 'order_created';
+  const canOrder = q.status === 'confirmed';
 
   document.getElementById('ot-title').textContent = `📝 Báo Giá – ${q.name}`;
   document.getElementById('ot-body').innerHTML = `
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
-      <span style="background:${sc}18;color:${sc};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">${sl}</span>
-      <span style="font-size:12px;color:var(--text3)">👤 ${q.name}${q.company?' · '+q.company:''}</span>
-      <span style="font-size:13px;color:var(--gold-l);font-weight:800">💰 ${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</span>
+
+    <!-- Status bar -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="background:${sc}18;color:${sc};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;flex-shrink:0">${sl}</span>
+      <span style="font-size:12px;color:var(--text3);flex:1">👤 ${q.name}${q.company?' · '+q.company:''} ${q.phone?'· '+q.phone:''}</span>
+      <span style="font-size:14px;color:var(--gold-l);font-weight:800">💰 ${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</span>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <button class="bm" style="background:#16A34A;color:#fff;border:none" onclick="sqCopy('${id}')">📋 Sao chép (Zalo/Email)</button>
-      <button class="bm" style="background:#DC2626;color:#fff;border:none" onclick="sqPrintPDF('${id}')">⬇️ Tải PDF</button>
-      ${q.status==='confirmed'?`<button class="bm bm-g" onclick="closeM('order-tasks');createOrderFromStaffQuote('${id}')">🚀 Tạo đơn hàng</button>`:''}
-      ${(q.status==='ready'||q.status==='sent')?`<button class="bm" style="background:rgba(16,185,129,.15);color:var(--green-l);border:none" onclick="markQuoteConfirmed('${id}')">✅ Đánh dấu KH đã xác nhận</button>`:''}
+
+    <!-- Status change (NV cập nhật) -->
+    ${q.status !== 'order_created' ? `
+    <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;font-weight:600;color:var(--text2);flex-shrink:0">🔄 Cập nhật trạng thái:</span>
+      <select id="sq-status-sel" style="background:var(--bg2);border:1.5px solid var(--border2);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12.5px;outline:none;flex:1;min-width:160px">
+        <option value="ready" ${q.status==='ready'?'selected':''}>📋 Đã lập</option>
+        <option value="sent" ${q.status==='sent'?'selected':''}>📤 Đã gửi KH</option>
+        <option value="confirmed" ${q.status==='confirmed'?'selected':''}>✅ KH đã xác nhận</option>
+        <option value="rejected" ${q.status==='rejected'?'selected':''}>❌ KH từ chối / Cần sửa</option>
+      </select>
+      <button class="bm bm-p" style="flex-shrink:0" onclick="sqUpdateStatus('${id}', document.getElementById('sq-status-sel').value)">💾 Lưu trạng thái</button>
+    </div>` : ''}
+
+    <!-- Action buttons -->
+    <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="bm" style="background:#16A34A;color:#fff;border:none" onclick="sqCopy('${id}')">📋 Sao chép</button>
+      <button class="bm" style="background:#DC2626;color:#fff;border:none" onclick="sqPrintPDF('${id}')">⬇️ PDF</button>
+      ${canEdit ? `<button class="bm" style="background:rgba(245,158,11,.2);color:var(--gold-l);border:1px solid rgba(245,158,11,.3)" onclick="closeM('order-tasks');sqEditQuote('${id}')">✏️ Sửa / Điều chỉnh báo giá</button>` : ''}
+      ${canOrder ? `<button class="bm bm-g" onclick="closeM('order-tasks');createOrderFromStaffQuote('${id}')">🚀 Tạo đơn hàng</button>` : ''}
+      ${q.status==='order_created' ? `<div style="font-size:12px;color:var(--green-l);padding:6px 10px;background:rgba(16,185,129,.08);border-radius:7px;font-weight:600">✅ Đã chuyển thành đơn hàng</div>` : ''}
     </div>
+
+    <!-- Quote preview -->
     <div style="border:1px solid #D1D5DB;border-radius:10px;overflow:hidden;background:#fff">
       <div style="background:#F3F4F6;padding:7px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB">
         <span style="width:9px;height:9px;border-radius:50%;background:#EF4444;display:inline-block"></span>
@@ -2028,11 +2101,12 @@ window.viewStaffQuote = function(id) {
         <span style="width:9px;height:9px;border-radius:50%;background:#10B981;display:inline-block"></span>
         <span style="font-size:11px;color:#6B7280;margin-left:4px">Nội dung báo giá – nền trắng chữ đen</span>
       </div>
-      <div style="padding:20px;max-height:400px;overflow-y:auto;background:#fff;color:#111;font-family:'Be Vietnam Pro',sans-serif;font-size:13px">${q.htmlContent||'<em style="color:#999">Không có nội dung</em>'}</div>
+      <div style="padding:20px;max-height:380px;overflow-y:auto;background:#fff;color:#111;font-family:'Be Vietnam Pro',sans-serif;font-size:13px">${q.htmlContent||'<em style="color:#999">Không có nội dung</em>'}</div>
     </div>`;
+
   document.getElementById('ot-foot').innerHTML = `<button class="bm bm-c" onclick="closeM('order-tasks')">Đóng</button>`;
   document.getElementById('m-order-tasks').style.display = 'flex';
-};
+}
 
 window.sqCopy = function(id) {
   const q = allStaffQuotes.find(x => x.id === id);
@@ -2068,15 +2142,61 @@ window.sqPrintPDF = function(id) {
   }, 150);
 };
 
-window.markQuoteConfirmed = async function(id) {
+// sqUpdateStatus — NV cập nhật trạng thái báo giá (cả 2 bên thấy qua onSnapshot)
+window.sqUpdateStatus = async function(id, newStatus) {
+  if (!newStatus) return;
+  const statusLabel = {ready:'Đã lập', sent:'Đã gửi KH', confirmed:'KH đã xác nhận', rejected:'KH từ chối / Cần sửa', order_created:'Đã tạo đơn'};
   const { doc: dRef, updateDoc: upDoc } = await getFSMod();
-  await upDoc(dRef(db, 'staff_quotes', id), { status: 'confirmed' });
+  await upDoc(dRef(db, 'staff_quotes', id), { status: newStatus, updatedAt: serverTimestamp() });
   const q = allStaffQuotes.find(x => x.id === id);
-  if (q) q.status = 'confirmed';
-  await log('✅ KH xác nhận báo giá', (q?.name || id) + ' – ' + (q?.grandTotal?.toLocaleString('vi-VN') || ''), 'g');
-  notif('✅ Đã đánh dấu khách xác nhận! Bây giờ bạn có thể lên đơn hàng.', 'ok');
-  renderStaffQuotes();
-  closeM('order-tasks');
+  const colorMap = {confirmed:'g', rejected:'r', sent:'b', ready:'b'};
+  await log('🔄 Cập nhật trạng thái BG', `${q?.name||id} → ${statusLabel[newStatus]||newStatus}`, colorMap[newStatus]||'b');
+  notif(`✅ Đã cập nhật: ${statusLabel[newStatus]||newStatus}`, 'ok');
+  // onSnapshot tự cập nhật allStaffQuotes → re-render modal với trạng thái mới
+};
+
+// sqEditQuote — mở lại quote builder với dữ liệu cũ để sửa/thêm bớt dịch vụ
+window.sqEditQuote = function(id) {
+  const q = allStaffQuotes.find(x => x.id === id);
+  if (!q) return;
+
+  // Reuse openQuoteBuilder then pre-fill data from saved quote
+  openQuoteBuilder(q.linkedQuoteId || null);
+
+  // Pre-fill customer info
+  setTimeout(() => {
+    document.getElementById('qb-name').value   = q.name    || '';
+    document.getElementById('qb-company').value= q.company || '';
+    document.getElementById('qb-phone').value  = q.phone   || '';
+    document.getElementById('qb-email').value  = q.email   || '';
+    document.getElementById('qb-staff').value  = q.staff   || '';
+    document.getElementById('qb-deposit').value= q.deposit || '';
+    document.getElementById('qb-bank-name').value  = q.bankName  || '';
+    document.getElementById('qb-bank-acc').value   = q.bankAcc   || '';
+    document.getElementById('qb-bank-owner').value = q.bankOwner || '';
+
+    // Pre-check services & prices from saved tasks
+    let tasks = [];
+    try { tasks = JSON.parse(q.tasks || '[]'); } catch(e) {}
+    tasks.forEach(t => {
+      const cb    = document.getElementById('svc-cb-'    + t.id);
+      const wrap  = document.getElementById('svc-wrap-'  + t.id);
+      const price = document.getElementById('svc-price-' + t.id);
+      const note  = document.getElementById('svc-note-'  + t.id);
+      if (cb) {
+        cb.checked = true;
+        wrap?.classList.add('selected');
+        note?.classList.add('show');
+        if (price) price.value = t.price || '';
+        if (note)  note.value  = t.note  || '';
+      }
+    });
+    qbCalcTotal();
+
+    // Tag this as editing existing quote so save overwrites (or creates new version)
+    _sqEditingId = id;
+    notif('✏️ Đang chỉnh sửa báo giá — điều chỉnh dịch vụ rồi bấm Xem trước & Lưu lại.', 'in', 6000);
+  }, 120);
 };
 
 window.createOrderFromStaffQuote = async function(id) {
@@ -2257,9 +2377,10 @@ window.renderStaffQuotesFiltered = function() {
       <td>
         <div class="acts">
           <button class="ab ab-v" onclick="viewStaffQuote('${q.id}')">👁 Xem</button>
+          ${q.status !== 'order_created' ? `<button class="ab ab-e" onclick="sqEditQuote('${q.id}')">✏️</button>` : ''}
           ${q.status==='confirmed' ? `<button class="ab ab-g" onclick="createOrderFromStaffQuote('${q.id}')">🚀 Lên đơn</button>` : ''}
-          ${(q.status==='ready'||q.status==='sent') ? `<button class="ab" style="background:rgba(16,185,129,.15);color:var(--green-l)" onclick="markQuoteConfirmed('${q.id}')">✅ KH OK</button>` : ''}
           <button class="ab" style="background:rgba(6,182,212,.12);color:var(--cyan)" onclick="sqCopy('${q.id}')">📋</button>
+          ${['superadmin','admin'].includes(S.role)?`<button class="ab ab-r" onclick="delStaffQuote('${q.id}')" title="Xóa báo giá">🗑</button>`:''}
         </div>
       </td>
     </tr>`;
@@ -2352,6 +2473,14 @@ window.qbClearCustomer = function() {
   document.getElementById('qb-cust-noacc').style.display    = 'none';
 };
 
+window.delStaffQuote=async(id)=>{
+  if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
+  if(!confirm('Xóa báo giá này? Hành động không thể hoàn tác.'))return;
+  const {doc:dRef,deleteDoc:dDoc}=await getFSMod();
+  await dDoc(dRef(db,'staff_quotes',id));
+  await log('🗑️ Xóa báo giá',id,'r');
+  notif('🗑️ Đã xóa báo giá','in');
+};
 window.renderStaffQuotes = function() {
   renderStaffQuotesFiltered();
   const confirmed = allStaffQuotes.filter(q => q.status === 'confirmed').length;
