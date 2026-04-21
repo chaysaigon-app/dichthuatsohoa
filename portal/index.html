@@ -378,17 +378,17 @@ a{text-decoration:none;color:inherit}
         <!-- Dịch vụ yêu cầu -->
         <div class="bg-section-lbl" style="margin-top:18px">🛠️ Dịch vụ yêu cầu</div>
         <div class="bq-checks" id="bq-services">
-          <label class="bq-check" data-val="Dịch thuật"><input type="checkbox"><span class="ck-icon">📝</span>Dịch thuật</label>
-          <label class="bq-check" data-val="Dịch thuật + Công chứng"><input type="checkbox"><span class="ck-icon">🔏</span>Dịch thuật + Công chứng</label>
-          <label class="bq-check" data-val="Hợp pháp hóa lãnh sự"><input type="checkbox"><span class="ck-icon">🏛️</span>Hợp pháp hóa lãnh sự</label>
-          <label class="bq-check" data-val="Đánh máy / Nhập liệu"><input type="checkbox"><span class="ck-icon">⌨️</span>Đánh máy / Nhập liệu</label>
+          <div class="bq-check" data-val="Dịch thuật" onclick="bqToggle(this,'service')"><span class="ck-icon">📝</span>Dịch thuật</div>
+          <div class="bq-check" data-val="Dịch thuật + Công chứng" onclick="bqToggle(this,'service')"><span class="ck-icon">🔏</span>Dịch thuật + Công chứng</div>
+          <div class="bq-check" data-val="Hợp pháp hóa lãnh sự" onclick="bqToggle(this,'service')"><span class="ck-icon">🏛️</span>Hợp pháp hóa lãnh sự</div>
+          <div class="bq-check" data-val="Đánh máy / Nhập liệu" onclick="bqToggle(this,'service')"><span class="ck-icon">⌨️</span>Đánh máy / Nhập liệu</div>
         </div>
 
         <!-- Nhận hàng -->
         <div class="bg-section-lbl" style="margin-top:18px">🚚 Nhận hàng</div>
         <div class="bq-checks" id="bq-delivery">
-          <label class="bq-check" data-val="Lấy tại văn phòng"><input type="checkbox"><span class="ck-icon">🏢</span>Lấy tại văn phòng</label>
-          <label class="bq-check" data-val="Giao hàng tận nơi"><input type="checkbox"><span class="ck-icon">🛵</span>Giao hàng tận nơi</label>
+          <div class="bq-check" data-val="Lấy tại văn phòng" onclick="bqToggle(this,'delivery')"><span class="ck-icon">🏢</span>Lấy tại văn phòng</div>
+          <div class="bq-check" data-val="Giao hàng tận nơi" onclick="bqToggle(this,'delivery')"><span class="ck-icon">🛵</span>Giao hàng tận nơi</div>
         </div>
         <div id="bq-delivery-addr" style="display:none;margin-top:8px">
           <div class="fg"><label>Địa chỉ giao hàng *</label><input type="text" id="bq-addr" placeholder="Số nhà, đường, phường, quận, TP..."></div>
@@ -404,7 +404,7 @@ a{text-decoration:none;color:inherit}
         <!-- Ghi chú -->
         <div class="bg-section-lbl" style="margin-top:18px">📝 Ghi chú thêm</div>
         <div class="fg" style="margin-bottom:0">
-          <input type="text" id="bq-note" placeholder="Loại giấy tờ, ngôn ngữ, yêu cầu đặc biệt...">
+          <textarea id="bq-note" placeholder="Loại giấy tờ, ngôn ngữ cần dịch, yêu cầu đặc biệt..." style="min-height:80px;resize:vertical"></textarea>
         </div>
 
         <button class="cbtn" id="bq-submit" onclick="sendRequest()" style="width:100%;margin-top:18px;font-size:15px;padding:14px">🚀 Gửi Yêu Cầu Báo Giá</button>
@@ -772,6 +772,19 @@ function renderProfile(){
     <div class="df"><span class="dl">Ngày tạo</span><span class="dv">${p?.createdAt?.toDate?fd(p.createdAt):'—'}</span></div>`;
 }
 
+// ── Checkbox toggle báo giá
+window.bqToggle=(el,type)=>{
+  if(type==='service'){
+    el.classList.toggle('checked');
+  } else {
+    // delivery: single select
+    document.querySelectorAll('#bq-delivery .bq-check').forEach(l=>l.classList.remove('checked'));
+    el.classList.add('checked');
+    document.getElementById('bq-delivery-addr').style.display=
+      el.dataset.val==='Giao hàng tận nơi'?'block':'none';
+  }
+};
+
 window.sendRequest=async()=>{
   const services=[...document.querySelectorAll('#bq-services .bq-check.checked')].map(l=>l.dataset.val);
   const delivery=document.querySelector('#bq-delivery .bq-check.checked')?.dataset.val||'';
@@ -805,9 +818,10 @@ window.sendRequest=async()=>{
     suc.textContent='✅ Đã gửi yêu cầu báo giá! Chúng tôi sẽ liên hệ qua Zalo/email trong 5–15 phút.';
     suc.style.display='block';
     // Reset form
-    document.querySelectorAll('#bq-services .bq-check, #bq-delivery .bq-check').forEach(l=>{l.classList.remove('checked');l.querySelector('input').checked=false;});
+    document.querySelectorAll('#bq-services .bq-check, #bq-delivery .bq-check').forEach(l=>l.classList.remove('checked'));
     document.getElementById('bq-delivery-addr').style.display='none';
-    ['bq-date','bq-note','bq-addr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    ['bq-date','bq-addr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    const noteEl=document.getElementById('bq-note');if(noteEl)noteEl.value='';
     if(document.getElementById('bq-gdrive-link'))document.getElementById('bq-gdrive-link').value='';
     window._bqFiles=[];
     document.getElementById('bq-upload-list').innerHTML='';
@@ -857,21 +871,9 @@ function initBaoGiaForm(){
     gBtn.addEventListener('click',()=>{gdriveTip.style.display=gdriveTip.style.display==='none'?'block':'none';});
   }
 
-  // Service checkboxes (multi)
-  document.querySelectorAll('#bq-services .bq-check').forEach(lbl=>{
-    if(lbl.dataset.init)return;lbl.dataset.init='1';
-    lbl.addEventListener('click',()=>{lbl.classList.toggle('checked');lbl.querySelector('input').checked=lbl.classList.contains('checked');});
-  });
+  // Service checkboxes — dùng bqToggle onclick inline, không cần listener ở đây
 
-  // Delivery checkboxes (single)
-  document.querySelectorAll('#bq-delivery .bq-check').forEach(lbl=>{
-    if(lbl.dataset.init)return;lbl.dataset.init='1';
-    lbl.addEventListener('click',()=>{
-      document.querySelectorAll('#bq-delivery .bq-check').forEach(l=>{l.classList.remove('checked');l.querySelector('input').checked=false;});
-      lbl.classList.add('checked');lbl.querySelector('input').checked=true;
-      document.getElementById('bq-delivery-addr').style.display=lbl.dataset.val==='Giao hàng tận nơi'?'block':'none';
-    });
-  });
+  // Delivery checkboxes — dùng bqToggle onclick inline, không cần listener ở đây
 }
 
 let fbOrderId=null;
