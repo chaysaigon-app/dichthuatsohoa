@@ -877,8 +877,8 @@ function loadData(){
 
 async function getFSMod(){
   // Returns Firestore functions already imported in scope
-  const {collection,addDoc,doc,updateDoc,deleteDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-  return {collection,addDoc,doc,updateDoc,deleteDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs};
+  const {collection,addDoc,setDoc,doc,updateDoc,deleteDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+  return {collection,addDoc,setDoc,doc,updateDoc,deleteDoc,getDoc,query,orderBy,onSnapshot,serverTimestamp,getDocs};
 }
 
 async function log(action,detail,color='b'){await addDoc(collection(db,'activity'),{action,detail,color,userId:S.user?.uid,user:S.user?.email||'system',createdAt:serverTimestamp()});}
