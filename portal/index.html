@@ -144,6 +144,29 @@ a{text-decoration:none;color:inherit}
 .fg textarea{resize:vertical;min-height:90px}
 .cbtn{padding:12px 24px;background:linear-gradient(135deg,var(--blue),var(--blue2));border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Be Vietnam Pro',sans-serif}
 .cbtn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,53,128,.3)}
+.cbtn:disabled{opacity:.6;transform:none;cursor:not-allowed}
+/* Báo giá form */
+.bg-section-lbl{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.bq-upload-zone{border:2px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:#FAFBFF;position:relative;transition:border-color .2s}
+.bq-upload-zone:hover{border-color:var(--blue3);background:#EFF6FF}
+.bq-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.bq-upload-zone .uz-icon{font-size:26px;margin-bottom:5px}
+.bq-upload-zone .uz-text{font-size:13px;color:var(--text2);font-weight:600}
+.bq-upload-zone .uz-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.bq-upload-list{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.bq-upload-item{display:flex;align-items:center;gap:7px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:6px;padding:5px 9px;font-size:12px;color:#166534}
+.bq-upload-item .rm{background:none;border:none;color:#DC2626;cursor:pointer;font-size:14px;margin-left:auto;padding:0;line-height:1}
+.bq-gdrive-tip{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:12px;color:#1e40af;line-height:1.7}
+.bq-gdrive-tip b{display:block;margin-bottom:4px}
+.bq-gdrive-btn{margin-top:8px;background:none;border:1.5px dashed #93C5FD;border-radius:8px;width:100%;padding:8px;font-size:12px;color:var(--blue3);cursor:pointer;font-family:inherit;transition:all .2s}
+.bq-gdrive-btn:hover{background:#EFF6FF}
+.bq-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.bq-check{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;font-size:13px;font-weight:500;color:var(--text);user-select:none}
+.bq-check:hover{border-color:var(--blue3);background:#EFF6FF}
+.bq-check input{display:none}
+.bq-check.checked{border-color:var(--blue);background:#EFF6FF;color:var(--blue);font-weight:700}
+.bq-check .ck-icon{font-size:18px}
+@media(max-width:640px){.bq-checks{grid-template-columns:1fr}}
 
 /* MODAL */
 .mo{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
@@ -278,7 +301,7 @@ a{text-decoration:none;color:inherit}
     <div class="tn on" onclick="showSec('dashboard',this)"><span class="tn-icon">🏠</span>Tổng quan</div>
     <div class="tn" onclick="showSec('orders',this)"><span class="tn-icon">📋</span>Hồ sơ của tôi</div>
     <div class="tn" onclick="showSec('invoices',this)"><span class="tn-icon">🧾</span>Hóa đơn</div>
-    <div class="tn" onclick="showSec('contact',this)"><span class="tn-icon">💬</span>Gửi yêu cầu mới</div>
+    <div class="tn" onclick="showSec('contact',this)"><span class="tn-icon">💰</span>Yêu cầu báo giá</div>
     <div class="tn" onclick="showSec('profile',this)"><span class="tn-icon">👤</span>Tài khoản</div>
   </div>
 
@@ -328,42 +351,65 @@ a{text-decoration:none;color:inherit}
     <!-- CONTACT / NEW REQUEST -->
     <div class="sec" id="sec-contact">
       <div class="contact-box">
-        <h3>💬 Gửi yêu cầu dịch thuật mới</h3>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Điền thông tin bên dưới, chúng tôi sẽ liên hệ báo giá trong 5–15 phút.</p>
-        <div class="cform-row">
-          <div class="fg"><label>Loại dịch vụ</label>
-            <select id="c-service">
-              <option>Dịch thuật CC – Hồ sơ Visa</option>
-              <option>Dịch thuật CC – Hồ sơ Du học</option>
-              <option>Dịch thuật CC – Hồ sơ Định cư</option>
-              <option>Dịch thuật CC – Bằng cấp / Học bạ</option>
-              <option>Dịch thuật CC – Giấy tờ cá nhân</option>
-              <option>Dịch thuật CC – Hợp đồng</option>
-              <option>Dịch thuật chuyên ngành Y tế</option>
-              <option>Dịch thuật chuyên ngành Kỹ thuật</option>
-              <option>Dịch thuật Luận văn</option>
-              <option>Hợp pháp hóa lãnh sự</option>
-              <option>Đánh máy / Nhập liệu</option>
-              <option>Khác</option>
-            </select>
-          </div>
-          <div class="fg"><label>Ngôn ngữ cần dịch</label>
-            <select id="c-lang">
-              <option>Tiếng Anh</option><option>Tiếng Nhật</option><option>Tiếng Hàn</option>
-              <option>Tiếng Trung</option><option>Tiếng Pháp</option><option>Tiếng Đức</option>
-              <option>Tiếng Nga</option><option>Tiếng Thái</option><option>Tiếng Lào</option>
-              <option>Tiếng Khmer</option><option>Khác</option>
-            </select>
-          </div>
+        <h3>💰 Yêu cầu báo giá mới</h3>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Điền thông tin bên dưới — chúng tôi sẽ báo giá trong 5–15 phút.</p>
+
+        <!-- Thông tin liên hệ (prefilled) -->
+        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#1e40af">
+          📋 Yêu cầu sẽ được gửi với thông tin tài khoản: <strong id="bq-prefill-name"></strong> · <span id="bq-prefill-email"></span>
         </div>
-        <div class="cform-row">
-          <div class="fg"><label>Số lượng tài liệu</label><input type="text" id="c-qty" placeholder="VD: 5 trang, 3 giấy..."></div>
-          <div class="fg"><label>Thời gian cần lấy</label><input type="datetime-local" id="c-deadline"></div>
+
+        <!-- Tài liệu cần dịch -->
+        <div class="bg-section-lbl">📎 Tài liệu cần dịch</div>
+        <div class="bq-upload-zone" id="bq-upload-zone">
+          <input type="file" id="bq-file-input" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip,.rar">
+          <div class="uz-icon">📎</div>
+          <div class="uz-text">Nhấn để chọn file hoặc kéo thả vào đây</div>
+          <div class="uz-sub">PDF, Word, ảnh — tối đa 10MB/file</div>
         </div>
-        <div class="cform-row full">
-          <div class="fg"><label>Ghi chú / Yêu cầu đặc biệt</label><textarea id="c-note" placeholder="Mô tả thêm yêu cầu của bạn..."></textarea></div>
+        <div class="bq-upload-list" id="bq-upload-list"></div>
+        <div class="bq-gdrive-tip" id="bq-gdrive-tip" style="display:none">
+          <b>📁 File lớn hơn 10MB?</b>
+          Upload lên Google Drive → chia sẻ với <strong>sohoavn@gmail.com</strong> → dán link:<br>
+          <input type="text" id="bq-gdrive-link" placeholder="https://drive.google.com/..." style="margin-top:8px;width:100%;box-sizing:border-box;border:1.5px solid #BFDBFE;border-radius:6px;padding:7px 10px;font-size:12px;outline:none;font-family:inherit">
         </div>
-        <button class="cbtn" onclick="sendRequest()">📤 Gửi yêu cầu</button>
+        <button type="button" id="bq-gdrive-toggle" class="bq-gdrive-btn">📁 File lớn? Dùng Google Drive →</button>
+
+        <!-- Dịch vụ yêu cầu -->
+        <div class="bg-section-lbl" style="margin-top:18px">🛠️ Dịch vụ yêu cầu</div>
+        <div class="bq-checks" id="bq-services">
+          <label class="bq-check" data-val="Dịch thuật"><input type="checkbox"><span class="ck-icon">📝</span>Dịch thuật</label>
+          <label class="bq-check" data-val="Dịch thuật + Công chứng"><input type="checkbox"><span class="ck-icon">🔏</span>Dịch thuật + Công chứng</label>
+          <label class="bq-check" data-val="Hợp pháp hóa lãnh sự"><input type="checkbox"><span class="ck-icon">🏛️</span>Hợp pháp hóa lãnh sự</label>
+          <label class="bq-check" data-val="Đánh máy / Nhập liệu"><input type="checkbox"><span class="ck-icon">⌨️</span>Đánh máy / Nhập liệu</label>
+        </div>
+
+        <!-- Nhận hàng -->
+        <div class="bg-section-lbl" style="margin-top:18px">🚚 Nhận hàng</div>
+        <div class="bq-checks" id="bq-delivery">
+          <label class="bq-check" data-val="Lấy tại văn phòng"><input type="checkbox"><span class="ck-icon">🏢</span>Lấy tại văn phòng</label>
+          <label class="bq-check" data-val="Giao hàng tận nơi"><input type="checkbox"><span class="ck-icon">🛵</span>Giao hàng tận nơi</label>
+        </div>
+        <div id="bq-delivery-addr" style="display:none;margin-top:8px">
+          <div class="fg"><label>Địa chỉ giao hàng *</label><input type="text" id="bq-addr" placeholder="Số nhà, đường, phường, quận, TP..."></div>
+        </div>
+
+        <!-- Ngày hoàn thành -->
+        <div class="bg-section-lbl" style="margin-top:18px">📅 Ngày hoàn thành mong muốn</div>
+        <div class="fg" style="margin-bottom:4px">
+          <input type="date" id="bq-date">
+          <span style="font-size:11px;color:var(--text3);margin-top:3px;display:block">Để trống nếu cần càng sớm càng tốt</span>
+        </div>
+
+        <!-- Ghi chú -->
+        <div class="bg-section-lbl" style="margin-top:18px">📝 Ghi chú thêm</div>
+        <div class="fg" style="margin-bottom:0">
+          <input type="text" id="bq-note" placeholder="Loại giấy tờ, ngôn ngữ, yêu cầu đặc biệt...">
+        </div>
+
+        <button class="cbtn" id="bq-submit" onclick="sendRequest()" style="width:100%;margin-top:18px;font-size:15px;padding:14px">🚀 Gửi Yêu Cầu Báo Giá</button>
+        <div id="bq-err" style="display:none;color:var(--red);font-size:13px;text-align:center;margin-top:8px"></div>
+        <div id="bq-suc" style="display:none;background:#D1FAE5;color:#047857;border-radius:8px;padding:12px;font-size:13px;text-align:center;margin-top:10px"></div>
       </div>
 
       <div style="margin-top:24px;background:#fff;border-radius:var(--r2);padding:24px;box-shadow:var(--sh)">
@@ -577,6 +623,7 @@ onAuthStateChanged(auth,async u=>{
     }
     renderProfile();
     loadOrders();
+    initBaoGiaForm();
   }
 });
 
@@ -726,11 +773,106 @@ function renderProfile(){
 }
 
 window.sendRequest=async()=>{
-  const data={name:S.profile?.name||S.user.email,email:S.user.email,phone:S.profile?.phone||'',channel:'Portal KH',request:`${document.getElementById('c-service').value} – ${document.getElementById('c-lang').value} – ${document.getElementById('c-qty').value}. Deadline: ${document.getElementById('c-deadline').value||'Chưa xác định'}. Ghi chú: ${document.getElementById('c-note').value}`,status:'new',customerUid:S.user.uid,createdAt:serverTimestamp()};
-  await addDoc(collection(db,'leads'),data);
-  notif('✅ Đã gửi yêu cầu! Chúng tôi sẽ liên hệ trong 5–15 phút.','ok');
-  ['c-qty','c-note','c-deadline'].forEach(id=>document.getElementById(id).value='');
+  const services=[...document.querySelectorAll('#bq-services .bq-check.checked')].map(l=>l.dataset.val);
+  const delivery=document.querySelector('#bq-delivery .bq-check.checked')?.dataset.val||'';
+  const addr=document.getElementById('bq-addr').value.trim();
+  const err=document.getElementById('bq-err');
+  const suc=document.getElementById('bq-suc');
+  const btn=document.getElementById('bq-submit');
+  err.style.display='none';suc.style.display='none';
+  if(!services.length){err.textContent='⚠️ Vui lòng chọn ít nhất một dịch vụ.';err.style.display='block';return;}
+  if(delivery==='Giao hàng tận nơi'&&!addr){document.getElementById('bq-addr').focus();err.textContent='⚠️ Vui lòng nhập địa chỉ giao hàng.';err.style.display='block';return;}
+  btn.disabled=true;btn.textContent='⏳ Đang gửi...';
+  const data={
+    name:S.profile?.name||S.user.displayName||S.user.email,
+    email:S.user.email,
+    phone:S.profile?.phone||'',
+    channel:'Portal KH',
+    services:services.join(', '),
+    delivery,
+    deliveryAddr:addr,
+    deadline:document.getElementById('bq-date').value||'Càng sớm càng tốt',
+    note:document.getElementById('bq-note').value.trim(),
+    gdriveLink:document.getElementById('bq-gdrive-link')?.value.trim()||'',
+    fileNames:window._bqFiles?.map(f=>f.name).join(', ')||'',
+    status:'new',
+    customerUid:S.user.uid,
+    page:'Portal KH – Báo giá mới',
+    createdAt:serverTimestamp()
+  };
+  try{
+    await addDoc(collection(db,'quotes'),data);
+    suc.textContent='✅ Đã gửi yêu cầu báo giá! Chúng tôi sẽ liên hệ qua Zalo/email trong 5–15 phút.';
+    suc.style.display='block';
+    // Reset form
+    document.querySelectorAll('#bq-services .bq-check, #bq-delivery .bq-check').forEach(l=>{l.classList.remove('checked');l.querySelector('input').checked=false;});
+    document.getElementById('bq-delivery-addr').style.display='none';
+    ['bq-date','bq-note','bq-addr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    if(document.getElementById('bq-gdrive-link'))document.getElementById('bq-gdrive-link').value='';
+    window._bqFiles=[];
+    document.getElementById('bq-upload-list').innerHTML='';
+    document.getElementById('bq-gdrive-tip').style.display='none';
+  }catch(e){
+    err.textContent='❌ Có lỗi xảy ra, vui lòng thử lại hoặc liên hệ qua chat.';
+    err.style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent='🚀 Gửi Yêu Cầu Báo Giá';
+  }
 };
+
+// Init báo giá form (gọi sau khi user đăng nhập)
+function initBaoGiaForm(){
+  // Prefill tên
+  const nm=S.profile?.name||S.user.displayName||S.user.email;
+  const el=document.getElementById('bq-prefill-name');
+  const el2=document.getElementById('bq-prefill-email');
+  if(el)el.textContent=nm;
+  if(el2)el2.textContent=S.user.email;
+
+  // Upload file
+  window._bqFiles=[];
+  const fileInput=document.getElementById('bq-file-input');
+  const uploadList=document.getElementById('bq-upload-list');
+  const gdriveTip=document.getElementById('bq-gdrive-tip');
+  const MAX=10*1024*1024;
+  if(fileInput&&!fileInput.dataset.init){
+    fileInput.dataset.init='1';
+    fileInput.addEventListener('change',()=>{
+      Array.from(fileInput.files).forEach(f=>{
+        if(f.size>MAX){gdriveTip.style.display='block';return;}
+        if(!window._bqFiles.find(x=>x.name===f.name))window._bqFiles.push(f);
+      });
+      renderBqFiles();fileInput.value='';
+    });
+  }
+  function renderBqFiles(){
+    uploadList.innerHTML=(window._bqFiles||[]).map((f,i)=>`<div class="bq-upload-item">📄 ${f.name} <span style="color:var(--text3)">(${(f.size/1024).toFixed(0)}KB)</span><button class="rm" data-i="${i}">✕</button></div>`).join('');
+    uploadList.querySelectorAll('.rm').forEach(btn=>{btn.addEventListener('click',()=>{window._bqFiles.splice(+btn.dataset.i,1);renderBqFiles();});});
+  }
+
+  // Google Drive toggle
+  const gBtn=document.getElementById('bq-gdrive-toggle');
+  if(gBtn&&!gBtn.dataset.init){
+    gBtn.dataset.init='1';
+    gBtn.addEventListener('click',()=>{gdriveTip.style.display=gdriveTip.style.display==='none'?'block':'none';});
+  }
+
+  // Service checkboxes (multi)
+  document.querySelectorAll('#bq-services .bq-check').forEach(lbl=>{
+    if(lbl.dataset.init)return;lbl.dataset.init='1';
+    lbl.addEventListener('click',()=>{lbl.classList.toggle('checked');lbl.querySelector('input').checked=lbl.classList.contains('checked');});
+  });
+
+  // Delivery checkboxes (single)
+  document.querySelectorAll('#bq-delivery .bq-check').forEach(lbl=>{
+    if(lbl.dataset.init)return;lbl.dataset.init='1';
+    lbl.addEventListener('click',()=>{
+      document.querySelectorAll('#bq-delivery .bq-check').forEach(l=>{l.classList.remove('checked');l.querySelector('input').checked=false;});
+      lbl.classList.add('checked');lbl.querySelector('input').checked=true;
+      document.getElementById('bq-delivery-addr').style.display=lbl.dataset.val==='Giao hàng tận nơi'?'block':'none';
+    });
+  });
+}
 
 let fbOrderId=null;
 window.showFeedback=()=>{fbOrderId=S.currentOrderId;S.starRating=0;document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));document.getElementById('star-label').textContent='Chọn số sao';document.getElementById('fb-text').value='';document.getElementById('m-feedback').style.display='flex';};
