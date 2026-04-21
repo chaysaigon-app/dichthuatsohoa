@@ -752,82 +752,63 @@ tbody td{padding:11px 14px;font-size:13px}
 
       <!-- TAB 2: Preview + Send -->
       <div class="tab-pane" id="qb-tab2">
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+
+        <!-- Toolbar: tạo / copy / pdf -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-p" onclick="qbGenerate()">⚡ Tạo văn bản báo giá</button>
-          <button class="btn" style="background:#16A34A;color:#fff;display:none" id="qb-copy-btn" onclick="qbCopy()">📋 Sao chép (Zalo/Email)</button>
-          <button class="btn" style="background:#DC2626;color:#fff;display:none" id="qb-pdf-btn" onclick="qbPrintPDF()">⬇️ Tải PDF</button>
+          <button class="btn" style="background:#16A34A;color:#fff;display:none" id="qb-copy-btn" onclick="qbCopy()">📋 Sao chép</button>
+          <button class="btn" style="background:#DC2626;color:#fff;display:none" id="qb-pdf-btn" onclick="qbPrintPDF()">⬇️ PDF</button>
         </div>
-        <!-- White-background preview frame -->
-        <div id="qb-preview-wrap" style="display:none;border:1px solid #D1D5DB;border-radius:10px;overflow:hidden;background:#fff">
-          <div style="background:#F3F4F6;padding:8px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB">
-            <span style="width:10px;height:10px;border-radius:50%;background:#EF4444;display:inline-block"></span>
-            <span style="width:10px;height:10px;border-radius:50%;background:#F59E0B;display:inline-block"></span>
-            <span style="width:10px;height:10px;border-radius:50%;background:#10B981;display:inline-block"></span>
-            <span style="font-size:11px;color:#6B7280;margin-left:6px">Xem trước báo giá — nền trắng, sẵn sàng gửi khách</span>
+
+        <!-- Preview frame — chiều cao cố định, scroll bên trong -->
+        <div id="qb-preview-wrap" style="display:none;border:1px solid #D1D5DB;border-radius:10px;overflow:hidden;background:#fff;margin-bottom:10px">
+          <div style="background:#F3F4F6;padding:6px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB">
+            <span style="width:9px;height:9px;border-radius:50%;background:#EF4444;display:inline-block"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:#F59E0B;display:inline-block"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:#10B981;display:inline-block"></span>
+            <span style="font-size:11px;color:#6B7280;margin-left:4px">Xem trước — nền trắng, sẵn sàng gửi khách</span>
           </div>
-          <div id="qb-output" style="padding:24px;max-height:480px;overflow-y:auto;background:#fff;color:#111;font-family:'Be Vietnam Pro',sans-serif"></div>
+          <div id="qb-output" style="padding:20px;height:260px;overflow-y:auto;background:#fff;color:#111;font-family:'Be Vietnam Pro',sans-serif;font-size:13px"></div>
         </div>
-        <div id="qb-send-area" style="display:none;margin-top:14px">
 
-          <!-- 2-flow explainer -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-            <div style="background:rgba(37,99,235,.07);border:1.5px solid rgba(37,99,235,.25);border-radius:10px;padding:12px 14px">
-              <div style="font-size:12px;font-weight:700;color:var(--blue-ll);margin-bottom:5px">🖥️ Luồng A — Gửi qua Portal</div>
-              <div style="font-size:11.5px;color:var(--text2);line-height:1.7">Khách có tài khoản trên portal → tìm theo tên/email/phone → chọn → lưu → báo giá xuất hiện trên dashboard của khách để họ bấm <strong>Xác nhận</strong>.</div>
-            </div>
-            <div style="background:rgba(245,158,11,.06);border:1.5px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 14px">
-              <div style="font-size:12px;font-weight:700;color:var(--gold-l);margin-bottom:5px">📤 Luồng B — Gửi thủ công</div>
-              <div style="font-size:11.5px;color:var(--text2);line-height:1.7">Khách <strong>chưa có</strong> tài khoản portal → dùng nút <strong>Sao chép</strong> hoặc <strong>Tải PDF</strong> ở trên, gửi qua Zalo/Email → đợi khách reply xác nhận rồi tự bấm "KH OK" trong danh sách.</div>
-            </div>
-          </div>
+        <!-- Gửi / Lưu — luôn hiển thị sau preview, không bị cuộn mất -->
+        <div id="qb-send-area" style="display:none">
 
-          <!-- Customer search box -->
-          <div style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px">
-            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px">
-              🔍 Tìm tài khoản khách hàng trên Portal
-              <span style="background:rgba(37,99,235,.15);color:var(--blue-ll);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">Luồng A</span>
+          <!-- Customer search (gọn lại) -->
+          <div style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:10px">
+            <div style="font-size:11.5px;font-weight:700;color:var(--text2);margin-bottom:8px">
+              🔍 Gửi lên portal khách <span style="background:rgba(37,99,235,.15);color:var(--blue-ll);padding:2px 7px;border-radius:8px;font-size:10px">Tùy chọn</span>
             </div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input id="qb-cust-search" placeholder="Nhập tên, email hoặc số điện thoại..."
-                style="flex:1;padding:8px 12px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;font-family:'Be Vietnam Pro',sans-serif"
+            <div style="display:flex;gap:7px;align-items:center">
+              <input id="qb-cust-search" placeholder="Tên / email / số điện thoại khách..."
+                style="flex:1;padding:7px 11px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:7px;color:var(--text);font-size:12.5px;outline:none;font-family:'Be Vietnam Pro',sans-serif"
                 oninput="qbSearchCustomer()" onfocus="qbSearchCustomer()">
-              <button class="btn btn-p" onclick="qbSearchCustomer()" style="flex-shrink:0">🔍 Tìm</button>
+              <button class="btn btn-p" onclick="qbSearchCustomer()" style="flex-shrink:0;padding:7px 12px">🔍</button>
             </div>
-            <!-- Search results dropdown -->
-            <div id="qb-cust-results" style="display:none;margin-top:8px;border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-height:200px;overflow-y:auto"></div>
-            <!-- Selected customer badge -->
-            <div id="qb-cust-selected" style="display:none;margin-top:10px;background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.3);border-radius:8px;padding:10px 13px;display:flex;align-items:center;justify-content:space-between">
+            <div id="qb-cust-results" style="display:none;margin-top:6px;border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-height:160px;overflow-y:auto"></div>
+            <div id="qb-cust-selected" style="display:none;margin-top:8px;background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.3);border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between">
               <div>
-                <div style="font-size:12px;font-weight:700;color:var(--green-l)">✅ Đã chọn khách hàng</div>
-                <div id="qb-cust-info" style="font-size:12.5px;color:var(--text);margin-top:3px"></div>
+                <div style="font-size:11.5px;font-weight:700;color:var(--green-l)">✅ Đã chọn khách</div>
+                <div id="qb-cust-info" style="font-size:12px;color:var(--text);margin-top:2px"></div>
               </div>
-              <button onclick="qbClearCustomer()" style="background:rgba(239,68,68,.15);border:none;color:var(--red-l);border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;font-weight:600">✕ Bỏ chọn</button>
+              <button onclick="qbClearCustomer()" style="background:rgba(239,68,68,.15);border:none;color:var(--red-l);border-radius:6px;padding:3px 8px;font-size:11.5px;cursor:pointer;font-weight:600">✕</button>
             </div>
-            <!-- No account hint -->
-            <div id="qb-cust-noacc" style="display:none;margin-top:10px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--gold-l)">
-              ⚠️ Không tìm thấy tài khoản. Khách chưa đăng ký portal → dùng <strong>Luồng B</strong>: sao chép hoặc tải PDF gửi thủ công cho khách xác nhận.
+            <div id="qb-cust-noacc" style="display:none;margin-top:8px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:7px;padding:8px 12px;font-size:11.5px;color:var(--gold-l)">
+              ⚠️ Không tìm thấy tài khoản → dùng Sao chép / PDF gửi thủ công cho khách.
             </div>
           </div>
 
-          <!-- Hidden email field (auto-filled) -->
           <input type="hidden" id="qb-send-email">
-
-          <!-- Save button -->
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="btn btn-g" onclick="qbSendToCustomer()" style="flex:1;justify-content:center;padding:10px 0;font-size:13.5px">
-              💾 Lưu báo giá vào hệ thống
-            </button>
-            <div style="font-size:11.5px;color:var(--text3);text-align:right;line-height:1.5">
-              Nếu có chọn khách → gửi lên portal.<br>Nếu không chọn → lưu nháp, gửi thủ công.
-            </div>
-          </div>
 
         </div>
       </div>
     </div>
-    <div class="mfoot">
+
+    <!-- FOOTER — luôn cố định dưới cùng modal -->
+    <div class="mfoot" style="flex-shrink:0">
       <button class="bm bm-c" onclick="closeM('qbuilder')">Đóng</button>
-      <button class="bm bm-p" onclick="qbGenerate()">⚡ Xem trước & Tạo báo giá →</button>
+      <button class="bm bm-p" onclick="qbGenerate()" id="qb-gen-btn">⚡ Xem trước báo giá →</button>
+      <button class="bm bm-g" id="qb-save-btn" style="display:none" onclick="qbSendToCustomer()">💾 Lưu & Gửi báo giá</button>
     </div>
   </div>
 </div>
@@ -1784,8 +1765,15 @@ window.openQuoteBuilder = function(quoteId) {
 
   // Reset output
   document.getElementById('qb-output').style.display = 'none';
+  document.getElementById('qb-preview-wrap').style.display = 'none';
   document.getElementById('qb-copy-btn').style.display = 'none';
+  document.getElementById('qb-pdf-btn').style.display = 'none';
   document.getElementById('qb-send-area').style.display = 'none';
+  // Reset footer buttons
+  const genBtn = document.getElementById('qb-gen-btn');
+  const saveBtn = document.getElementById('qb-save-btn');
+  if(genBtn) genBtn.style.display = 'inline-flex';
+  if(saveBtn) saveBtn.style.display = 'none';
   // Reset inbound ref banner
   const ibRef = document.getElementById('qb-inbound-ref'); if(ibRef){ibRef.style.display='none';ibRef.innerHTML='';}
   // Reset ghi chú chung
@@ -1967,6 +1955,12 @@ Ngày: ${dateStr}`;
   document.getElementById('qb-pdf-btn').style.display = 'inline-flex';
   document.getElementById('qb-send-area').style.display = 'block';
   document.getElementById('qb-send-email').value = email || '';
+
+  // Hiện nút Lưu ở footer, ẩn nút Tạo
+  const genBtn = document.getElementById('qb-gen-btn');
+  const saveBtn = document.getElementById('qb-save-btn');
+  if(genBtn) genBtn.style.display = 'none';
+  if(saveBtn) saveBtn.style.display = 'inline-flex';
 
   // Switch to tab2
   const tabBtns = document.querySelectorAll('#m-qbuilder .tab-btn');
