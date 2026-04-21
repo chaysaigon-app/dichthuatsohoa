@@ -466,14 +466,14 @@ tbody td{padding:11px 14px;font-size:13px}
             <h3>💰 Yêu Cầu Báo Giá</h3>
             <div style="display:flex;gap:8px;align-items:center">
               <button class="btn" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff;font-weight:700;font-size:12px" onclick="openQuoteBuilder(null)">📝 Lập Báo Giá Mới</button>
-              <select id="qt-filter" onchange="renderQuotes()" style="border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;background:#fff">
+              <select id="qt-filter" onchange="renderQuotes()" style="border:1.5px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px;background:var(--bg3);color:var(--text)">
                 <option value="">Tất cả</option>
                 <option value="new">Mới</option>
                 <option value="quoted">Đã báo giá</option>
                 <option value="confirmed">Đã xác nhận</option>
                 <option value="done">Hoàn thành</option>
               </select>
-              <input id="qt-search" type="text" placeholder="🔍 Tìm tên / SĐT..." oninput="renderQuotes()" style="border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;width:180px">
+              <input id="qt-search" type="text" placeholder="🔍 Tìm tên / SĐT..." oninput="renderQuotes()" style="border:1.5px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px;width:180px;background:var(--bg3);color:var(--text);outline:none">
             </div>
           </div>
           <div style="overflow-x:auto">
@@ -1526,7 +1526,6 @@ async function loadQuotes() {
   const q = query(collection(db, 'quotes'), orderBy('createdAt', 'desc'));
   onSnapshot(q, snap => {
     allQuotes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    // Badge + dashboard counter
     const newCount = allQuotes.filter(q => q.status === 'new').length;
     const badge = document.getElementById('b-qt');
     if (badge) { badge.textContent = newCount; badge.style.display = newCount ? 'inline' : 'none'; }
@@ -1558,23 +1557,22 @@ window.renderQuotes = function() {
     const statusColor = QS_COLOR[q.status] || '#6B7280';
     const hasFile = q.fileNames || q.gdriveLink;
     const fileHtml = hasFile
-      ? `<span style="font-size:11px;color:#2563EB" title="${q.fileNames||''}${q.gdriveLink?'\nGDrive: '+q.gdriveLink:''}">${q.fileNames ? '📎 '+q.fileNames.split(',').length+' file' : ''}${q.gdriveLink ? ' 📁 GDrive' : ''}</span>`
-      : '<span style="color:#9CA3AF;font-size:11px">—</span>';
+      ? `<span style="font-size:11px;color:var(--blue-ll)" title="${q.fileNames||''}${q.gdriveLink?'\nGDrive: '+q.gdriveLink:''}">${q.fileNames ? '📎 '+q.fileNames.split(',').length+' file' : ''}${q.gdriveLink ? ' 📁 GDrive' : ''}</span>`
+      : '<span style="color:var(--text3);font-size:11px">—</span>';
     return `<tr>
-      <td style="font-size:11px;color:#6B7280;white-space:nowrap">${dt}</td>
-      <td><div style="font-weight:600">${q.name||'Khách'}</div>${q.note?`<div style="font-size:11px;color:#9CA3AF">${q.note.substring(0,30)}...</div>`:''}</td>
-      <td><div>${q.phone||'—'}</div>${q.email?`<div style="font-size:11px;color:#6B7280">${q.email}</div>`:''}</td>
-      <td style="font-size:12px">${q.services||'—'}</td>
-      <td style="font-size:12px">${q.delivery||'—'}${q.deliveryAddr?`<div style="font-size:11px;color:#6B7280">${q.deliveryAddr}</div>`:''}</td>
-      <td style="font-size:12px;white-space:nowrap">${q.deadline||'—'}</td>
+      <td style="font-size:11px;color:var(--text3);white-space:nowrap">${dt}</td>
+      <td><div style="font-weight:600;color:var(--text)">${q.name||'Khách'}</div>${q.note?`<div style="font-size:11px;color:var(--text3)">${q.note.substring(0,30)}...</div>`:''}</td>
+      <td><div style="color:var(--text)">${q.phone||'—'}</div>${q.email?`<div style="font-size:11px;color:var(--text3)">${q.email}</div>`:''}</td>
+      <td style="font-size:12px;color:var(--text2)">${q.services||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${q.delivery||'—'}${q.deliveryAddr?`<div style="font-size:11px;color:var(--text3)">${q.deliveryAddr}</div>`:''}</td>
+      <td style="font-size:12px;white-space:nowrap;color:var(--text2)">${q.deadline||'—'}</td>
       <td>${fileHtml}</td>
-      <td><span style="background:${statusColor}15;color:${statusColor};padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700">${QS[q.status]||q.status}</span></td>
+      <td><span style="background:${statusColor}20;color:${statusColor};padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700">${QS[q.status]||q.status}</span></td>
       <td>
-        <button class="btn btn-ghost" onclick="openQuoteDetail('${q.id}')" style="font-size:12px;padding:4px 8px">👁 Xem</button>
-        <select onchange="updateQuoteStatus('${q.id}',this.value)" style="font-size:11px;border:1px solid var(--border);border-radius:4px;padding:3px 6px;cursor:pointer;background:#fff;margin-top:4px">
-          <option value="">Đổi TT...</option>
-          ${Object.entries(QS).map(([v,l])=>`<option value="${v}" ${q.status===v?'selected':''}>${l}</option>`).join('')}
-        </select>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <button class="btn btn-ghost" onclick="openQuoteDetail('${q.id}')" style="font-size:12px;padding:4px 8px">👁 Xem</button>
+          <button class="btn" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff;font-size:11px;padding:3px 8px" onclick="closeM('quote-detail');openQuoteBuilder('${q.id}')">📝 Báo giá</button>
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -1620,10 +1618,9 @@ window.openQuoteDetail = function(id) {
 window.updateQuoteStatus = async function(id, status) {
   if (!status) return;
   const { doc, updateDoc } = await getFSMod();
-  await updateDoc(doc(db, 'quotes', id), { status });
-  const q = allQuotes.find(x => x.id === id);
-  if (q) q.status = status;
-  renderQuotes();
+  await updateDoc(doc(db, 'quotes', id), { status, updatedAt: serverTimestamp() });
+  // onSnapshot sẽ tự cập nhật allQuotes và gọi renderQuotes()
+  notif('✅ Đã cập nhật trạng thái yêu cầu báo giá', 'ok');
 };
 
 window.createLeadFromQuote = async function(id) {
@@ -2054,10 +2051,9 @@ window.qbSendToCustomer = async function() {
   };
 
   try {
-    const { collection: col, addDoc: aDoc, doc: dRef, updateDoc: upDoc } = await getFSMod();
+    const { collection: col, addDoc: aDoc, doc: dRef, updateDoc: upDoc, setDoc: sDoc } = await getFSMod();
     let ref;
     if (_sqEditingId) {
-      // Editing existing quote → update, reset status to 'sent' (mới gửi lại)
       await upDoc(dRef(db, 'staff_quotes', _sqEditingId), {
         ...quoteDoc, status: hasPortalCustomer ? 'sent' : sendEmail ? 'sent' : 'ready',
         updatedAt: serverTimestamp()
@@ -2069,27 +2065,43 @@ window.qbSendToCustomer = async function() {
       await log('📝 Lập báo giá', `${_qbData.name} – ${_qbData.grand.toLocaleString('vi-VN')}đ – ${sendEmail ? 'Gửi: ' + sendEmail : 'Tạo sẵn'}`, 'gold');
     }
 
-    // If linked to inbound quote, update status
+    // Nếu khách có tài khoản portal → lưu vào customer_quotes để khách thấy & xác nhận
+    if (_qbSelectedCustomer?.id) {
+      const cqRef = dRef(db, 'customer_quotes', ref.id);
+      await sDoc(cqRef, {
+        ...quoteDoc,
+        staffQuoteId: ref.id,
+        customerUid: _qbSelectedCustomer.id,
+        status: 'pending_confirm',  // khách chưa xác nhận
+        createdAt: serverTimestamp()
+      });
+    }
+
+    // Nếu liên kết với yêu cầu báo giá gốc → cập nhật trạng thái sang 'quoted'
     if (_qbQuoteId) {
-      const { doc: dRef, updateDoc: upDoc } = await getFSMod();
       await upDoc(dRef(db, 'quotes', _qbQuoteId), { status: 'quoted', staffQuoteId: ref.id });
     }
 
     const editedMsg = _sqEditingId ? '(đã chỉnh sửa) ' : '';
+    closeM('qbuilder');
+    _qbSelectedCustomer = null;
+    _sqEditingId = null;
+
+    // Chuyển sang trang "Lập Báo Giá" và chờ onSnapshot cập nhật
+    const sqNav = document.querySelector('.ni[onclick*="staff-quotes"]');
+    nav('staff-quotes', sqNav);
+
+    // Đảm bảo render lại sau khi Firestore confirm
+    setTimeout(() => { renderStaffQuotes(); }, 600);
+
     notif(
       hasPortalCustomer
-        ? `✅ ${editedMsg}Đã gửi báo giá lên portal của ${_qbSelectedCustomer.name || sendEmail}! Họ sẽ thấy ngay trên dashboard.`
+        ? `✅ ${editedMsg}Đã lưu & gửi lên portal của ${_qbSelectedCustomer?.name || sendEmail}! Khách sẽ thấy ngay và có thể xác nhận.`
         : sendEmail
           ? `✅ ${editedMsg}Đã lưu báo giá! Dùng Sao chép / PDF để gửi thủ công cho khách.`
           : `✅ ${editedMsg}Đã lưu báo giá nháp! Dùng Sao chép / PDF để gửi qua Zalo/Email.`,
-      'ok', 6000
+      'ok', 7000
     );
-    closeM('qbuilder');
-    _qbSelectedCustomer = null;
-
-    // Chuyển sang trang danh sách báo giá để thấy ngay
-    const sqNav = document.querySelector('.ni[onclick*="staff-quotes"]');
-    nav('staff-quotes', sqNav);
   } catch (e) {
     console.error(e);
     notif('❌ Lỗi lưu báo giá: ' + e.message, 'er');
