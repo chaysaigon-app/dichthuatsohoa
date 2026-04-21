@@ -511,10 +511,12 @@ tbody td{padding:11px 14px;font-size:13px}
               <input class="si" id="q-sq" placeholder="🔍 Tìm tên khách..." oninput="renderStaffQuotesFiltered()">
               <select id="sq-filter" onchange="renderStaffQuotesFiltered()" style="border:1.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:12px;background:var(--bg3);color:var(--text)">
                 <option value="">Tất cả trạng thái</option>
-                <option value="ready">Đã lập</option>
-                <option value="sent">Đã gửi KH</option>
-                <option value="confirmed">KH xác nhận ✅</option>
-                <option value="order_created">Đã tạo đơn 🚀</option>
+                <option value="ready">📋 Đã lập (chưa gửi)</option>
+                <option value="pending_confirm">⏳ Chờ KH xác nhận</option>
+                <option value="sent">📤 Đã gửi thủ công</option>
+                <option value="confirmed">✅ KH xác nhận</option>
+                <option value="rejected">❌ KH từ chối</option>
+                <option value="order_created">🚀 Đã tạo đơn</option>
               </select>
               <button class="btn" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff;font-weight:700" onclick="openQuoteBuilder(null)">📝 Lập Báo Giá Mới</button>
             </div>
@@ -750,7 +752,7 @@ tbody td{padding:11px 14px;font-size:13px}
         </div>
       </div>
 
-      <!-- TAB 2: Preview + Send -->
+      <!-- TAB 2: Preview + Save -->
       <div class="tab-pane" id="qb-tab2">
         <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-p" onclick="qbGenerate()">⚡ Tạo văn bản báo giá</button>
@@ -767,61 +769,23 @@ tbody td{padding:11px 14px;font-size:13px}
           </div>
           <div id="qb-output" style="padding:24px;max-height:260px;overflow-y:auto;background:#fff;color:#111;font-family:'Be Vietnam Pro',sans-serif"></div>
         </div>
+
+        <!-- Save & Send to Portal button (shown after generate) -->
         <div id="qb-send-area" style="display:none;margin-top:14px">
-
-          <!-- 2-flow explainer -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-            <div style="background:rgba(37,99,235,.07);border:1.5px solid rgba(37,99,235,.25);border-radius:10px;padding:12px 14px">
-              <div style="font-size:12px;font-weight:700;color:var(--blue-ll);margin-bottom:5px">🖥️ Luồng A — Gửi qua Portal</div>
-              <div style="font-size:11.5px;color:var(--text2);line-height:1.7">Khách có tài khoản trên portal → tìm theo tên/email/phone → chọn → lưu → báo giá xuất hiện trên dashboard của khách để họ bấm <strong>Xác nhận</strong>.</div>
-            </div>
-            <div style="background:rgba(245,158,11,.06);border:1.5px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 14px">
-              <div style="font-size:12px;font-weight:700;color:var(--gold-l);margin-bottom:5px">📤 Luồng B — Gửi thủ công</div>
-              <div style="font-size:11.5px;color:var(--text2);line-height:1.7">Khách <strong>chưa có</strong> tài khoản portal → dùng nút <strong>Sao chép</strong> hoặc <strong>Tải PDF</strong> ở trên, gửi qua Zalo/Email → đợi khách reply xác nhận rồi tự bấm "KH OK" trong danh sách.</div>
-            </div>
+          <div style="background:rgba(16,185,129,.07);border:1.5px solid rgba(16,185,129,.3);border-radius:10px;padding:13px 16px;margin-bottom:12px;font-size:12.5px;color:var(--text2);line-height:1.8">
+            <div style="font-weight:700;color:var(--green-l);margin-bottom:4px">✅ Văn bản đã sẵn sàng</div>
+            Nhấn <strong>"Lưu & Gửi lên Portal"</strong> để báo giá xuất hiện ngay trên tài khoản khách hàng — họ sẽ thấy và có thể <strong>Xác nhận</strong> hoặc <strong>Từ chối kèm lý do</strong>. Trạng thái cập nhật realtime cả hai phía.
           </div>
-
-          <!-- Customer search box -->
-          <div style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px">
-            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px">
-              🔍 Tìm tài khoản khách hàng trên Portal
-              <span style="background:rgba(37,99,235,.15);color:var(--blue-ll);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">Luồng A</span>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input id="qb-cust-search" placeholder="Nhập tên, email hoặc số điện thoại..."
-                style="flex:1;padding:8px 12px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;font-family:'Be Vietnam Pro',sans-serif"
-                oninput="qbSearchCustomer()" onfocus="qbSearchCustomer()">
-              <button class="btn btn-p" onclick="qbSearchCustomer()" style="flex-shrink:0">🔍 Tìm</button>
-            </div>
-            <!-- Search results dropdown -->
-            <div id="qb-cust-results" style="display:none;margin-top:8px;border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-height:200px;overflow-y:auto"></div>
-            <!-- Selected customer badge -->
-            <div id="qb-cust-selected" style="display:none;margin-top:10px;background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.3);border-radius:8px;padding:10px 13px;display:flex;align-items:center;justify-content:space-between">
-              <div>
-                <div style="font-size:12px;font-weight:700;color:var(--green-l)">✅ Đã chọn khách hàng</div>
-                <div id="qb-cust-info" style="font-size:12.5px;color:var(--text);margin-top:3px"></div>
-              </div>
-              <button onclick="qbClearCustomer()" style="background:rgba(239,68,68,.15);border:none;color:var(--red-l);border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;font-weight:600">✕ Bỏ chọn</button>
-            </div>
-            <!-- No account hint -->
-            <div id="qb-cust-noacc" style="display:none;margin-top:10px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--gold-l)">
-              ⚠️ Không tìm thấy tài khoản. Khách chưa đăng ký portal → dùng <strong>Luồng B</strong>: sao chép hoặc tải PDF gửi thủ công cho khách xác nhận.
-            </div>
-          </div>
-
-          <!-- Hidden email field (auto-filled) -->
+          <!-- Hidden fields kept for compatibility -->
           <input type="hidden" id="qb-send-email">
-
-          <!-- Save button -->
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="btn btn-g" onclick="qbSendToCustomer()" style="flex:1;justify-content:center;padding:10px 0;font-size:13.5px">
-              💾 Lưu báo giá vào hệ thống
-            </button>
-            <div style="font-size:11.5px;color:var(--text3);text-align:right;line-height:1.5">
-              Nếu có chọn khách → gửi lên portal.<br>Nếu không chọn → lưu nháp, gửi thủ công.
-            </div>
-          </div>
-
+          <input type="hidden" id="qb-cust-search">
+          <div id="qb-cust-results" style="display:none"></div>
+          <div id="qb-cust-selected" style="display:none"></div>
+          <div id="qb-cust-noacc" style="display:none"></div>
+          <div id="qb-cust-info"></div>
+          <button class="btn btn-g" onclick="qbSendToCustomer()" style="width:100%;justify-content:center;padding:11px 0;font-size:14px;font-weight:700">
+            💾 Lưu & Gửi lên Portal khách hàng
+          </button>
         </div>
       </div>
     </div>
@@ -2014,9 +1978,22 @@ window.qbPrintPDF = function() {
 };
 
 window.qbSendToCustomer = async function() {
-  if (!_qbData) { notif('⚠️ Hãy tạo văn bản báo giá trước', 'er'); return; }
-  const sendEmail = _qbSelectedCustomer?.email || document.getElementById('qb-send-email').value.trim();
-  const hasPortalCustomer = !!_qbSelectedCustomer;
+  if (!_qbData) { notif('⚠️ Hãy tạo văn bản báo giá trước (Tab 2 → Tạo văn bản)', 'er'); return; }
+
+  // Xác định customerUid: từ khách đã link (qbSelectedCustomer) HOẶC từ yêu cầu báo giá gốc
+  let customerUid = _qbSelectedCustomer?.id || null;
+  let customerName = _qbSelectedCustomer?.name || _qbData.name;
+
+  // Nếu mở từ quote request → lấy customerUid từ quote đó (khách đã đăng ký portal)
+  if (!customerUid && _qbQuoteId) {
+    const linkedQ = allQuotes.find(x => x.id === _qbQuoteId);
+    if (linkedQ?.customerUid) {
+      customerUid = linkedQ.customerUid;
+      customerName = linkedQ.name || _qbData.name;
+    }
+  }
+
+  const hasPortalCustomer = !!customerUid;
 
   // Build tasks array for later order creation
   const tasks = _qbData.selected.map(s => ({
@@ -2031,7 +2008,7 @@ window.qbSendToCustomer = async function() {
     name: _qbData.name,
     company: _qbData.company || '',
     phone: _qbData.phone || '',
-    email: _qbData.email || sendEmail,
+    email: _qbData.email || '',
     services: _qbData.selected.map(s => s.label).join(', '),
     tasks: JSON.stringify(tasks),
     htmlContent: _qbData.html,
@@ -2045,9 +2022,9 @@ window.qbSendToCustomer = async function() {
     bankOwner: _qbData.bankOwner,
     staff: _qbData.staff,
     quotedAt: _qbData.dateStr,
-    status: hasPortalCustomer ? 'sent' : sendEmail ? 'sent' : 'ready',
+    status: hasPortalCustomer ? 'pending_confirm' : 'ready',
     linkedQuoteId: _qbQuoteId || null,
-    customerUid: _qbSelectedCustomer?.id || null,
+    customerUid: customerUid,
     createdAt: serverTimestamp()
   };
 
@@ -2056,24 +2033,24 @@ window.qbSendToCustomer = async function() {
     let ref;
     if (_sqEditingId) {
       await upDoc(dRef(db, 'staff_quotes', _sqEditingId), {
-        ...quoteDoc, status: hasPortalCustomer ? 'sent' : sendEmail ? 'sent' : 'ready',
+        ...quoteDoc,
         updatedAt: serverTimestamp()
       });
       ref = { id: _sqEditingId };
       await log('✏️ Cập nhật báo giá', `${_qbData.name} – ${_qbData.grand.toLocaleString('vi-VN')}đ (đã chỉnh sửa)`, 'gold');
     } else {
       ref = await aDoc(col(db, 'staff_quotes'), quoteDoc);
-      await log('📝 Lập báo giá', `${_qbData.name} – ${_qbData.grand.toLocaleString('vi-VN')}đ – ${sendEmail ? 'Gửi: ' + sendEmail : 'Tạo sẵn'}`, 'gold');
+      await log('📝 Lập báo giá', `${_qbData.name} – ${_qbData.grand.toLocaleString('vi-VN')}đ${hasPortalCustomer?' → Gửi lên portal':''}`, 'gold');
     }
 
-    // Nếu khách có tài khoản portal → lưu vào customer_quotes để khách thấy & xác nhận
-    if (_qbSelectedCustomer?.id) {
+    // Nếu khách có tài khoản portal → lưu/cập nhật vào customer_quotes để khách thấy & xác nhận
+    if (hasPortalCustomer) {
       const cqRef = dRef(db, 'customer_quotes', ref.id);
       await sDoc(cqRef, {
         ...quoteDoc,
         staffQuoteId: ref.id,
-        customerUid: _qbSelectedCustomer.id,
-        status: 'pending_confirm',  // khách chưa xác nhận
+        customerUid: customerUid,
+        status: 'pending_confirm',
         createdAt: serverTimestamp()
       });
     }
@@ -2091,16 +2068,12 @@ window.qbSendToCustomer = async function() {
     // Chuyển sang trang "Lập Báo Giá" và chờ onSnapshot cập nhật
     const sqNav = document.querySelector('.ni[onclick*="staff-quotes"]');
     nav('staff-quotes', sqNav);
-
-    // Đảm bảo render lại sau khi Firestore confirm
     setTimeout(() => { renderStaffQuotes(); }, 600);
 
     notif(
       hasPortalCustomer
-        ? `✅ ${editedMsg}Đã lưu & gửi lên portal của ${_qbSelectedCustomer?.name || sendEmail}! Khách sẽ thấy ngay và có thể xác nhận.`
-        : sendEmail
-          ? `✅ ${editedMsg}Đã lưu báo giá! Dùng Sao chép / PDF để gửi thủ công cho khách.`
-          : `✅ ${editedMsg}Đã lưu báo giá nháp! Dùng Sao chép / PDF để gửi qua Zalo/Email.`,
+        ? `✅ ${editedMsg}Đã lưu & gửi lên portal của ${customerName}! Khách sẽ thấy ngay để Xác nhận hoặc Từ chối.`
+        : `✅ ${editedMsg}Đã lưu báo giá! Dùng Sao chép / PDF để gửi qua Zalo/Email cho khách.`,
       'ok', 7000
     );
   } catch (e) {
@@ -2132,12 +2105,14 @@ function _renderSQModal(id) {
   const q = allStaffQuotes.find(x => x.id === id);
   if (!q) return;
 
-  const statusLabel = {ready:'📋 Đã lập', sent:'📤 Đã gửi KH', confirmed:'✅ KH đã xác nhận', rejected:'❌ KH từ chối', order_created:'🚀 Đã tạo đơn'};
-  const statusColor = {ready:'#6B7280', sent:'#2563EB', confirmed:'#059669', rejected:'#EF4444', order_created:'#8B5CF6'};
+  const statusLabel = {ready:'📋 Đã lập (chưa gửi)', pending_confirm:'⏳ Chờ KH xác nhận', sent:'📤 Đã gửi (thủ công)', confirmed:'✅ KH đã xác nhận', rejected:'❌ KH từ chối', order_created:'🚀 Đã tạo đơn'};
+  const statusColor = {ready:'#6B7280', pending_confirm:'#F59E0B', sent:'#2563EB', confirmed:'#059669', rejected:'#EF4444', order_created:'#8B5CF6'};
   const sc = statusColor[q.status] || '#6B7280';
   const sl = statusLabel[q.status] || q.status;
   const canEdit = q.status !== 'order_created';
   const canOrder = q.status === 'confirmed';
+  const isRejected = q.status === 'rejected';
+  const isPending = q.status === 'pending_confirm';
 
   document.getElementById('ot-title').textContent = `📝 Báo Giá – ${q.name}`;
   document.getElementById('ot-body').innerHTML = `
@@ -2149,24 +2124,45 @@ function _renderSQModal(id) {
       <span style="font-size:14px;color:var(--gold-l);font-weight:800">💰 ${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</span>
     </div>
 
-    <!-- Status change (NV cập nhật) -->
+    <!-- Rejection reason banner -->
+    ${isRejected && q.rejectReason ? `
+    <div style="background:rgba(239,68,68,.1);border:1.5px solid rgba(239,68,68,.3);border-radius:9px;padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--red-l);margin-bottom:4px">❌ Lý do khách từ chối:</div>
+      <div style="font-size:13px;color:var(--text)">"${q.rejectReason}"</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">→ Chỉnh sửa báo giá rồi gửi lại cho khách</div>
+    </div>` : ''}
+
+    <!-- Pending confirm hint -->
+    ${isPending ? `
+    <div style="background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.3);border-radius:9px;padding:11px 14px;margin-bottom:12px;font-size:12px;color:var(--gold-l)">
+      ⏳ Đang chờ khách xác nhận trên portal. Trạng thái sẽ cập nhật tự động khi khách phản hồi.
+    </div>` : ''}
+
+    <!-- Confirmed hint -->
+    ${q.status==='confirmed' ? `
+    <div style="background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.3);border-radius:9px;padding:11px 14px;margin-bottom:12px;font-size:12px;color:var(--green-l)">
+      ✅ Khách đã xác nhận báo giá! Nhấn <strong>"Tạo đơn hàng"</strong> để bắt đầu xử lý.
+    </div>` : ''}
+
+    <!-- Status change (NV cập nhật thủ công nếu cần) -->
     ${q.status !== 'order_created' ? `
     <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <span style="font-size:12px;font-weight:600;color:var(--text2);flex-shrink:0">🔄 Cập nhật trạng thái:</span>
+      <span style="font-size:12px;font-weight:600;color:var(--text2);flex-shrink:0">🔄 Cập nhật thủ công:</span>
       <select id="sq-status-sel" style="background:var(--bg2);border:1.5px solid var(--border2);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12.5px;outline:none;flex:1;min-width:160px">
-        <option value="ready" ${q.status==='ready'?'selected':''}>📋 Đã lập</option>
-        <option value="sent" ${q.status==='sent'?'selected':''}>📤 Đã gửi KH</option>
+        <option value="ready" ${q.status==='ready'?'selected':''}>📋 Đã lập (chưa gửi)</option>
+        <option value="pending_confirm" ${q.status==='pending_confirm'?'selected':''}>⏳ Chờ KH xác nhận</option>
+        <option value="sent" ${q.status==='sent'?'selected':''}>📤 Đã gửi thủ công</option>
         <option value="confirmed" ${q.status==='confirmed'?'selected':''}>✅ KH đã xác nhận</option>
-        <option value="rejected" ${q.status==='rejected'?'selected':''}>❌ KH từ chối / Cần sửa</option>
+        <option value="rejected" ${q.status==='rejected'?'selected':''}>❌ KH từ chối</option>
       </select>
-      <button class="bm bm-p" style="flex-shrink:0" onclick="sqUpdateStatus('${id}', document.getElementById('sq-status-sel').value)">💾 Lưu trạng thái</button>
+      <button class="bm bm-p" style="flex-shrink:0" onclick="sqUpdateStatus('${id}', document.getElementById('sq-status-sel').value)">💾 Lưu TT</button>
     </div>` : ''}
 
     <!-- Action buttons -->
     <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">
       <button class="bm" style="background:#16A34A;color:#fff;border:none" onclick="sqCopy('${id}')">📋 Sao chép</button>
       <button class="bm" style="background:#DC2626;color:#fff;border:none" onclick="sqPrintPDF('${id}')">⬇️ PDF</button>
-      ${canEdit ? `<button class="bm" style="background:rgba(245,158,11,.2);color:var(--gold-l);border:1px solid rgba(245,158,11,.3)" onclick="closeM('order-tasks');sqEditQuote('${id}')">✏️ Sửa / Điều chỉnh báo giá</button>` : ''}
+      ${canEdit ? `<button class="bm" style="background:rgba(245,158,11,.2);color:var(--gold-l);border:1px solid rgba(245,158,11,.3)" onclick="closeM('order-tasks');sqEditQuote('${id}')">✏️ Sửa / Điều chỉnh</button>` : ''}
       ${canOrder ? `<button class="bm bm-g" onclick="closeM('order-tasks');createOrderFromStaffQuote('${id}')">🚀 Tạo đơn hàng</button>` : ''}
       ${q.status==='order_created' ? `<div style="font-size:12px;color:var(--green-l);padding:6px 10px;background:rgba(16,185,129,.08);border-radius:7px;font-weight:600">✅ Đã chuyển thành đơn hàng</div>` : ''}
     </div>
@@ -2438,19 +2434,20 @@ window.renderStaffQuotesFiltered = function() {
     return;
   }
 
-  const statusLabel = {ready:'📋 Đã lập', sent:'📤 Đã gửi', confirmed:'✅ KH xác nhận', order_created:'🚀 Đã tạo đơn'};
-  const statusColor = {ready:'#6B7280', sent:'#2563EB', confirmed:'#059669', order_created:'#8B5CF6'};
+  const statusLabel = {ready:'📋 Đã lập', pending_confirm:'⏳ Chờ KH', sent:'📤 Đã gửi', confirmed:'✅ KH xác nhận', rejected:'❌ KH từ chối', order_created:'🚀 Đã tạo đơn'};
+  const statusColor = {ready:'#6B7280', pending_confirm:'#F59E0B', sent:'#2563EB', confirmed:'#059669', rejected:'#EF4444', order_created:'#8B5CF6'};
 
   tbody.innerHTML = list.map(q => {
     const dt = q.createdAt?.toDate ? q.createdAt.toDate().toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
     const sc = statusColor[q.status] || '#6B7280';
     const sl = statusLabel[q.status] || q.status;
+    const rejectNote = q.status==='rejected' && q.rejectReason ? `<div style="font-size:10.5px;color:var(--red-l);margin-top:2px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${q.rejectReason}">💬 "${q.rejectReason}"</div>` : '';
     return `<tr>
       <td style="font-size:11px;color:var(--text3);white-space:nowrap">${dt}</td>
       <td><div style="font-weight:600">${q.name||'—'}</div><div style="font-size:11px;color:var(--text3)">${q.company||q.phone||''}</div></td>
       <td style="font-size:12px;max-width:180px;color:var(--text2)">${q.services||'—'}</td>
       <td style="font-weight:700;color:var(--gold-l)">${q.grandTotal ? q.grandTotal.toLocaleString('vi-VN')+'đ' : '—'}</td>
-      <td><span style="background:${sc}18;color:${sc};padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700">${sl}</span></td>
+      <td><span style="background:${sc}18;color:${sc};padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700">${sl}</span>${rejectNote}</td>
       <td style="font-size:11.5px;color:var(--text3)">${q.staff||'—'}</td>
       <td>
         <div class="acts">
@@ -2561,9 +2558,11 @@ window.delStaffQuote=async(id)=>{
 };
 window.renderStaffQuotes = function() {
   renderStaffQuotesFiltered();
-  const confirmed = allStaffQuotes.filter(q => q.status === 'confirmed').length;
+  const pending = allStaffQuotes.filter(q => q.status === 'pending_confirm').length;
+  const rejected = allStaffQuotes.filter(q => q.status === 'rejected').length;
+  const attention = pending + rejected;
   const badge = document.getElementById('b-sq');
-  if (badge) { badge.textContent = confirmed; badge.style.display = confirmed ? 'inline' : 'none'; }
+  if (badge) { badge.textContent = attention; badge.style.display = attention ? 'inline' : 'none'; }
 };
 
 </script>
