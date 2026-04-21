@@ -326,7 +326,7 @@ a{text-decoration:none;color:inherit}
 
   <div class="tab-nav">
     <div class="tn on" onclick="showSec('dashboard',this)"><span class="tn-icon">🏠</span>Tổng quan</div>
-    <div class="tn" onclick="showSec('quotes-mine',this)" id="tab-quotes-mine"><span class="tn-icon">💰</span>Báo Giá<span class="tn-badge" id="badge-quotes" style="display:none">0</span></div>
+    <div class="tn" onclick="showSec('quotes-mine',this)" id="tab-quotes-mine"><span class="tn-icon">💰</span>Báo Giá & YC<span class="tn-badge" id="badge-quotes" style="display:none">0</span></div>
     <div class="tn" onclick="showSec('orders',this)"><span class="tn-icon">📋</span>Hồ sơ của tôi</div>
     <div class="tn" onclick="showSec('invoices',this)"><span class="tn-icon">🧾</span>Hóa đơn</div>
     <div class="tn" onclick="showSec('contact',this)"><span class="tn-icon">✏️</span>Yêu cầu mới</div>
@@ -355,9 +355,9 @@ a{text-decoration:none;color:inherit}
 
       <!-- Báo giá chờ xác nhận -->
       <div id="dash-quotes-section" style="display:none;margin-bottom:20px">
-        <h3 style="font-size:16px;font-weight:700;color:#B45309;margin-bottom:10px">⚡ Báo giá chờ xác nhận của bạn</h3>
+        <h3 style="font-size:16px;font-weight:700;color:#B45309;margin-bottom:10px">⚡ Cần xử lý</h3>
         <div id="dash-quotes-list"></div>
-        <button onclick="showSec('quotes-mine',document.getElementById('tab-quotes-mine'))" style="margin-top:6px;background:none;border:none;color:var(--blue3);font-size:13px;font-weight:600;cursor:pointer;padding:0">Xem tất cả báo giá →</button>
+        <button onclick="showSec('quotes-mine',document.getElementById('tab-quotes-mine'))" style="margin-top:6px;background:none;border:none;color:var(--blue3);font-size:13px;font-weight:600;cursor:pointer;padding:0">Xem tất cả báo giá & yêu cầu →</button>
       </div>
 
       <div style="background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border:1px solid #FDE68A;border-radius:var(--r2);padding:20px;display:flex;align-items:center;gap:16px">
@@ -371,8 +371,8 @@ a{text-decoration:none;color:inherit}
 
     <!-- BÁO GIÁ CỦA TÔI -->
     <div class="sec" id="sec-quotes-mine">
-      <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">💰 Báo Giá Của Tôi</h2>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Nhân viên đã lập báo giá cho bạn — vui lòng xem và xác nhận để tiến hành thực hiện</p>
+      <h2 style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px">💰 Báo Giá & Yêu Cầu</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Tất cả yêu cầu đã gửi và báo giá từ nhân viên — xem và xác nhận khi có báo giá</p>
       <div id="my-quotes-list"></div>
     </div>
 
@@ -496,6 +496,28 @@ a{text-decoration:none;color:inherit}
     <div class="mfoot">
       <button class="bm bm-c" onclick="closeM()">Đóng</button>
       <button class="bm bm-p" id="mo-feedback-btn" onclick="showFeedback()" style="display:none">⭐ Đánh giá dịch vụ</button>
+    </div>
+  </div>
+</div>
+
+<!-- REJECT REASON MODAL -->
+<div id="m-reject" style="display:none" class="mo" onclick="if(event.target===this)document.getElementById('m-reject').style.display='none'">
+  <div class="mb" style="max-width:460px">
+    <div class="mh">
+      <h3 style="color:#B91C1C">❌ Từ chối báo giá</h3>
+      <button class="mc" onclick="document.getElementById('m-reject').style.display='none'">×</button>
+    </div>
+    <div class="mbody">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:16px">Vui lòng cho biết lý do để nhân viên điều chỉnh và gửi lại báo giá phù hợp hơn.</p>
+      <div class="fg">
+        <label>Lý do từ chối</label>
+        <textarea id="reject-reason-input" rows="3" placeholder="Ví dụ: Giá quá cao, cần tư vấn thêm, thay đổi dịch vụ..."></textarea>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:8px">Lý do có thể để trống nếu bạn không muốn ghi rõ.</p>
+    </div>
+    <div class="mfoot">
+      <button class="bm bm-c" onclick="document.getElementById('m-reject').style.display='none'">Hủy</button>
+      <button class="bm" style="background:#FEF2F2;color:#B91C1C;border:1.5px solid #FECACA" onclick="submitReject()">❌ Xác nhận từ chối</button>
     </div>
   </div>
 </div>
@@ -678,20 +700,91 @@ onAuthStateChanged(auth,async u=>{
 const S_QUOTES_STATE = {};  // local cache
 
 function loadCustomerQuotes(){
-  const q = query(
-    collection(db,'customer_quotes'),
-    where('customerUid','==',S.user.uid),
-    orderBy('createdAt','desc')
+  // Khởi null để biết snapshot nào chưa về
+  S_QUOTES_STATE.staffQuotes   = null;
+  S_QUOTES_STATE.inboundQuotes = null;
+
+  // 1. customer_quotes — báo giá do nhân viên lập & gửi lên portal
+  onSnapshot(
+    query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc')),
+    snap => {
+      console.log('[customer_quotes] docs:', snap.docs.length);
+      S_QUOTES_STATE.staffQuotes = snap.docs.map(d=>({id:d.id, ...d.data(), _src:'staff'}));
+      _mergeAndRenderQuotes();
+    },
+    err => {
+      console.error('[customer_quotes] ERROR:', err.code, err.message);
+      // Nếu lỗi index: thử query không orderBy
+      onSnapshot(
+        query(collection(db,'customer_quotes'), where('customerUid','==',S.user.uid)),
+        snap2 => {
+          console.log('[customer_quotes fallback] docs:', snap2.docs.length);
+          S_QUOTES_STATE.staffQuotes = snap2.docs.map(d=>({id:d.id, ...d.data(), _src:'staff'}))
+            .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+          _mergeAndRenderQuotes();
+        },
+        err2 => {
+          console.error('[customer_quotes fallback] ERROR:', err2.code, err2.message);
+          S_QUOTES_STATE.staffQuotes = [];
+          _mergeAndRenderQuotes();
+        }
+      );
+    }
   );
-  onSnapshot(q, snap => {
-    S_QUOTES_STATE.list = snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderMyQuotes();
-    renderDashQuotes();
-    // Badge
-    const pending = S_QUOTES_STATE.list.filter(q=>q.status==='pending_confirm').length;
-    const badge = document.getElementById('badge-quotes');
-    if(badge){ badge.textContent=pending; badge.style.display=pending?'inline-flex':'none'; }
-  });
+
+  // 2. quotes — yêu cầu báo giá khách đã gửi qua portal
+  onSnapshot(
+    query(collection(db,'quotes'), where('customerUid','==',S.user.uid), orderBy('createdAt','desc')),
+    snap => {
+      console.log('[quotes] docs:', snap.docs.length);
+      S_QUOTES_STATE.inboundQuotes = snap.docs.map(d=>({id:d.id, ...d.data(), _src:'inbound'}));
+      _mergeAndRenderQuotes();
+    },
+    err => {
+      console.error('[quotes] ERROR:', err.code, err.message);
+      // Nếu lỗi index: thử query không orderBy
+      onSnapshot(
+        query(collection(db,'quotes'), where('customerUid','==',S.user.uid)),
+        snap2 => {
+          console.log('[quotes fallback] docs:', snap2.docs.length);
+          S_QUOTES_STATE.inboundQuotes = snap2.docs.map(d=>({id:d.id, ...d.data(), _src:'inbound'}))
+            .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+          _mergeAndRenderQuotes();
+        },
+        err2 => {
+          console.error('[quotes fallback] ERROR:', err2.code, err2.message);
+          S_QUOTES_STATE.inboundQuotes = [];
+          _mergeAndRenderQuotes();
+        }
+      );
+    }
+  );
+}
+
+function _mergeAndRenderQuotes(){
+  // Chờ cả 2 snapshot đều về (không còn null) mới render
+  if(S_QUOTES_STATE.staffQuotes === null || S_QUOTES_STATE.inboundQuotes === null) return;
+
+  const staffList   = S_QUOTES_STATE.staffQuotes;
+  const inboundList = S_QUOTES_STATE.inboundQuotes;
+
+  // Lọc inbound: ẩn những yêu cầu đã có staff_quote liên kết (tránh hiện trùng)
+  const linkedQuoteIds = new Set(staffList.map(q => q.linkedQuoteId).filter(Boolean));
+  const pendingInbound = inboundList.filter(q => !linkedQuoteIds.has(q.id));
+
+  // Gộp: staff quotes trước (có báo giá), inbound chưa có báo giá sau
+  S_QUOTES_STATE.list = [...staffList, ...pendingInbound];
+
+  renderMyQuotes();
+  renderDashQuotes();
+
+  // Badge: chỉ đếm pending_confirm (cần khách xác nhận)
+  const pendingConfirm = staffList.filter(q=>q.status==='pending_confirm').length;
+  const badge = document.getElementById('badge-quotes');
+  if(badge){
+    badge.textContent = pendingConfirm;
+    badge.style.display = pendingConfirm ? 'inline-flex' : 'none';
+  }
 }
 
 function renderMyQuotes(){
@@ -699,20 +792,48 @@ function renderMyQuotes(){
   if(!el) return;
   const list = S_QUOTES_STATE.list || [];
   if(!list.length){
-    el.innerHTML=`<div class="empty"><div class="ei">📋</div><h3>Chưa có báo giá nào</h3><p>Khi nhân viên lập báo giá cho bạn, nó sẽ xuất hiện ở đây</p></div>`;
+    el.innerHTML=`<div class="empty"><div class="ei">📋</div><h3>Chưa có yêu cầu nào</h3><p>Nhấn "Yêu cầu mới" để gửi yêu cầu báo giá đầu tiên</p></div>`;
     return;
   }
-  el.innerHTML = list.map(q => quoteCard(q, false)).join('');
+  el.innerHTML = list.map(q => q._src==='inbound' ? inboundCard(q) : quoteCard(q, false)).join('');
 }
 
 function renderDashQuotes(){
-  const list = (S_QUOTES_STATE.list||[]).filter(q=>q.status==='pending_confirm');
+  const staffList = (S_QUOTES_STATE.staffQuotes||[]).filter(q=>q.status==='pending_confirm');
+  const inboundWaiting = (S_QUOTES_STATE.inboundQuotes||[]).filter(q=>q.status==='new'||q.status==='quoted');
+  const linkedIds = new Set((S_QUOTES_STATE.staffQuotes||[]).map(q=>q.linkedQuoteId).filter(Boolean));
+  const pendingInbound = inboundWaiting.filter(q=>!linkedIds.has(q.id));
+
+  const showList = [...staffList.slice(0,2), ...pendingInbound.slice(0,1)];
   const sec = document.getElementById('dash-quotes-section');
   const el  = document.getElementById('dash-quotes-list');
   if(!sec||!el) return;
-  if(!list.length){ sec.style.display='none'; return; }
+  if(!showList.length){ sec.style.display='none'; return; }
   sec.style.display='block';
-  el.innerHTML = list.slice(0,2).map(q=>quoteCard(q,true)).join('');
+  el.innerHTML = showList.map(q => q._src==='inbound' ? inboundCard(q, true) : quoteCard(q, true)).join('');
+}
+
+// Card cho yêu cầu khách đã gửi, đang chờ nhân viên lập báo giá
+function inboundCard(q, mini){
+  const statusMap = { new:'⏳ Chờ báo giá', quoted:'📝 Đang xử lý', cancelled:'❌ Đã hủy' };
+  const sl = statusMap[q.status] || '⏳ Chờ báo giá';
+  const bgCol = q.status==='new' ? '#FEF9C3' : '#F0FDF4';
+  const txCol = q.status==='new' ? '#B45309' : '#065F46';
+  const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
+  return `<div class="quote-card" style="border-color:#E2E8F0">
+    <div class="qc-head">
+      <div>
+        <div class="qc-title">📤 Yêu cầu báo giá</div>
+        <div class="qc-sub">${q.services||'—'}</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Gửi lúc: ${dt}${q.deadline&&q.deadline!=='Càng sớm càng tốt'?` · Deadline: <strong>${q.deadline}</strong>`:''}</div>
+      </div>
+      <span style="background:${bgCol};color:${txCol};padding:3px 10px;border-radius:10px;font-size:11.5px;font-weight:700;flex-shrink:0;align-self:flex-start">${sl}</span>
+    </div>
+    ${!mini&&q.note?`<div style="font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);margin-top:6px">📝 Ghi chú: ${q.note}</div>`:''}
+    <div style="margin-top:10px;font-size:12px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)">
+      Nhân viên đang xem xét yêu cầu — báo giá sẽ xuất hiện ở đây khi hoàn tất.
+    </div>
+  </div>`;
 }
 
 function quoteCard(q, mini){
@@ -731,6 +852,7 @@ function quoteCard(q, mini){
   const sl = statusMap[q.status] || q.status;
   const sc = statusClass[q.status] || '';
   const isPending = q.status === 'pending_confirm';
+  const isRejected = q.status === 'rejected';
   const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
 
   return `<div class="quote-card ${sc}">
@@ -747,6 +869,11 @@ function quoteCard(q, mini){
         </div>
       </div>
     </div>
+    ${isRejected && q.rejectReason ? `
+    <div style="background:#FFF1F2;border:1px solid #FECACA;border-radius:8px;padding:9px 12px;margin-bottom:8px;font-size:12.5px;color:#B91C1C">
+      💬 Lý do từ chối: <em>"${q.rejectReason}"</em><br>
+      <span style="font-size:11.5px;color:var(--text3);margin-top:3px;display:block">Nhân viên sẽ liên hệ để điều chỉnh và gửi lại báo giá.</span>
+    </div>` : ''}
     ${!mini?`
     <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:6px 0">
       <span>💰 Dịch vụ: <strong>${fm(q.subTotal||0)}</strong></span>
@@ -766,15 +893,24 @@ window.viewQuoteDetail = function(id){
   const q = (S_QUOTES_STATE.list||[]).find(x=>x.id===id);
   if(!q) return;
   const isPending = q.status==='pending_confirm';
+  const isRejected = q.status==='rejected';
   document.getElementById('mq-title').textContent = '💰 Chi tiết báo giá';
   document.getElementById('mq-body').innerHTML = `
     <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:12px;padding:14px 16px;margin-bottom:16px">
       <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:4px">📋 Thông tin báo giá</div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
         <div style="font-size:13px;color:var(--text2)">Nhân viên: <strong>${q.staff||'Admin'}</strong></div>
         <div style="font-size:13px;color:var(--text2)">Ngày: <strong>${q.quotedAt||'—'}</strong></div>
+        <div style="font-size:12px;padding:3px 10px;border-radius:10px;font-weight:700;background:${isPending?'#FEF3C7':q.status==='confirmed'?'#D1FAE5':'#FEE2E2'};color:${isPending?'#B45309':q.status==='confirmed'?'#065F46':'#B91C1C'}">
+          ${isPending?'⏳ Chờ xác nhận':q.status==='confirmed'?'✅ Đã xác nhận':isRejected?'❌ Đã từ chối':'📤 Đã gửi'}
+        </div>
       </div>
     </div>
+    ${isRejected && q.rejectReason ? `
+    <div style="background:#FFF1F2;border:1.5px solid #FECACA;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#B91C1C">
+      <strong>Lý do từ chối:</strong> "${q.rejectReason}"<br>
+      <span style="font-size:12px;color:var(--text3);margin-top:4px;display:block">Nhân viên sẽ liên hệ và gửi lại báo giá điều chỉnh.</span>
+    </div>` : ''}
     <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;margin-bottom:14px">
       <div style="background:#F3F4F6;padding:7px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)">
         <span style="width:9px;height:9px;border-radius:50%;background:#EF4444;display:inline-block"></span>
@@ -800,7 +936,7 @@ window.confirmQuote = async function(id){
     await updateDoc(doc(db,'customer_quotes',id),{status:'confirmed',confirmedAt:serverTimestamp()});
     // Cập nhật staff_quote tương ứng
     if(q.staffQuoteId){
-      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{status:'confirmed',confirmedAt:serverTimestamp()});
+      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{status:'confirmed',confirmedAt:serverTimestamp(),updatedAt:serverTimestamp()});
     }
     notif('✅ Đã xác nhận báo giá! Nhân viên sẽ liên hệ bạn ngay để tiến hành.','ok',7000);
     showSec('quotes-mine',document.getElementById('tab-quotes-mine'));
@@ -809,17 +945,29 @@ window.confirmQuote = async function(id){
   }
 };
 
-window.rejectQuote = async function(id){
-  const reason = prompt('Lý do từ chối (tuỳ chọn):');
-  if(reason===null) return; // bấm Cancel
-  try{
-    await updateDoc(doc(db,'customer_quotes',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectReason:reason||''});
+let _rejectQuoteId = null;
+
+window.rejectQuote = function(id) {
+  _rejectQuoteId = id;
+  const input = document.getElementById('reject-reason-input');
+  if (input) input.value = '';
+  document.getElementById('m-reject').style.display = 'flex';
+};
+
+window.submitReject = async function() {
+  const id = _rejectQuoteId;
+  if (!id) return;
+  const reason = (document.getElementById('reject-reason-input')?.value || '').trim();
+  document.getElementById('m-reject').style.display = 'none';
+  try {
+    await updateDoc(doc(db,'customer_quotes',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectReason:reason});
     const q = (S_QUOTES_STATE.list||[]).find(x=>x.id===id);
-    if(q?.staffQuoteId){
-      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{status:'rejected',rejectReason:reason||''});
+    if (q?.staffQuoteId) {
+      await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{status:'rejected',rejectReason:reason,updatedAt:serverTimestamp()});
     }
-    notif('Đã gửi phản hồi. Nhân viên sẽ liên hệ để điều chỉnh báo giá.','in',6000);
-  }catch(e){
+    _rejectQuoteId = null;
+    notif('Đã từ chối báo giá. Nhân viên sẽ liên hệ để điều chỉnh và gửi lại.','in',6000);
+  } catch(e) {
     notif('❌ Có lỗi: '+e.message,'er');
   }
 };
@@ -1040,9 +1188,7 @@ window.sendRequest=async()=>{
   };
   try{
     await addDoc(collection(db,'quotes'),data);
-    suc.textContent='✅ Đã gửi yêu cầu báo giá! Chúng tôi sẽ liên hệ trong 5–15 phút.';
-    suc.style.display='block';
-    // Reset
+    // Reset form
     BQ_SERVICES.forEach(s=>{
       const cb=document.getElementById('bq-cb-'+s.id);
       const wrap=document.getElementById('bq-wrap-'+s.id);
@@ -1059,6 +1205,10 @@ window.sendRequest=async()=>{
     window._bqFiles=[];
     document.getElementById('bq-upload-list').innerHTML='';
     document.getElementById('bq-gdrive-tip').style.display='none';
+    // Chuyển sang tab Báo Giá để khách thấy yêu cầu vừa gửi
+    const qTab = document.getElementById('tab-quotes-mine');
+    showSec('quotes-mine', qTab);
+    notif('✅ Đã gửi yêu cầu báo giá! Nhân viên sẽ liên hệ trong 5–15 phút.','ok',6000);
   }catch(e){
     err.textContent='❌ Có lỗi xảy ra, vui lòng thử lại hoặc liên hệ qua chat.';
     err.style.display='block';
