@@ -853,9 +853,10 @@ tbody td{padding:11px 14px;font-size:13px}
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getFirestore,collection,addDoc,getDocs,setDoc,updateDoc,deleteDoc,doc,query,orderBy,onSnapshot,serverTimestamp,getDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const cfg={apiKey:"AIzaSyCkyAJJm-kj6JReuGOcy1kj3RHn5hqRWwo",authDomain:"sohoa-baafc.firebaseapp.com",projectId:"sohoa-baafc",storageBucket:"sohoa-baafc.firebasestorage.app",messagingSenderId:"523020863823",appId:"1:523020863823:web:6634451caa743ef5dddd3a"};
-const fb=initializeApp(cfg);const db=getFirestore(fb);const auth=getAuth(fb);
+const fb=initializeApp(cfg);const db=getFirestore(fb);const auth=getAuth(fb);const storage=getStorage(fb);
 
 const S={user:null,role:'admin',orders:[],leads:[],invoices:[],activity:[],users:[],customers:[],fOrd:'all',fInv:'all',cfg:{labor:15000000,ops:5000000,vat:8}};
 const SL={new:'Mới',quoted:'Báo giá',confirmed:'Xác nhận',processing:'Đang thực hiện',done:'Hoàn thành',delivered:'Đã giao hàng',invoiced:'Xuất HĐ',paid:'Đã thu',cancelled:'Hủy'};
@@ -1560,9 +1561,10 @@ window.renderQuotes = function() {
   tbody.innerHTML = list.map(q => {
     const dt = q.createdAt?.toDate ? q.createdAt.toDate().toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
     const statusColor = QS_COLOR[q.status] || '#6B7280';
-    const hasFile = q.fileNames || q.gdriveLink;
+    const fileCount = (Array.isArray(q.fileUrls) && q.fileUrls.length) ? q.fileUrls.length : (q.fileNames ? q.fileNames.split(',').filter(Boolean).length : 0);
+    const hasFile = fileCount > 0 || q.gdriveLink;
     const fileHtml = hasFile
-      ? `<span style="font-size:11px;color:var(--blue-ll)" title="${q.fileNames||''}${q.gdriveLink?'\nGDrive: '+q.gdriveLink:''}">${q.fileNames ? '📎 '+q.fileNames.split(',').length+' file' : ''}${q.gdriveLink ? ' 📁 GDrive' : ''}</span>`
+      ? `<span style="font-size:11px;color:var(--blue-ll)">${fileCount > 0 ? '⬇️ '+fileCount+' file' : ''}${q.gdriveLink ? ' 📁 GDrive' : ''}</span>`
       : '<span style="color:var(--text3);font-size:11px">—</span>';
     return `<tr>
       <td style="font-size:11px;color:var(--text3);white-space:nowrap">${dt}</td>
@@ -1605,7 +1607,21 @@ window.openQuoteDetail = function(id) {
         <div style="color:var(--text2)">${q.delivery||'—'}</div>
         ${q.deliveryAddr?`<div style="font-size:13px;color:var(--text2);margin-top:4px">📍 ${q.deliveryAddr}</div>`:''}
       </div>
-      ${q.fileNames?`<div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:6px">Files đính kèm</div><div style="color:var(--green-l)">📎 ${q.fileNames}</div></div>`:''}
+      ${(()=>{
+        // fileUrls: [{name,url,size}] — từ Firebase Storage (mới)
+        // fileNames: string — fallback cũ (chỉ tên, không có link)
+        const urls = Array.isArray(q.fileUrls) && q.fileUrls.length ? q.fileUrls : [];
+        const names = q.fileNames && !urls.length ? q.fileNames : '';
+        if (!urls.length && !names && !q.gdriveLink) return '';
+        let html = '<div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:8px">📎 Tài liệu đính kèm</div>';
+        if (urls.length) {
+          html += urls.map(f=>`<div style="margin-bottom:6px"><a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:7px;color:#1D4ED8;font-size:13px;font-weight:600;text-decoration:none">⬇️ ${f.name} <span style="font-size:11px;color:#64748B;font-weight:400">(${f.size?(f.size/1024).toFixed(0)+'KB':''})</span></a></div>`).join('');
+        } else if (names) {
+          html += `<div style="color:var(--text2);font-size:13px">📎 ${names}<br><span style="font-size:11px;color:var(--text3);font-style:italic">⚠️ File cũ — chưa có link tải (khách gửi trước khi cập nhật)</span></div>`;
+        }
+        html += '</div>';
+        return html;
+      })()}
       ${q.gdriveLink?`<div style="background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:6px">Google Drive</div><a href="${q.gdriveLink}" target="_blank" style="color:var(--blue-ll);word-break:break-all">📁 ${q.gdriveLink}</a></div>`:''}
       ${q.note?`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:3px">Ghi chú</div><div style="color:var(--text2)">${q.note}</div></div>`:''}
       <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
@@ -2475,26 +2491,61 @@ window.viewOrderWithTasks = function(id) {
     </div>
     ${tasks.length ? `<div class="tab-pane" id="ot-tab2">${tasksHtml}</div>` : ''}
     <div class="tab-pane" id="ot-tab-docs">
+      <!-- PHẦN 1: Tài liệu khách gửi kèm yêu cầu gốc -->
       <div class="dc">
-        <h4>📎 Tài liệu khách gốc</h4>
-        ${o.gdriveLink
-          ? `<div style="margin-top:8px"><a href="${o.gdriveLink}" target="_blank" style="color:var(--blue-ll);word-break:break-all;font-size:13px">📁 ${o.gdriveLink}</a></div>`
-          : `<p style="font-size:12.5px;color:var(--text3);margin-top:6px;font-style:italic">Khách chưa đính kèm link tài liệu.</p>`}
-        ${o.fileNames ? `<div style="margin-top:8px;font-size:12.5px;color:var(--text2)">📎 ${o.fileNames}</div>` : ''}
+        <h4>📎 Tài liệu khách gửi kèm</h4>
+        ${(()=>{
+          const urls = Array.isArray(o.fileUrls) && o.fileUrls.length ? o.fileUrls : [];
+          const names = o.fileNames && !urls.length ? o.fileNames : '';
+          if (!urls.length && !names && !o.gdriveLink) return '<p style="font-size:12.5px;color:var(--text3);margin-top:6px;font-style:italic">Khách chưa đính kèm tài liệu.</p>';
+          let h = '';
+          if (urls.length) h += urls.map(f=>`<div style="margin-bottom:6px"><a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:7px;color:#1D4ED8;font-size:13px;font-weight:600;text-decoration:none">⬇️ ${f.name}<span style="font-size:11px;color:#64748B;font-weight:400;margin-left:4px">${f.size?(f.size/1024).toFixed(0)+'KB':''}</span></a></div>`).join('');
+          if (names) h += `<div style="font-size:12.5px;color:var(--text2);margin-top:4px">📎 ${names}</div>`;
+          if (o.gdriveLink) h += `<div style="margin-top:8px"><a href="${o.gdriveLink}" target="_blank" style="color:var(--blue-ll);word-break:break-all;font-size:13px">📁 ${o.gdriveLink}</a></div>`;
+          return h;
+        })()}
       </div>
+
+      <!-- PHẦN 2: Nhân viên upload tài liệu hoàn thành -->
       <div class="dc" style="margin-top:12px">
-        <h4>📤 Tài liệu hoàn thành (Nhân viên nộp)</h4>
-        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
-          <input id="ot-result-link" placeholder="Dán link Google Drive / Firebase Storage tài liệu đã xong..."
-            value="${o.resultDriveLink||''}"
-            style="flex:1;padding:8px 11px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;font-family:'Be Vietnam Pro',sans-serif">
-          <button onclick="saveOrderResultLink('${o.id}')" class="btn btn-g" style="flex-shrink:0">💾 Lưu</button>
+        <h4>📤 Tài liệu hoàn thành — Nhân viên nộp lên</h4>
+
+        <!-- Files đã nộp -->
+        <div id="ot-result-files-list" style="margin-top:8px">
+          ${(()=>{
+            const rf = Array.isArray(o.resultFiles) && o.resultFiles.length ? o.resultFiles : [];
+            if (!rf.length && !o.resultDriveLink) return '<p style="font-size:12px;color:var(--text3);font-style:italic">Chưa có tài liệu kết quả.</p>';
+            let h = '';
+            if (rf.length) h += rf.map((f,i)=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;padding:7px 10px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:8px"><a href="${f.url}" target="_blank" download="${f.name}" style="flex:1;color:#065F46;font-size:13px;font-weight:600;text-decoration:none">✅ ${f.name} <span style="font-size:11px;color:#64748B;font-weight:400">${f.size?(f.size/1024).toFixed(0)+'KB':''}</span></a><button onclick="removeResultFile('${o.id}',${i})" style="background:rgba(239,68,68,.12);border:none;color:var(--red-l);border-radius:5px;padding:2px 7px;font-size:12px;cursor:pointer">✕</button></div>`).join('');
+            if (o.resultDriveLink) h += `<div style="margin-top:6px"><a href="${o.resultDriveLink}" target="_blank" style="color:var(--green-l);font-size:12.5px;word-break:break-all">🔗 ${o.resultDriveLink}</a></div>`;
+            return h;
+          })()}
         </div>
-        ${o.resultDriveLink
-          ? `<div style="margin-top:8px"><a href="${o.resultDriveLink}" target="_blank" style="color:var(--green-l);font-size:12.5px;word-break:break-all">✅ ${o.resultDriveLink}</a></div>`
-          : '<p style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic">Chưa có link kết quả.</p>'}
-        <div style="margin-top:10px;padding:10px 12px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:7px;font-size:12px;color:var(--text2)">
-          💡 Sau khi lưu link, khách hàng sẽ thấy link này trong tab <strong>Tài liệu</strong> của đơn hàng trên Portal.
+
+        <!-- Upload file mới -->
+        <div style="margin-top:10px;border:2px dashed var(--border2);border-radius:9px;padding:12px;background:var(--bg3)">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">⬆️ Upload file tài liệu đã dịch xong</div>
+          <input type="file" id="ot-result-file-input" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip,.rar,.xlsx,.xls"
+            style="display:block;font-size:12.5px;color:var(--text2);margin-bottom:8px;width:100%">
+          <button onclick="uploadResultFiles('${o.id}')" class="btn btn-g" style="width:100%;justify-content:center;padding:9px">
+            ⬆️ Upload & Lưu — Khách sẽ thấy ngay
+          </button>
+          <div id="ot-upload-progress" style="display:none;margin-top:8px;font-size:12px;color:var(--blue-ll);text-align:center"></div>
+        </div>
+
+        <!-- Hoặc dán link Drive -->
+        <div style="margin-top:10px">
+          <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Hoặc dán link Drive / Cloud</div>
+          <div style="display:flex;gap:7px">
+            <input id="ot-result-link" placeholder="https://drive.google.com/..."
+              value="${o.resultDriveLink||''}"
+              style="flex:1;padding:8px 11px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;font-family:'Be Vietnam Pro',sans-serif">
+            <button onclick="saveOrderResultLink('${o.id}')" class="btn btn-g" style="flex-shrink:0">💾 Lưu link</button>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;padding:9px 12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:7px;font-size:12px;color:var(--text2)">
+          💡 File upload hoặc link lưu xong → <strong>khách thấy ngay</strong> trong tab Tài liệu trên Portal. Không cần gửi email hay Zalo thêm.
         </div>
       </div>
     </div>
@@ -2518,15 +2569,61 @@ window.viewOrderWithTasks = function(id) {
 
 window.saveOrderResultLink = async function(orderId) {
   const link = document.getElementById('ot-result-link')?.value.trim();
-  if (!link) { notif('⚠️ Vui lòng dán link tài liệu trước khi lưu.', 'er'); return; }
+  if (!link) { notif('⚠️ Vui lòng dán link trước khi lưu.', 'er'); return; }
   try {
     const { doc: dRef, updateDoc: upDoc } = await getFSMod();
     await upDoc(dRef(db, 'orders', orderId), { resultDriveLink: link, updatedAt: serverTimestamp() });
     const o = S.orders.find(x => x.id === orderId);
     if (o) o.resultDriveLink = link;
-    notif('✅ Đã lưu link tài liệu kết quả! Khách hàng sẽ thấy trong Portal.', 'ok', 5000);
-    await log('📎 Nộp tài liệu kết quả', `Đơn ${o?.orderId||orderId} — ${link}`, 'g');
-    // Re-render tab để cập nhật link hiển thị
+    notif('✅ Đã lưu link! Khách hàng thấy ngay trên Portal.', 'ok', 5000);
+    await log('📎 Nộp link tài liệu kết quả', `Đơn ${o?.orderId||orderId}`, 'g');
+    viewOrderWithTasks(orderId);
+  } catch(e) { notif('❌ Lỗi: ' + e.message, 'er'); }
+};
+
+window.uploadResultFiles = async function(orderId) {
+  const input = document.getElementById('ot-result-file-input');
+  const files = Array.from(input?.files || []);
+  if (!files.length) { notif('⚠️ Vui lòng chọn file cần upload.', 'er'); return; }
+  const prog = document.getElementById('ot-upload-progress');
+  prog.style.display = 'block';
+  try {
+    const o = S.orders.find(x => x.id === orderId);
+    const existing = Array.isArray(o?.resultFiles) ? [...o.resultFiles] : [];
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      prog.textContent = `⏳ Đang upload ${i+1}/${files.length}: ${f.name}...`;
+      const safeName = Date.now() + '_' + f.name.replace(/[^a-zA-Z0-9._\-]/g, '_');
+      const path = `order-results/${orderId}/${safeName}`;
+      const fRef = storageRef(storage, path);
+      await uploadBytes(fRef, f);
+      const url = await getDownloadURL(fRef);
+      existing.push({ name: f.name, url, size: f.size, uploadedAt: new Date().toISOString() });
+    }
+    const { doc: dRef, updateDoc: upDoc } = await getFSMod();
+    await upDoc(dRef(db, 'orders', orderId), { resultFiles: existing, updatedAt: serverTimestamp() });
+    if (o) o.resultFiles = existing;
+    prog.style.display = 'none';
+    input.value = '';
+    notif(`✅ Đã upload ${files.length} file! Khách hàng thấy ngay trên Portal.`, 'ok', 6000);
+    await log('📤 Upload tài liệu kết quả', `Đơn ${o?.orderId||orderId} — ${files.map(f=>f.name).join(', ')}`, 'g');
+    viewOrderWithTasks(orderId);
+  } catch(e) {
+    prog.style.display = 'none';
+    notif('❌ Lỗi upload: ' + e.message, 'er');
+  }
+};
+
+window.removeResultFile = async function(orderId, index) {
+  if (!confirm('Xoá file này khỏi đơn hàng?')) return;
+  try {
+    const o = S.orders.find(x => x.id === orderId);
+    const existing = Array.isArray(o?.resultFiles) ? [...o.resultFiles] : [];
+    existing.splice(index, 1);
+    const { doc: dRef, updateDoc: upDoc } = await getFSMod();
+    await upDoc(dRef(db, 'orders', orderId), { resultFiles: existing, updatedAt: serverTimestamp() });
+    if (o) o.resultFiles = existing;
+    notif('🗑️ Đã xoá file.', 'in', 3000);
     viewOrderWithTasks(orderId);
   } catch(e) { notif('❌ Lỗi: ' + e.message, 'er'); }
 };
