@@ -700,6 +700,7 @@ tbody td{padding:11px 14px;font-size:13px}
     <div class="mbody">
       <div class="tab-bar">
         <button class="tab-btn on" onclick="switchTab(this,'qb-tab1')">1️⃣ Thông tin & Dịch vụ</button>
+        <button class="tab-btn" onclick="switchTab(this,'qb-tab-docs')">📎 Tài liệu khách</button>
         <button class="tab-btn" onclick="switchTab(this,'qb-tab2')">2️⃣ Xem trước & Gửi</button>
       </div>
 
@@ -777,6 +778,22 @@ tbody td{padding:11px 14px;font-size:13px}
             <div class="qb-total-row grand"><span>Tổng giá trị hợp đồng</span><span id="qb-grand-total">0đ</span></div>
             <div class="qb-total-row" style="margin-top:8px"><span style="color:var(--blue-ll)">Tiền cọc cần chuyển</span><span id="qb-dep-show" style="font-weight:700;color:var(--blue-ll)">0đ</span></div>
           </div>
+        </div>
+      </div>
+
+      <!-- TAB DOCS: Tài liệu khách -->
+      <div class="tab-pane" id="qb-tab-docs">
+        <div class="sdiv" style="margin-top:4px">📎 Tài liệu khách gửi kèm yêu cầu</div>
+        <div id="qb-client-docs-display" style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:14px">
+          <p style="font-size:12.5px;color:var(--text3);font-style:italic">Chưa có tài liệu đính kèm từ yêu cầu khách.</p>
+        </div>
+        <div class="sdiv">📁 Link tài liệu bổ sung / kết quả (Google Drive, Dropbox…)</div>
+        <div class="fg">
+          <label>Link Drive tài liệu đầu vào</label>
+          <input id="qb-extra-drive" placeholder="https://drive.google.com/drive/folders/..." style="width:100%;padding:9px 11px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;transition:border .2s;font-family:'Be Vietnam Pro',sans-serif">
+        </div>
+        <div style="margin-top:8px;padding:10px 14px;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);border-radius:8px;font-size:12px;color:var(--text2)">
+          💡 <strong>Hướng dẫn:</strong> Dán link Google Drive folder vào ô trên. Link này sẽ được lưu cùng báo giá và đơn hàng để cả nhân viên và khách đều truy cập được. Đảm bảo Drive folder đã bật <em>"Anyone with the link can view"</em>.
         </div>
       </div>
 
@@ -1756,6 +1773,24 @@ window.openQuoteBuilder = function(quoteId) {
         </div>`;
       }
 
+      // Render tài liệu khách vào tab 📎
+      const docDisplay = document.getElementById('qb-client-docs-display');
+      if (docDisplay) {
+        const hasDrive = q.gdriveLink;
+        const hasFiles = q.fileNames;
+        if (hasDrive || hasFiles) {
+          docDisplay.innerHTML = `
+            ${hasDrive ? `<div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📁 Google Drive</div><a href="${q.gdriveLink}" target="_blank" style="color:var(--blue-ll);word-break:break-all;font-size:13px">${q.gdriveLink}</a></div>` : ''}
+            ${hasFiles ? `<div><div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📎 File đính kèm</div><div style="font-size:13px;color:var(--text2)">${q.fileNames}</div></div>` : ''}
+          `;
+          // Auto-fill ô link drive nếu có
+          const extraDrive = document.getElementById('qb-extra-drive');
+          if (extraDrive && q.gdriveLink) extraDrive.value = q.gdriveLink;
+        } else {
+          docDisplay.innerHTML = '<p style="font-size:12.5px;color:var(--text3);font-style:italic">Khách chưa đính kèm tài liệu trong yêu cầu này.</p>';
+        }
+      }
+
       qbCalcTotal();
     }
   }
@@ -2057,6 +2092,7 @@ window.qbSendToCustomer = async function() {
     bankOwner: _qbData.bankOwner,
     staff: _qbData.staff,
     quotedAt: _qbData.dateStr,
+    gdriveLink: document.getElementById('qb-extra-drive')?.value.trim() || '',
     status: hasPortalCustomer ? 'pending_confirm' : 'ready',
     linkedQuoteId: _qbQuoteId || null,
     customerUid: customerUid,
@@ -2207,6 +2243,14 @@ function _renderSQModal(id) {
       ${q.status==='order_created' ? `<div style="font-size:12px;color:var(--green-l);padding:6px 10px;background:rgba(16,185,129,.08);border-radius:7px;font-weight:600">✅ Đã chuyển thành đơn hàng</div>` : ''}
     </div>
 
+    <!-- Tài liệu khách -->
+    ${(q.gdriveLink||q.fileNames) ? `
+    <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:9px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📎 Tài liệu khách đính kèm</div>
+      ${q.gdriveLink?`<div style="margin-bottom:5px"><a href="${q.gdriveLink}" target="_blank" style="color:var(--blue-ll);font-size:13px;word-break:break-all">📁 ${q.gdriveLink}</a></div>`:''}
+      ${q.fileNames?`<div style="font-size:12.5px;color:var(--text2)">📎 ${q.fileNames}</div>`:''}
+    </div>` : ''}
+
     <!-- Quote preview -->
     <div style="border:1px solid #D1D5DB;border-radius:10px;overflow:hidden;background:#fff">
       <div style="background:#F3F4F6;padding:7px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB">
@@ -2335,6 +2379,7 @@ window.createOrderFromStaffQuote = async function(id) {
     company: sq.company || '',
     phone: sq.phone || '',
     email: sq.email || '',
+    customerEmail: sq.email || '',
     customerUid: sq.customerUid || null,
     service: sq.services || '',
     total: sq.grandTotal || 0,
@@ -2343,6 +2388,8 @@ window.createOrderFromStaffQuote = async function(id) {
     deposit: sq.deposit || 0,
     tasks: JSON.stringify(tasks),
     staffQuoteId: id,
+    gdriveLink: sq.gdriveLink || '',
+    fileNames: sq.fileNames || '',
     staff: sq.staff || 'Admin',
     status: 'confirmed',
     channel: 'Báo giá nội bộ',
@@ -2406,6 +2453,7 @@ window.viewOrderWithTasks = function(id) {
     <div class="tab-bar">
       <button class="tab-btn on" onclick="switchTab(this,'ot-tab1')">📋 Thông tin</button>
       ${tasks.length ? '<button class="tab-btn" onclick="switchTab(this,\'ot-tab2\')">✅ Tác vụ</button>' : ''}
+      <button class="tab-btn" onclick="switchTab(this,'ot-tab-docs')">📎 Tài liệu</button>
       <button class="tab-btn" onclick="switchTab(this,'ot-tab3')">🕐 Lịch sử (${logs.length})</button>
     </div>
     <div class="tab-pane on" id="ot-tab1">
@@ -2426,6 +2474,30 @@ window.viewOrderWithTasks = function(id) {
       </div>
     </div>
     ${tasks.length ? `<div class="tab-pane" id="ot-tab2">${tasksHtml}</div>` : ''}
+    <div class="tab-pane" id="ot-tab-docs">
+      <div class="dc">
+        <h4>📎 Tài liệu khách gốc</h4>
+        ${o.gdriveLink
+          ? `<div style="margin-top:8px"><a href="${o.gdriveLink}" target="_blank" style="color:var(--blue-ll);word-break:break-all;font-size:13px">📁 ${o.gdriveLink}</a></div>`
+          : `<p style="font-size:12.5px;color:var(--text3);margin-top:6px;font-style:italic">Khách chưa đính kèm link tài liệu.</p>`}
+        ${o.fileNames ? `<div style="margin-top:8px;font-size:12.5px;color:var(--text2)">📎 ${o.fileNames}</div>` : ''}
+      </div>
+      <div class="dc" style="margin-top:12px">
+        <h4>📤 Tài liệu hoàn thành (Nhân viên nộp)</h4>
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+          <input id="ot-result-link" placeholder="Dán link Google Drive / Firebase Storage tài liệu đã xong..."
+            value="${o.resultDriveLink||''}"
+            style="flex:1;padding:8px 11px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;font-family:'Be Vietnam Pro',sans-serif">
+          <button onclick="saveOrderResultLink('${o.id}')" class="btn btn-g" style="flex-shrink:0">💾 Lưu</button>
+        </div>
+        ${o.resultDriveLink
+          ? `<div style="margin-top:8px"><a href="${o.resultDriveLink}" target="_blank" style="color:var(--green-l);font-size:12.5px;word-break:break-all">✅ ${o.resultDriveLink}</a></div>`
+          : '<p style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic">Chưa có link kết quả.</p>'}
+        <div style="margin-top:10px;padding:10px 12px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:7px;font-size:12px;color:var(--text2)">
+          💡 Sau khi lưu link, khách hàng sẽ thấy link này trong tab <strong>Tài liệu</strong> của đơn hàng trên Portal.
+        </div>
+      </div>
+    </div>
     <div class="tab-pane" id="ot-tab3">
       <div class="dc"><h4>Lịch sử xử lý</h4>
         <div class="tl">${logs.map(a=>`<div class="tli"><div class="tld ${a.color||'b'}"></div><div style="flex:1"><div class="tla">${a.action}</div><div class="tlm">${a.user} · ${a.detail||''}</div></div><div class="tlt">${a.createdAt?.toDate?fdt(a.createdAt.toDate()):''}</div></div>`).join('')||'<p style="font-size:12px;color:var(--text3)">Chưa có lịch sử</p>'}</div>
@@ -2442,6 +2514,21 @@ window.viewOrderWithTasks = function(id) {
     <button class="bm" style="background:rgba(16,185,129,.28);color:var(--green);border:none" onclick="updateOrderStatus('${id}','paid')">💰 Đã thu</button>
     ${_canInv?`<button class="bm bm-g" onclick="closeM('order-tasks');createInvFor('${id}')">🧾 Xuất HĐ</button>`:''}`;
   document.getElementById('m-order-tasks').style.display = 'flex';
+};
+
+window.saveOrderResultLink = async function(orderId) {
+  const link = document.getElementById('ot-result-link')?.value.trim();
+  if (!link) { notif('⚠️ Vui lòng dán link tài liệu trước khi lưu.', 'er'); return; }
+  try {
+    const { doc: dRef, updateDoc: upDoc } = await getFSMod();
+    await upDoc(dRef(db, 'orders', orderId), { resultDriveLink: link, updatedAt: serverTimestamp() });
+    const o = S.orders.find(x => x.id === orderId);
+    if (o) o.resultDriveLink = link;
+    notif('✅ Đã lưu link tài liệu kết quả! Khách hàng sẽ thấy trong Portal.', 'ok', 5000);
+    await log('📎 Nộp tài liệu kết quả', `Đơn ${o?.orderId||orderId} — ${link}`, 'g');
+    // Re-render tab để cập nhật link hiển thị
+    viewOrderWithTasks(orderId);
+  } catch(e) { notif('❌ Lỗi: ' + e.message, 'er'); }
 };
 
 window.toggleOrderTask = async function(orderId, taskIndex) {

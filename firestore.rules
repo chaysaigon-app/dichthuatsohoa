@@ -50,6 +50,7 @@ service cloud.firestore {
         || (isCustomerOrNew() && (
               resource.data.customerUid == request.auth.uid
            || resource.data.customerEmail == request.auth.token.email
+           || resource.data.email == request.auth.token.email
            ));
 
       // Staff tạo thủ công; Khách tạo khi xác nhận báo giá trên portal
