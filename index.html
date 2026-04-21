@@ -1,80 +1,254 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Thông Tin 30+ Quốc Gia – Địa Lý, Văn Hóa, Hồ Sơ Dịch Thuật | Dịch Thuật Số Hóa</title>
-<meta name="description" content="Tìm hiểu địa lý, lịch sử, văn hóa và yêu cầu hồ sơ dịch thuật công chứng của hơn 30 quốc gia. Tư vấn miễn phí: 0909.108.890">
-<link rel="stylesheet" href="../../assets/css/main.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dịch Thuật Công Chứng Lấy Ngay | Giá Từ 10.000đ | TP.HCM – Dịch Thuật Số Hóa</title>
+<meta name="description" content="Dịch thuật công chứng uy tín TP.HCM – Lấy ngay trong ngày, hơn 20 ngôn ngữ, giá từ 10.000đ/trang. Đảm bảo pháp lý 100%. Hotline: 0909-108-890">
+<meta name="keywords" content="dịch thuật công chứng tphcm, dịch công chứng lấy ngay, dịch thuật giá rẻ sài gòn, dịch thuật tiếng anh, tiếng nhật, tiếng hàn, tiếng trung, công chứng hồ sơ visa, du học, định cư">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://chaysaigon-app.github.io/dichthuatsohoa/">
+<meta property="og:title" content="Dịch Thuật Công Chứng Lấy Ngay – Giá Từ 10.000đ | TP.HCM">
+<meta property="og:description" content="Dịch thuật công chứng uy tín 17 năm. Hơn 20 ngôn ngữ. Lấy ngay trong ngày. Giá rẻ nhất Sài Gòn.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chaysaigon-app.github.io/dichthuatsohoa/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"Công ty CP Công nghệ & Dịch thuật Số Hóa","url":"https://chaysaigon-app.github.io/dichthuatsohoa/","telephone":"+84778752214","email":"sohoavn@gmail.com","foundingDate":"2007","taxID":"1100791068","priceRange":"Từ 10.000đ","address":{"@type":"PostalAddress","streetAddress":"Tầng 1, số 35 Nguyễn Văn Tráng","addressLocality":"Quận 1","addressRegion":"TP. Hồ Chí Minh","addressCountry":"VN"},"geo":{"@type":"GeoCoordinates","latitude":10.7725,"longitude":106.6980}}</script>
+<link rel="stylesheet" href="assets/css/main.css">
 <style>
-.country-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
-.country-item{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;text-align:center;transition:all .2s}
-.country-item:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--blue-light)}
-.country-item a{display:block;text-decoration:none}
-.ci-flag{font-size:48px;margin-bottom:10px;display:block}
-.ci-name{font-size:15px;font-weight:700;color:var(--blue-dark)}
-.ci-en{font-size:12px;color:var(--gray-mid);margin-top:3px}
-.ci-lang{font-size:11px;background:var(--blue-pale);color:var(--blue-main);padding:2px 8px;border-radius:10px;margin-top:6px;display:inline-block}
+/* ===== HERO ===== */
+.hero{background:linear-gradient(135deg,#003580 0%,#001f5c 40%,#0a3080 70%,#0050B3 100%);position:relative;overflow:hidden;padding:56px 0 64px}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
+.hero-label{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:6px 16px;border-radius:30px;color:#fff;font-size:13px;font-weight:600;margin-bottom:18px}
+.dot-pulse{width:8px;height:8px;background:#FFB800;border-radius:50%;animation:dp 1.5s infinite}
+@keyframes dp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.hero h1{font-size:clamp(26px,4.5vw,50px);color:#fff;font-weight:900;line-height:1.12;margin-bottom:16px}
+.hero h1 .gold{color:#FFB800}
+.hero h1 .red-t{color:#FF6B6B}
+.hero-desc{color:rgba(255,255,255,.85);font-size:16px;margin-bottom:28px;max-width:560px;line-height:1.7}
+.hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px}
+.hb-item{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:7px 14px;border-radius:8px;color:#fff;font-size:13px;font-weight:600}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.h-stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:14px;text-align:center}
+.h-stat .num{font-family:'Lexend',sans-serif;font-size:26px;font-weight:900;color:#FFB800}
+.h-stat .lbl{font-size:12px;color:rgba(255,255,255,.75);margin-top:3px}
+/* ===== QUICK ACTIONS ===== */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:0}
+.qa-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;transition:all .22s;cursor:pointer}
+.qa-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);border-color:var(--blue-light)}
+.qa-card a{display:block;text-decoration:none}
+.qa-icon{font-size:32px;margin-bottom:10px}
+.qa-title{font-size:14px;font-weight:700;color:var(--blue-dark)}
+.qa-sub{font-size:12px;color:var(--gray-mid);margin-top:4px}
+/* ===== NEWS ===== */
+.news-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s}
+.news-card:hover{box-shadow:var(--shadow);transform:translateY(-3px)}
+.news-img{height:160px;background:linear-gradient(135deg,var(--blue-dark),var(--blue-light));display:flex;align-items:center;justify-content:center;font-size:48px}
+.news-body{padding:16px}
+.news-cat{font-size:11px;font-weight:700;color:var(--blue-light);text-transform:uppercase;letter-spacing:.5px}
+.news-title{font-size:15px;font-weight:700;color:var(--blue-dark);margin:6px 0;line-height:1.4}
+.news-date{font-size:12px;color:var(--gray-mid)}
+@media(max-width:768px){.hero-stats{grid-template-columns:repeat(2,1fr)}.qa-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 <div id="topbar" class="topbar"></div>
 <header id="site-header"></header>
 <nav class="main-nav" id="main-nav"></nav>
+<div id="toast-container"></div>
 
-<div style="background:linear-gradient(135deg,var(--blue-dark),var(--blue-main));padding:40px 0;color:#fff">
-  <div class="container">
-    <div class="breadcrumb" style="color:rgba(255,255,255,.7)"><a href="../../index.html" style="color:rgba(255,255,255,.7)">Trang chủ</a><span>›</span>Quốc Gia</div>
-    <h1 style="font-size:clamp(24px,3vw,36px);font-weight:900;margin:10px 0 8px">🌏 Thông Tin 30+ Quốc Gia</h1>
-    <p style="color:rgba(255,255,255,.8);max-width:560px">Địa lý · Lịch sử · Văn hóa · Con người · Yêu cầu hồ sơ visa & dịch thuật từng quốc gia</p>
-  </div>
-</div>
-
-<section class="section">
-  <div class="container">
-    <div class="country-list-grid">
-      <div class="country-item"><a href="nhat-ban.html"><span class="ci-flag">🇯🇵</span><div class="ci-name">Nhật Bản</div><div class="ci-en">Japan</div><div class="ci-lang">Tiếng Nhật</div></a></div>
-      <div class="country-item"><a href="han-quoc.html"><span class="ci-flag">🇰🇷</span><div class="ci-name">Hàn Quốc</div><div class="ci-en">South Korea</div><div class="ci-lang">Tiếng Hàn</div></a></div>
-      <div class="country-item"><a href="trung-quoc.html"><span class="ci-flag">🇨🇳</span><div class="ci-name">Trung Quốc</div><div class="ci-en">China</div><div class="ci-lang">Tiếng Trung</div></a></div>
-      <div class="country-item"><a href="my.html"><span class="ci-flag">🇺🇸</span><div class="ci-name">Hoa Kỳ</div><div class="ci-en">United States</div><div class="ci-lang">Tiếng Anh</div></a></div>
-      <div class="country-item"><a href="anh.html"><span class="ci-flag">🇬🇧</span><div class="ci-name">Anh Quốc</div><div class="ci-en">United Kingdom</div><div class="ci-lang">Tiếng Anh</div></a></div>
-      <div class="country-item"><a href="phap.html"><span class="ci-flag">🇫🇷</span><div class="ci-name">Pháp</div><div class="ci-en">France</div><div class="ci-lang">Tiếng Pháp</div></a></div>
-      <div class="country-item"><a href="duc.html"><span class="ci-flag">🇩🇪</span><div class="ci-name">Đức</div><div class="ci-en">Germany</div><div class="ci-lang">Tiếng Đức</div></a></div>
-      <div class="country-item"><a href="y.html"><span class="ci-flag">🇮🇹</span><div class="ci-name">Ý (Italia)</div><div class="ci-en">Italy</div><div class="ci-lang">Tiếng Ý</div></a></div>
-      <div class="country-item"><a href="tay-ban-nha.html"><span class="ci-flag">🇪🇸</span><div class="ci-name">Tây Ban Nha</div><div class="ci-en">Spain</div><div class="ci-lang">Tiếng TBN</div></a></div>
-      <div class="country-item"><a href="bo-dao-nha.html"><span class="ci-flag">🇵🇹</span><div class="ci-name">Bồ Đào Nha</div><div class="ci-en">Portugal</div><div class="ci-lang">Tiếng BĐN</div></a></div>
-      <div class="country-item"><a href="nga.html"><span class="ci-flag">🇷🇺</span><div class="ci-name">Nga</div><div class="ci-en">Russia</div><div class="ci-lang">Tiếng Nga</div></a></div>
-      <div class="country-item"><a href="uc.html"><span class="ci-flag">🇦🇺</span><div class="ci-name">Úc</div><div class="ci-en">Australia</div><div class="ci-lang">Tiếng Anh</div></a></div>
-      <div class="country-item"><a href="canada.html"><span class="ci-flag">🇨🇦</span><div class="ci-name">Canada</div><div class="ci-en">Canada</div><div class="ci-lang">Anh / Pháp</div></a></div>
-      <div class="country-item"><a href="thai-lan.html"><span class="ci-flag">🇹🇭</span><div class="ci-name">Thái Lan</div><div class="ci-en">Thailand</div><div class="ci-lang">Tiếng Thái</div></a></div>
-      <div class="country-item"><a href="lao.html"><span class="ci-flag">🇱🇦</span><div class="ci-name">Lào</div><div class="ci-en">Laos</div><div class="ci-lang">Tiếng Lào</div></a></div>
-      <div class="country-item"><a href="campuchia.html"><span class="ci-flag">🇰🇭</span><div class="ci-name">Campuchia</div><div class="ci-en">Cambodia</div><div class="ci-lang">Tiếng Khmer</div></a></div>
-      <div class="country-item"><a href="mien-dien.html"><span class="ci-flag">🇲🇲</span><div class="ci-name">Myanmar</div><div class="ci-en">Myanmar</div><div class="ci-lang">Tiếng Miến</div></a></div>
-      <div class="country-item"><a href="singapore.html"><span class="ci-flag">🇸🇬</span><div class="ci-name">Singapore</div><div class="ci-en">Singapore</div><div class="ci-lang">Tiếng Anh</div></a></div>
-      <div class="country-item"><a href="malaysia.html"><span class="ci-flag">🇲🇾</span><div class="ci-name">Malaysia</div><div class="ci-en">Malaysia</div><div class="ci-lang">Tiếng Mã Lai</div></a></div>
-      <div class="country-item"><a href="indonesia.html"><span class="ci-flag">🇮🇩</span><div class="ci-name">Indonesia</div><div class="ci-en">Indonesia</div><div class="ci-lang">Tiếng Indo</div></a></div>
-      <div class="country-item"><a href="dai-loan.html"><span class="ci-flag">🇹🇼</span><div class="ci-name">Đài Loan</div><div class="ci-en">Taiwan</div><div class="ci-lang">Tiếng Trung</div></a></div>
-      <div class="country-item"><a href="ha-lan.html"><span class="ci-flag">🇳🇱</span><div class="ci-name">Hà Lan</div><div class="ci-en">Netherlands</div><div class="ci-lang">Tiếng Hà Lan</div></a></div>
-      <div class="country-item"><a href="bi.html"><span class="ci-flag">🇧🇪</span><div class="ci-name">Bỉ</div><div class="ci-en">Belgium</div><div class="ci-lang">Pháp / Hà Lan</div></a></div>
-      <div class="country-item"><a href="thuy-si.html"><span class="ci-flag">🇨🇭</span><div class="ci-name">Thụy Sĩ</div><div class="ci-en">Switzerland</div><div class="ci-lang">Đa ngôn ngữ</div></a></div>
-      <div class="country-item"><a href="thuy-dien.html"><span class="ci-flag">🇸🇪</span><div class="ci-name">Thụy Điển</div><div class="ci-en">Sweden</div><div class="ci-lang">Tiếng Thụy Điển</div></a></div>
-      <div class="country-item"><a href="an-do.html"><span class="ci-flag">🇮🇳</span><div class="ci-name">Ấn Độ</div><div class="ci-en">India</div><div class="ci-lang">Tiếng Anh/Hindi</div></a></div>
-      <div class="country-item"><a href="a-rap-xe-ut.html"><span class="ci-flag">🇸🇦</span><div class="ci-name">Ả Rập Xê-út</div><div class="ci-en">Saudi Arabia</div><div class="ci-lang">Tiếng Ả Rập</div></a></div>
-      <div class="country-item"><a href="uae.html"><span class="ci-flag">🇦🇪</span><div class="ci-name">UAE (Dubai)</div><div class="ci-en">UAE</div><div class="ci-lang">Tiếng Ả Rập</div></a></div>
-      <div class="country-item"><a href="new-zealand.html"><span class="ci-flag">🇳🇿</span><div class="ci-name">New Zealand</div><div class="ci-en">New Zealand</div><div class="ci-lang">Tiếng Anh</div></a></div>
-      <div class="country-item"><a href="ba-lan.html"><span class="ci-flag">🇵🇱</span><div class="ci-name">Ba Lan</div><div class="ci-en">Poland</div><div class="ci-lang">Tiếng Ba Lan</div></a></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="container" style="position:relative;z-index:1">
+    <div style="max-width:680px">
+      <div class="hero-label"><span class="dot-pulse"></span> Uy tín số 1 TP.HCM từ 2007 · 17+ năm kinh nghiệm</div>
+      <h1>Dịch Thuật Công Chứng<br><span class="gold">Lấy Ngay Trong Ngày</span><br><span class="red-t">Giá Rẻ Nhất Sài Gòn</span></h1>
+      <p class="hero-desc">Chuyên dịch thuật &amp; công chứng <strong style="color:#fff">hơn 20 ngôn ngữ</strong> — Anh, Pháp, Hoa, Nhật, Hàn, Đức, Ý, Nga, Thái, Lào, Campuchia... Bản dịch <strong style="color:#FFB800">đảm bảo pháp lý 100%</strong>, được mọi cơ quan nhà nước chấp nhận. Giá chỉ từ <strong style="color:#FFB800">10.000đ/trang</strong>.</p>
+      <div class="hero-cta">
+        <a href="tel:0909108890" class="btn btn-primary" style="font-size:16px;padding:14px 28px">📞 Gọi Ngay: 0778.752.214</a>
+        <a href="https://zalo.me/84909108890" class="btn btn-white" style="font-size:14px">💬 Chat Zalo Ngay</a>
+        <a href="pages/bang-gia.html" class="btn" style="border:2px solid rgba(255,255,255,.5);color:#fff;font-size:14px">📋 Xem Bảng Giá</a>
+      </div>
+      <div class="hero-badges">
+        <div class="hb-item">⚡ Lấy ngay trong ngày</div>
+        <div class="hb-item">⚖️ Đảm bảo pháp lý 100%</div>
+        <div class="hb-item">💰 Từ 10.000đ/trang</div>
+        <div class="hb-item">🔒 Bảo mật tuyệt đối</div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="h-stat"><div class="num">17+</div><div class="lbl">Năm kinh nghiệm</div></div>
+      <div class="h-stat"><div class="num">20+</div><div class="lbl">Ngôn ngữ</div></div>
+      <div class="h-stat"><div class="num">50K+</div><div class="lbl">Hồ sơ xử lý</div></div>
+      <div class="h-stat"><div class="num">100%</div><div class="lbl">Đảm bảo pháp lý</div></div>
     </div>
   </div>
 </section>
 
-<div class="guarantee-strip"><div class="container">
-  <div class="g-item">🌐 30+ quốc gia · 20+ ngôn ngữ</div>
-  <div class="g-item">⚡ Lấy ngay trong ngày</div>
-  <div class="g-item">💰 Giá từ 10.000đ/trang</div>
+<!-- USP STRIP -->
+<div class="usp-strip"><div class="usp-strip-inner">
+  <div class="usp-item">⚡ Lấy ngay trong ngày</div>
+  <div class="usp-item">⚖️ Đảm bảo tính pháp lý</div>
+  <div class="usp-item">💰 Giá rẻ nhất TP.HCM từ 10.000đ</div>
+  <div class="usp-item">🎯 Chính xác – Chuyên nghiệp</div>
+  <div class="usp-item">🤝 Tư vấn nhiệt tình miễn phí</div>
+  <div class="usp-item">🌐 Hơn 20 ngôn ngữ</div>
+  <div class="usp-item">🔒 Bảo mật 100%</div>
 </div></div>
+
+<!-- QUICK ACCESS -->
+<section class="section-sm" style="background:var(--gray-light)">
+  <div class="container">
+    <div class="text-center" style="margin-bottom:24px">
+      <h2 class="section-title">Bạn cần dịch loại hồ sơ nào?</h2>
+      <div class="divider center"></div>
+    </div>
+    <div class="qa-grid">
+      <div class="qa-card"><a href="pages/ho-so-visa.html"><div class="qa-icon">✈️</div><div class="qa-title">Hồ Sơ Visa</div><div class="qa-sub">Tất cả quốc gia, lấy nhanh</div></a></div>
+      <div class="qa-card"><a href="pages/ho-so-du-hoc.html"><div class="qa-icon">🎓</div><div class="qa-title">Hồ Sơ Du Học</div><div class="qa-sub">Bằng cấp, học bạ, chứng chỉ</div></a></div>
+      <div class="qa-card"><a href="pages/ho-so-dinh-cu.html"><div class="qa-icon">🏡</div><div class="qa-title">Hồ Sơ Định Cư</div><div class="qa-sub">Lý lịch tư pháp, giấy tờ cá nhân</div></a></div>
+      <div class="qa-card"><a href="pages/tai-lieu-doanh-nghiep.html"><div class="qa-icon">🏢</div><div class="qa-title">Tài Liệu DN</div><div class="qa-sub">FDI, hợp đồng, tài chính</div></a></div>
+      <div class="qa-card"><a href="pages/chuyen-nganh.html"><div class="qa-icon">🏥</div><div class="qa-title">Y Tế / Kỹ Thuật</div><div class="qa-sub">Chuyên ngành cao cấp</div></a></div>
+      <div class="qa-card"><a href="pages/chuyen-nganh.html#luan-van"><div class="qa-icon">📚</div><div class="qa-title">Luận Văn / Đề Tài</div><div class="qa-sub">Học thuật, nghiên cứu</div></a></div>
+      <div class="qa-card"><a href="pages/hop-phap-hoa.html"><div class="qa-icon">🌏</div><div class="qa-title">Hợp Pháp Hóa</div><div class="qa-sub">Lãnh sự, Apostille</div></a></div>
+      <div class="qa-card"><a href="pages/danh-may-nhap-lieu.html"><div class="qa-icon">⌨️</div><div class="qa-title">Đánh Máy / Nhập Liệu</div><div class="qa-sub">Nhanh, chuẩn, giá rẻ</div></a></div>
+    </div>
+  </div>
+</section>
+
+<!-- LANGUAGES -->
+<section class="section">
+  <div class="container">
+    <div class="text-center">
+      <div class="tag">Đa ngôn ngữ</div>
+      <h2 class="section-title" style="margin-top:8px">Hơn 20 Ngôn Ngữ Dịch Thuật Công Chứng</h2>
+      <div class="divider center"></div>
+      <p class="section-sub">Nhấn vào ngôn ngữ để xem chi tiết bảng giá, thông tin và văn hóa quốc gia</p>
+    </div>
+    <div class="lang-grid">
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-anh.html"><span class="flag">🇺🇸</span><div class="lname">Tiếng Anh</div><div class="lsub">English</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-trung.html"><span class="flag">🇨🇳</span><div class="lname">Tiếng Trung</div><div class="lsub">Chinese</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-nhat.html"><span class="flag">🇯🇵</span><div class="lname">Tiếng Nhật</div><div class="lsub">Japanese</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-han.html"><span class="flag">🇰🇷</span><div class="lname">Tiếng Hàn</div><div class="lsub">Korean</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-phap.html"><span class="flag">🇫🇷</span><div class="lname">Tiếng Pháp</div><div class="lsub">French</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-duc.html"><span class="flag">🇩🇪</span><div class="lname">Tiếng Đức</div><div class="lsub">German</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-y.html"><span class="flag">🇮🇹</span><div class="lname">Tiếng Ý</div><div class="lsub">Italian</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-tay-ban-nha.html"><span class="flag">🇪🇸</span><div class="lname">Tây Ban Nha</div><div class="lsub">Spanish</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-bo-dao-nha.html"><span class="flag">🇵🇹</span><div class="lname">Bồ Đào Nha</div><div class="lsub">Portuguese</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-nga.html"><span class="flag">🇷🇺</span><div class="lname">Tiếng Nga</div><div class="lsub">Russian</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-thai.html"><span class="flag">🇹🇭</span><div class="lname">Tiếng Thái</div><div class="lsub">Thai</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-lao.html"><span class="flag">🇱🇦</span><div class="lname">Tiếng Lào</div><div class="lsub">Lao</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-khmer.html"><span class="flag">🇰🇭</span><div class="lname">Tiếng Khmer</div><div class="lsub">Cambodian</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-mien.html"><span class="flag">🇲🇲</span><div class="lname">Tiếng Miến</div><div class="lsub">Burmese</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-indonesia.html"><span class="flag">🇮🇩</span><div class="lname">Indonesia</div><div class="lsub">Indonesian</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-ha-lan.html"><span class="flag">🇳🇱</span><div class="lname">Hà Lan</div><div class="lsub">Dutch</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-a-rap.html"><span class="flag">🇸🇦</span><div class="lname">Tiếng Ả Rập</div><div class="lsub">Arabic</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-ba-lan.html"><span class="flag">🇵🇱</span><div class="lname">Tiếng Ba Lan</div><div class="lsub">Polish</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-thuy-dien.html"><span class="flag">🇸🇪</span><div class="lname">Thụy Điển</div><div class="lsub">Swedish</div></a></div>
+      <div class="lang-card"><a href="pages/ngon-ngu/tieng-tagalog.html"><span class="flag">🇵🇭</span><div class="lname">Tagalog</div><div class="lsub">Filipino</div></a></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="section" style="background:var(--gray-light)">
+  <div class="container">
+    <div class="text-center">
+      <div class="tag">Lý do chọn chúng tôi</div>
+      <h2 class="section-title" style="margin-top:8px">Tại Sao Chọn Dịch Thuật Số Hóa?</h2>
+      <div class="divider center"></div>
+    </div>
+    <div class="grid-4">
+      <div class="card text-center"><div class="card-icon" style="margin:0 auto 16px"><span>⚖️</span></div><h3 style="font-size:15px;margin-bottom:8px">Đảm Bảo Pháp Lý</h3><p style="font-size:13px;color:var(--gray-mid)">Bản dịch công chứng đúng Luật Công chứng VN. Được 100% cơ quan nhà nước và Đại sứ quán chấp nhận.</p></div>
+      <div class="card text-center"><div class="card-icon" style="margin:0 auto 16px"><span>⚡</span></div><h3 style="font-size:15px;margin-bottom:8px">Lấy Ngay Trong Ngày</h3><p style="font-size:13px;color:var(--gray-mid)">Nhận tài liệu sáng → Trả kết quả chiều. Hỗ trợ hỏa tốc cho trường hợp khẩn. Không để chờ lâu.</p></div>
+      <div class="card text-center"><div class="card-icon" style="margin:0 auto 16px"><span>💰</span></div><h3 style="font-size:15px;margin-bottom:8px">Giá Rẻ Nhất Sài Gòn</h3><p style="font-size:13px;color:var(--gray-mid)">Từ 10.000đ/trang. Giá cố định, minh bạch, không phát sinh. Chiết khấu hồ sơ nhiều trang.</p></div>
+      <div class="card text-center"><div class="card-icon" style="margin:0 auto 16px"><span>🎯</span></div><h3 style="font-size:15px;margin-bottom:8px">Chất Lượng Cao</h3><p style="font-size:13px;color:var(--gray-mid)">Biên dịch viên chuyên ngành + hiệu đính 2 lớp. Thuật ngữ chuẩn xác, không dịch máy.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="section-title">Quy Trình 5 Bước Đơn Giản</h2>
+      <div class="divider center"></div>
+      <p class="section-sub">Có thể thực hiện 100% online — gửi tài liệu qua Zalo/Email</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-circle">📤</div><h4>Gửi Tài Liệu</h4><p>Chụp/scan gửi qua Zalo hoặc Email</p></div>
+      <div class="step"><div class="step-circle">💬</div><h4>Nhận Báo Giá</h4><p>Báo giá trong 5–15 phút</p></div>
+      <div class="step"><div class="step-circle">✅</div><h4>Xác Nhận</h4><p>Đồng ý & thanh toán đặt cọc</p></div>
+      <div class="step"><div class="step-circle">⚙️</div><h4>Dịch & Công Chứng</h4><p>Dịch → Hiệu đính → Đóng dấu</p></div>
+      <div class="step"><div class="step-circle">🎉</div><h4>Nhận Kết Quả</h4><p>Nhận tại VP hoặc giao tận nơi</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section" style="background:var(--gray-light)">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="section-title">Khách Hàng Nói Gì Về Chúng Tôi</h2>
+      <div class="divider center"></div>
+    </div>
+    <div class="grid-3">
+      <div class="testimonial"><div class="t-stars">★★★★★</div><p class="t-text">"Gửi lúc 8h sáng, 3h chiều đã nhận bản có dấu công chứng. Đại sứ quán Nhật chấp nhận luôn. Dịch vụ rất tốt!"</p><div class="t-author"><div class="t-avatar">NTH</div><div><div class="t-name">Nguyễn Thị Hương</div><div class="t-role">Xin visa Nhật Bản</div></div></div></div>
+      <div class="testimonial"><div class="t-stars">★★★★★</div><p class="t-text">"Dịch toàn bộ hồ sơ FDI sang tiếng Anh rất chuyên nghiệp, thuật ngữ pháp lý chuẩn. Sở KHĐT không có ý kiến. Giá rẻ hơn nhiều nơi."</p><div class="t-author"><div class="t-avatar">PVL</div><div><div class="t-name">Phạm Văn Long</div><div class="t-role">Giám đốc Công ty Quốc tế</div></div></div></div>
+      <div class="testimonial"><div class="t-stars">★★★★★</div><p class="t-text">"Dịch luận văn y khoa sang tiếng Anh, thuật ngữ rất chuẩn. Rõ ràng biên dịch viên am hiểu chuyên môn. Sẽ quay lại thường xuyên."</p><div class="t-author"><div class="t-avatar">BS</div><div><div class="t-name">BS. Trần Minh Tuấn</div><div class="t-role">Bệnh viện Chợ Rẫy</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- COUNTRIES SECTION -->
+<section class="section">
+  <div class="container">
+    <div class="text-center">
+      <div class="tag">Thông tin quốc gia</div>
+      <h2 class="section-title" style="margin-top:8px">Tìm Hiểu Về Các Quốc Gia</h2>
+      <div class="divider center"></div>
+      <p class="section-sub">Địa lý, lịch sử, văn hóa, yêu cầu hồ sơ visa và tài liệu dịch thuật từng nước</p>
+    </div>
+    <div class="grid-4">
+      <a href="pages/quoc-gia/nhat-ban.html" class="card text-center" style="text-decoration:none"><div style="font-size:48px;margin-bottom:10px">🇯🇵</div><h3 style="font-size:16px;color:var(--blue-dark)">Nhật Bản</h3><p style="font-size:13px;color:var(--gray-mid);margin-top:6px">Japan · Địa lý · Văn hóa · Visa</p></a>
+      <a href="pages/quoc-gia/han-quoc.html" class="card text-center" style="text-decoration:none"><div style="font-size:48px;margin-bottom:10px">🇰🇷</div><h3 style="font-size:16px;color:var(--blue-dark)">Hàn Quốc</h3><p style="font-size:13px;color:var(--gray-mid);margin-top:6px">Korea · K-Wave · Visa · Định cư</p></a>
+      <a href="pages/quoc-gia/trung-quoc.html" class="card text-center" style="text-decoration:none"><div style="font-size:48px;margin-bottom:10px">🇨🇳</div><h3 style="font-size:16px;color:var(--blue-dark)">Trung Quốc</h3><p style="font-size:13px;color:var(--gray-mid);margin-top:6px">China · Văn hóa · Thương mại</p></a>
+      <a href="pages/quoc-gia/my.html" class="card text-center" style="text-decoration:none"><div style="font-size:48px;margin-bottom:10px">🇺🇸</div><h3 style="font-size:16px;color:var(--blue-dark)">Hoa Kỳ</h3><p style="font-size:13px;color:var(--gray-mid);margin-top:6px">USA · Du học · Định cư · Visa</p></a>
+      <a href="pages/quoc-gia/phap.html" class="card text-center" style="text-decoration:none"><div style="font-size:48px;margin-bottom:10px">🇫🇷</div><h3 style="font-size:16px;color:var(--blue-dark)">Pháp</h3><p style="font-size:13px;color:var(--gray-mid);margin-top:6px">France · Văn hóa · Schengen</p></a>
+      <a href="pages/quoc-gia/duc.html" class="card text-center" style="text-decoration:none"><div style="font-size:48px;margin-bottom:10px">🇩🇪</div><h3 style="font-size:16px;color:var(--blue-dark)">Đức</h3><p style="font-size:13px;color:var(--gray-mid);margin-top:6px">Germany · Du học · Kỹ thuật</p></a>
+      <a href="pages/quoc-gia/uc.html" class="card text-center" style="text-decoration:none"><div style="font-size:48px;margin-bottom:10px">🇦🇺</div><h3 style="font-size:16px;color:var(--blue-dark)">Úc</h3><p style="font-size:13px;color:var(--gray-mid);margin-top:6px">Australia · Định cư · Du học</p></a>
+      <a href="pages/quoc-gia/" class="card text-center" style="text-decoration:none;border-style:dashed"><div style="font-size:48px;margin-bottom:10px">🌏</div><h3 style="font-size:16px;color:var(--blue-main)">Xem tất cả 30+ quốc gia →</h3><p style="font-size:13px;color:var(--gray-mid);margin-top:6px">Thông tin đầy đủ mọi quốc gia</p></a>
+    </div>
+  </div>
+</section>
+
+<!-- GUARANTEE -->
+<div class="guarantee-strip">
+  <div class="container">
+    <div class="g-item">✅ Dịch lại miễn phí nếu có lỗi</div>
+    <div class="g-item">⚖️ Đảm bảo cơ quan nhà nước chấp nhận</div>
+    <div class="g-item">💰 Không phát sinh chi phí ngoài báo giá</div>
+    <div class="g-item">🔒 Bảo mật thông tin tuyệt đối</div>
+  </div>
+</div>
+
+<!-- CTA SECTION -->
+<section class="section" style="background:var(--blue-dark)">
+  <div class="container text-center">
+    <h2 style="font-size:clamp(22px,3vw,36px);color:#fff;font-weight:900;margin-bottom:12px">Cần Dịch Thuật Công Chứng Ngay?</h2>
+    <p style="color:rgba(255,255,255,.8);font-size:16px;margin-bottom:28px">Gửi tài liệu ngay để nhận báo giá trong 5 phút. Hỗ trợ 24/7.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="tel:0909108890" class="btn btn-primary" style="font-size:16px;padding:14px 32px">📞 0778.752.214</a>
+      <a href="https://zalo.me/84909108890" class="btn btn-white">💬 Zalo Tư Vấn Ngay</a>
+      <a href="pages/lien-he.html" class="btn" style="border:2px solid rgba(255,255,255,.4);color:#fff">📧 Gửi Email</a>
+    </div>
+  </div>
+</section>
+
 <footer id="site-footer"></footer>
+
 <script type="module">
-import { renderTopbar,renderHeader,renderNav,renderFooter,renderStickyCTA } from '../../assets/js/components.js';
-renderTopbar();renderHeader('quoc-gia');renderNav('quoc-gia');renderFooter();renderStickyCTA();renderChatWidget();
+import { renderTopbar, renderHeader, renderNav, renderFooter, renderStickyCTA, renderChatWidget } from './assets/js/components.js';
+renderTopbar(); renderHeader('index'); renderNav('index'); renderFooter(); renderStickyCTA(); renderChatWidget();
 </script>
 </body>
 </html>
