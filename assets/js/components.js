@@ -1,6 +1,5 @@
 // ================================================================
 // SHARED COMPONENTS — Dịch Thuật Số Hóa
-// Cập nhật: Chat-first — không gọi điện, chỉ nhắn tin/chat
 // ================================================================
 
 function getBase() {
@@ -8,23 +7,6 @@ function getBase() {
   if (p.match(/\/(ngon-ngu|quoc-gia)\//)) return '../../';
   if (p.match(/\/(pages|admin|portal)\//)) return '../';
   return './';
-}
-
-// ================================================================
-// Global helper: mở chat widget từ header, footer, CTA, nút bất kỳ
-// ================================================================
-export function openChatWidget(presetTopic) {
-  const box = document.getElementById('chat-box');
-  if (!box) { window.__chatPendingTopic = presetTopic || ''; return; }
-  box.classList.add('open');
-  const badge = document.getElementById('chat-unread-badge');
-  if (badge) badge.style.display = 'none';
-  if (presetTopic) {
-    window.__chatStartTopic = presetTopic;
-    const inp = document.getElementById('chat-input');
-    if (inp) inp.value = presetTopic;
-  }
-  document.getElementById('chat-input')?.focus();
 }
 
 export function renderTopbar() {
@@ -38,7 +20,7 @@ export function renderTopbar() {
       </div>
       <div style="display:flex;gap:14px">
         <a href="mailto:sohoavn@gmail.com" class="topbar-item">📧 sohoavn@gmail.com</a>
-        <a href="https://zalo.me/84909108890" target="_blank" class="topbar-item">💬 Zalo</a>
+        <a href="https://zalo.me/84909108890" class="topbar-item">💬 Zalo</a>
         <a href="${b}portal/index.html" class="topbar-item" style="color:#FFB800;font-weight:700">👤 Cổng KH</a>
       </div>
     </div>`);
@@ -57,11 +39,7 @@ export function renderHeader(activePage = '') {
           </div>
         </a>
         <div>
-          <div class="header-phone">
-            <a href="javascript:void(0)" onclick="typeof openChatWidget!=='undefined'?openChatWidget():document.getElementById('chat-fab')?.click()" style="cursor:pointer;text-decoration:none">
-              💬 Nhắn tin tư vấn
-            </a>
-          </div>
+          <div class="header-phone"><a href="tel:0909108890">0909.108.890</a></div>
           <div style="font-size:12px;color:var(--gray-mid);text-align:right">Tư vấn miễn phí · Báo giá 5 phút</div>
         </div>
       </div>
@@ -97,11 +75,7 @@ export function renderFooter() {
             <div><div class="logo-name" style="color:#fff">Dịch Thuật Số Hóa</div><div class="logo-sub">DIGITIZATION TECHNOLOGY &amp; TRANSLATION</div></div>
           </div>
           <p style="font-size:13.5px;color:rgba(255,255,255,.65);line-height:1.8">Chuyên dịch thuật công chứng uy tín tại TP.HCM từ 2007. Hơn 20 ngôn ngữ, lấy ngay trong ngày, giá rẻ nhất Sài Gòn.</p>
-          <div class="footer-phone">
-            <a href="javascript:void(0)" onclick="typeof openChatWidget!=='undefined'?openChatWidget():document.getElementById('chat-fab')?.click()" style="color:var(--gold);cursor:pointer;text-decoration:none">
-              💬 Nhắn tin báo giá ngay
-            </a>
-          </div>
+          <div class="footer-phone"><a href="tel:0909108890" style="color:var(--gold)">0909.108.890</a></div>
           <p style="font-size:12px;color:rgba(255,255,255,.45);margin-top:6px">35 Nguyễn Văn Tráng, P. Bến Thành, Q.1, TP.HCM</p>
         </div>
         <div class="footer-col"><h4>Dịch Vụ</h4><ul>
@@ -154,17 +128,13 @@ export function showToast(msg, type = 'info', duration = 4000) {
   setTimeout(() => t.remove(), duration);
 }
 
-// ================================================================
-// STICKY CTA — Mobile: Chat-first (không còn nút "Gọi ngay")
-// ================================================================
 export function renderStickyCTA() {
   const div = document.createElement('div');
-  div.id = 'sticky-cta';
   div.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:800;display:none;background:#fff;border-top:2px solid #D1DCF0;padding:10px 16px;gap:8px';
   div.innerHTML = `
-    <button onclick="typeof openChatWidget!=='undefined'?openChatWidget():document.getElementById('chat-fab')?.click()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:linear-gradient(135deg,#1A56DB,#2563EB);color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer">💬 Nhắn tin</button>
-    <a href="https://zalo.me/84909108890" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#0068FF;color:#fff;font-weight:700;font-size:13px">💙 Zalo</a>
-    <a href="https://wa.me/84909108890" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#25D366;color:#fff;font-weight:700;font-size:13px">📱 WhatsApp</a>`;
+    <a href="tel:0909108890" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#D72323;color:#fff;font-weight:700;font-size:13px">📞 Gọi ngay</a>
+    <a href="https://zalo.me/84909108890" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#0068FF;color:#fff;font-weight:700;font-size:13px">💬 Zalo</a>
+    <a href="https://wa.me/84909108890" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#25D366;color:#fff;font-weight:700;font-size:13px">WhatsApp</a>`;
   document.body.appendChild(div);
   const update = () => { div.style.display = window.innerWidth <= 768 ? 'flex' : 'none'; };
   update(); window.addEventListener('resize', update);
@@ -172,84 +142,67 @@ export function renderStickyCTA() {
 }
 
 // ================================================================
-// CHAT WIDGET — Chat-first với Quick Option Menu
-// Khách chọn tuỳ chọn → gửi tin tự động → lưu Firestore realtime
-// 4 lựa chọn: Báo giá · Đặt hàng · Hỏi thêm · Chat trực tiếp
+// CHAT WIDGET — hiện trên mọi trang website (không dùng trong admin/portal)
+// Khách nhắn tin → lưu Firestore collection "conversations" → admin/staff thấy realtime
 // ================================================================
 export async function renderChatWidget() {
+  // Inject CSS
   const style = document.createElement('style');
   style.textContent = `
-    #chat-fab{position:fixed;bottom:80px;right:20px;z-index:900;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1A56DB,#2563EB);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.5);display:flex;align-items:center;justify-content:center;font-size:26px;transition:transform .2s}
-    #chat-fab:hover{transform:scale(1.12)}
+    #chat-fab{position:fixed;bottom:80px;right:20px;z-index:900;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#1A56DB,#2563EB);border:none;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.45);display:flex;align-items:center;justify-content:center;font-size:24px;transition:transform .2s}
+    #chat-fab:hover{transform:scale(1.1)}
     #chat-fab .chat-badge{position:absolute;top:-2px;right:-2px;background:#EF4444;color:#fff;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;display:none}
-    #chat-box{position:fixed;bottom:150px;right:20px;z-index:900;width:355px;max-width:calc(100vw - 32px);background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden;font-family:'Be Vietnam Pro',sans-serif}
+    #chat-box{position:fixed;bottom:145px;right:20px;z-index:900;width:340px;max-width:calc(100vw - 32px);background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden;font-family:'Be Vietnam Pro',sans-serif}
     #chat-box.open{display:flex}
     .chat-head{background:linear-gradient(135deg,#1A56DB,#2563EB);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px}
-    .chat-head .av{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:18px}
+    .chat-head .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:16px}
     .chat-head .info{flex:1}.chat-head .info b{display:block;font-size:14px}
     .chat-head .info span{font-size:11px;opacity:.8}
-    .chat-head .close-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0;line-height:1}
-    #chat-quick-opts{padding:16px 14px 14px;background:#F8FAFF}
-    #chat-quick-opts .greet{font-size:13px;color:#374151;margin:0 0 12px;text-align:center;line-height:1.6}
-    .chat-opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-    .chat-opt-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:13px 8px;border-radius:13px;border:1.5px solid #C7D7F8;background:#fff;cursor:pointer;font-size:12.5px;font-weight:600;color:#1e3a8a;line-height:1.35;transition:all .15s;text-align:center}
-    .chat-opt-btn:hover{background:#EEF4FF;border-color:#2563EB;transform:translateY(-1px);box-shadow:0 3px 10px rgba(37,99,235,.15)}
-    .chat-opt-btn .opt-icon{font-size:24px;line-height:1;margin-bottom:2px}
-    .chat-msgs{flex:1;height:250px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#F8FAFF}
-    .chat-msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.55;word-break:break-word}
+    .chat-head .close-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;line-height:1}
+    .chat-msgs{flex:1;height:280px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#F8FAFF}
+    .chat-msg{max-width:80%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.5;word-break:break-word}
     .chat-msg.staff{background:#E8EFFE;color:#1e3a8a;align-self:flex-start;border-bottom-left-radius:4px}
     .chat-msg.guest{background:#2563EB;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-    .chat-msg.sys{background:#E0F2FE;color:#0369A1;align-self:center;font-size:12px;max-width:92%;text-align:center;border-radius:10px}
     .chat-msg .msg-meta{font-size:10px;opacity:.6;margin-top:3px}
     .chat-typing{font-size:12px;color:#6B7280;padding:0 12px 6px;min-height:20px}
     .chat-info-bar{background:#FFF9E6;border-top:1px solid #FDE68A;padding:8px 12px;font-size:12px;color:#92400E;display:flex;align-items:center;gap:6px}
     .chat-info-bar input{flex:1;border:1px solid #FCD34D;border-radius:6px;padding:4px 8px;font-size:12px;outline:none}
     .chat-info-bar button{background:#F59E0B;border:none;color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600}
-    .chat-foot{padding:10px 12px;border-top:1px solid #E5E7EB;display:flex;gap:8px;background:#fff;align-items:flex-end}
+    .chat-foot{padding:10px 12px;border-top:1px solid #E5E7EB;display:flex;gap:8px;background:#fff}
     .chat-foot textarea{flex:1;border:1px solid #D1D5DB;border-radius:8px;padding:8px;font-size:13px;resize:none;height:38px;line-height:1.4;font-family:inherit;outline:none;transition:border-color .2s}
     .chat-foot textarea:focus{border-color:#2563EB}
-    .chat-foot button{background:#2563EB;border:none;color:#fff;border-radius:8px;padding:0 14px;cursor:pointer;font-size:18px;transition:background .2s;height:38px;min-width:42px}
+    .chat-foot button{background:#2563EB;border:none;color:#fff;border-radius:8px;padding:0 14px;cursor:pointer;font-size:18px;transition:background .2s}
     .chat-foot button:hover{background:#1A56DB}
-    @media(max-width:480px){#chat-box{bottom:80px;right:0;left:0;width:100%;border-radius:18px 18px 0 0}#chat-fab{bottom:90px}}
+    .chat-empty{text-align:center;color:#9CA3AF;font-size:13px;padding:32px 16px}
+    @media(max-width:480px){#chat-box{bottom:80px;right:0;left:0;width:100%;border-radius:16px 16px 0 0}#chat-fab{bottom:90px}}
   `;
   document.head.appendChild(style);
 
-  const QUICK_OPTS = [
-    { icon: '💰', label: 'Hỏi bảng giá\n& báo giá', msg: 'Tôi muốn hỏi bảng giá và nhận báo giá dịch vụ dịch thuật.' },
-    { icon: '📋', label: 'Đặt hàng\ndịch thuật', msg: 'Tôi muốn đặt hàng dịch thuật. Nhờ tư vấn quy trình đặt hàng.' },
-    { icon: '❓', label: 'Hỏi thêm\nthông tin', msg: 'Tôi muốn hỏi thêm thông tin về các dịch vụ của công ty.' },
-    { icon: '💬', label: 'Chat trực tiếp\nvới tư vấn viên', msg: null },
-  ];
-
-  // FAB
+  // FAB button
   const fab = document.createElement('button');
   fab.id = 'chat-fab';
   fab.innerHTML = `💬<span class="chat-badge" id="chat-unread-badge"></span>`;
   fab.title = 'Nhắn tin tư vấn';
 
-  // Box
+  // Chat box
   const box = document.createElement('div');
   box.id = 'chat-box';
   box.innerHTML = `
     <div class="chat-head">
       <div class="av">🧑‍💼</div>
-      <div class="info"><b>Tư vấn viên Dịch Thuật Số Hóa</b><span>Phản hồi trong vài phút • T2–T7 8:00–17:30</span></div>
+      <div class="info"><b>Tư vấn viên Dịch Thuật Số Hóa</b><span>Trả lời trong vài phút • T2–T7 8:00–17:30</span></div>
       <button class="close-btn" id="chat-close">✕</button>
     </div>
-    <div id="chat-quick-opts">
-      <p class="greet">👋 Xin chào! Bạn cần hỗ trợ gì hôm nay?<br><span style="font-size:11px;color:#9CA3AF">Chọn nhanh hoặc nhập tin nhắn bên dưới</span></p>
-      <div class="chat-opt-grid">
-        ${QUICK_OPTS.map((o,i)=>`<button class="chat-opt-btn" data-idx="${i}"><span class="opt-icon">${o.icon}</span>${o.label.replace('\n','<br>')}</button>`).join('')}
-      </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="chat-empty">👋 Xin chào! Hãy đặt câu hỏi hoặc mô tả tài liệu cần dịch, chúng tôi sẽ báo giá ngay!</div>
     </div>
-    <div class="chat-msgs" id="chat-msgs" style="display:none"></div>
-    <div class="chat-typing" id="chat-typing" style="display:none"></div>
+    <div class="chat-typing" id="chat-typing"></div>
     <div class="chat-info-bar" id="chat-info-bar" style="display:none">
-      📧 Để lại email nhận báo giá:
-      <input type="email" id="chat-email-input" placeholder="email@example.com">
-      <button id="chat-email-send">Gửi</button>
+      📞 Để lại SĐT để nhân viên gọi lại:
+      <input type="tel" id="chat-phone-input" placeholder="09xxxxxxxx">
+      <button id="chat-phone-send">Gửi</button>
     </div>
-    <div class="chat-foot" id="chat-foot">
+    <div class="chat-foot">
       <textarea id="chat-input" placeholder="Nhập tin nhắn..." rows="1"></textarea>
       <button id="chat-send">➤</button>
     </div>`;
@@ -257,69 +210,26 @@ export async function renderChatWidget() {
   document.body.appendChild(fab);
   document.body.appendChild(box);
 
-  // Expose global
-  window.openChatWidget = function(presetTopic) {
-    box.classList.add('open');
-    document.getElementById('chat-unread-badge').style.display = 'none';
-    if (presetTopic) {
-      const inp = document.getElementById('chat-input');
-      if (inp) inp.value = presetTopic;
-    }
-    document.getElementById('chat-input')?.focus();
-    if (!convId) _maybeInitConversation();
-    else if (!unsubscribe) listenMessages();
-  };
-
+  // State
   let convId = localStorage.getItem('sohoa_conv_id') || null;
   let guestName = localStorage.getItem('sohoa_guest_name') || 'Khách';
   let unsubscribe = null;
   let msgCount = 0;
-  let chatModeActive = false;
 
-  // If returning visitor: go straight to chat
-  if (convId) _enterChatMode();
-
-  function _enterChatMode() {
-    chatModeActive = true;
-    document.getElementById('chat-quick-opts').style.display = 'none';
-    document.getElementById('chat-msgs').style.display = 'flex';
-    document.getElementById('chat-typing').style.display = 'block';
-  }
-
-  // FAB toggle
+  // Toggle
   fab.addEventListener('click', () => {
     box.classList.toggle('open');
     if (box.classList.contains('open')) {
       document.getElementById('chat-unread-badge').style.display = 'none';
-      document.getElementById('chat-input')?.focus();
-      if (!convId) _maybeInitConversation();
+      document.getElementById('chat-input').focus();
+      if (!convId) initConversation();
       else if (!unsubscribe) listenMessages();
     }
   });
   document.getElementById('chat-close').addEventListener('click', () => box.classList.remove('open'));
 
-  // Quick option clicks
-  box.querySelectorAll('.chat-opt-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const opt = QUICK_OPTS[parseInt(btn.dataset.idx)];
-      _enterChatMode();
-      if (opt.msg) await sendMessage(opt.msg);
-      else document.getElementById('chat-input')?.focus();
-    });
-  });
-
-  // Typing in input also enters chat mode
-  document.getElementById('chat-input').addEventListener('focus', () => {
-    if (!chatModeActive) _enterChatMode();
-  });
-
-  async function _maybeInitConversation() {
-    if (convId) { listenMessages(); return; }
-    // Don't auto-create conv — wait for first message
-  }
-
   // Firebase lazy import
-  async function getFS() {
+  async function getFirestore() {
     const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
     const { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, orderBy, query, serverTimestamp }
       = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
@@ -332,34 +242,38 @@ export async function renderChatWidget() {
   }
 
   async function initConversation() {
-    if (convId) return;
-    const { db, collection, addDoc, serverTimestamp } = await getFS();
+    const { db, collection, addDoc, serverTimestamp } = await getFirestore();
     const ref = await addDoc(collection(db, 'conversations'), {
       guestName, guestPhone: '', guestEmail: '',
-      status: 'open', assignedTo: '', assignedName: '',
-      unreadAdmin: 1, unreadGuest: 0,
+      status: 'open',           // open | assigned | closed
+      assignedTo: '',            // uid nhân viên được giao
+      assignedName: '',
+      unreadAdmin: 1,
+      unreadGuest: 0,
       lastMessage: 'Bắt đầu cuộc trò chuyện',
-      lastAt: serverTimestamp(), createdAt: serverTimestamp(),
+      lastAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
       page: window.location.pathname,
     });
     convId = ref.id;
     localStorage.setItem('sohoa_conv_id', convId);
     listenMessages();
-    // Auto greeting
-    const { db: db2, collection: col2, addDoc: add2, serverTimestamp: sts2 } = await getFS();
-    await add2(col2(db2, 'conversations', convId, 'messages'), {
-      text: '👋 Xin chào! Nhân viên đã nhận được tin nhắn và sẽ phản hồi sớm nhất trong giờ làm việc (T2–T7, 8:00–17:30).',
-      sender: 'system', senderName: 'Bot', createdAt: sts2()
+    // Gửi tin chào tự động
+    await sendSystemMsg('👋 Xin chào! Nhân viên tư vấn sẽ phản hồi sớm nhất. Bạn có thể để lại số điện thoại để chúng tôi gọi lại nếu cần nhé!', db);
+  }
+
+  async function sendSystemMsg(text, db) {
+    const { collection, addDoc, serverTimestamp, doc, updateDoc } = await getFirestore();
+    await addDoc(collection(db, 'conversations', convId, 'messages'), {
+      text, sender: 'system', senderName: 'Bot', createdAt: serverTimestamp()
     });
   }
 
   async function listenMessages() {
-    if (unsubscribe) return;
-    const { db, collection, onSnapshot, orderBy, query } = await getFS();
+    const { db, collection, onSnapshot, orderBy, query, doc, updateDoc } = await getFirestore();
     const q = query(collection(db, 'conversations', convId, 'messages'), orderBy('createdAt', 'asc'));
     unsubscribe = onSnapshot(q, snap => {
       const msgs = document.getElementById('chat-msgs');
-      if (!msgs) return;
       msgs.innerHTML = '';
       let staffMsgCount = 0;
       snap.forEach(d => {
@@ -367,16 +281,17 @@ export async function renderChatWidget() {
         if (m.sender === 'staff' || m.sender === 'admin') staffMsgCount++;
         const div = document.createElement('div');
         const isGuest = m.sender === 'guest';
-        const isSys = m.sender === 'system';
-        div.className = `chat-msg ${isSys ? 'sys' : isGuest ? 'guest' : 'staff'}`;
+        const isSystem = m.sender === 'system';
+        div.className = `chat-msg ${isGuest ? 'guest' : 'staff'}`;
+        if (isSystem) div.style.cssText = 'align-self:center;background:#E0F2FE;color:#0369A1;font-size:12px;max-width:90%;text-align:center';
         const t = m.createdAt?.toDate ? m.createdAt.toDate().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) : '';
-        div.innerHTML = `${m.text}<div class="msg-meta">${isGuest||isSys ? '' : (m.senderName||'Nhân viên') + ' · '}${t}</div>`;
+        div.innerHTML = `${m.text}<div class="msg-meta">${isGuest ? '' : (m.senderName||'Nhân viên') + ' · '}${t}</div>`;
         msgs.appendChild(div);
       });
       msgs.scrollTop = msgs.scrollHeight;
-      // Show email bar after guest sends first message
+      // Hiện thanh nhập SĐT sau khi khách gửi tin đầu tiên
       if (msgCount > 0) document.getElementById('chat-info-bar').style.display = 'flex';
-      // Badge
+      // Báo có tin nhắn mới khi box đóng
       if (!box.classList.contains('open') && staffMsgCount > 0) {
         document.getElementById('chat-unread-badge').style.display = 'block';
         document.getElementById('chat-unread-badge').textContent = staffMsgCount;
@@ -386,20 +301,22 @@ export async function renderChatWidget() {
 
   async function sendMessage(text) {
     if (!text.trim()) return;
-    if (!chatModeActive) _enterChatMode();
     if (!convId) await initConversation();
-    else if (!unsubscribe) await listenMessages();
     msgCount++;
-    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFS();
+    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFirestore();
     await addDoc(collection(db, 'conversations', convId, 'messages'), {
-      text: text.trim(), sender: 'guest', senderName: guestName, createdAt: serverTimestamp()
+      text: text.trim(), sender: 'guest', senderName: guestName,
+      createdAt: serverTimestamp()
     });
     await updateDoc(doc(db, 'conversations', convId), {
-      lastMessage: text.trim().substring(0,60), lastAt: serverTimestamp(), unreadAdmin: 1
+      lastMessage: text.trim().substring(0, 60),
+      lastAt: serverTimestamp(),
+      unreadAdmin: 1
     });
+    document.getElementById('chat-info-bar').style.display = 'flex';
   }
 
-  // Send button & Enter key
+  // Send button
   document.getElementById('chat-send').addEventListener('click', async () => {
     const inp = document.getElementById('chat-input');
     await sendMessage(inp.value);
@@ -409,18 +326,19 @@ export async function renderChatWidget() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); await document.getElementById('chat-send').click(); }
   });
 
-  // Email submit
-  document.getElementById('chat-email-send').addEventListener('click', async () => {
-    const email = document.getElementById('chat-email-input').value.trim();
-    if (!email) return;
-    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFS();
+  // Phone submit
+  document.getElementById('chat-phone-send').addEventListener('click', async () => {
+    const phone = document.getElementById('chat-phone-input').value.trim();
+    if (!phone) return;
+    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFirestore();
     await addDoc(collection(db, 'conversations', convId, 'messages'), {
-      text: `📧 Khách để lại email: ${email}`, sender: 'guest', senderName: guestName, createdAt: serverTimestamp()
+      text: `📞 Khách để lại số điện thoại: ${phone}`, sender: 'guest', senderName: guestName,
+      createdAt: serverTimestamp()
     });
     await updateDoc(doc(db, 'conversations', convId), {
-      guestEmail: email, lastMessage: `Email: ${email}`, lastAt: serverTimestamp(), unreadAdmin: 1
+      guestPhone: phone, lastMessage: `SĐT: ${phone}`, lastAt: serverTimestamp(), unreadAdmin: 1
     });
     document.getElementById('chat-info-bar').style.display = 'none';
-    localStorage.setItem('sohoa_guest_email', email);
+    localStorage.setItem('sohoa_guest_phone', phone);
   });
 }
