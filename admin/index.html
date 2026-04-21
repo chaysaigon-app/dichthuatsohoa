@@ -1976,9 +1976,11 @@ window.qbSendToCustomer = async function() {
       'ok', 6000
     );
     closeM('qbuilder');
+    _qbSelectedCustomer = null;
 
-    // Reload staff quotes list if visible
-    renderStaffQuotes();
+    // Chuyển sang trang danh sách báo giá để thấy ngay
+    const sqNav = document.querySelector('.ni[onclick*="staff-quotes"]');
+    nav('staff-quotes', sqNav);
   } catch (e) {
     console.error(e);
     notif('❌ Lỗi lưu báo giá: ' + e.message, 'er');
@@ -2348,6 +2350,13 @@ window.qbClearCustomer = function() {
   document.getElementById('qb-cust-selected').style.display = 'none';
   document.getElementById('qb-cust-results').style.display  = 'none';
   document.getElementById('qb-cust-noacc').style.display    = 'none';
+};
+
+window.renderStaffQuotes = function() {
+  renderStaffQuotesFiltered();
+  const confirmed = allStaffQuotes.filter(q => q.status === 'confirmed').length;
+  const badge = document.getElementById('b-sq');
+  if (badge) { badge.textContent = confirmed; badge.style.display = confirmed ? 'inline' : 'none'; }
 };
 
 </script>
