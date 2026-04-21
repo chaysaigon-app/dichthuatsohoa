@@ -541,11 +541,11 @@ tbody td{padding:11px 14px;font-size:13px}
       </div>
 
       <!-- QUOTE DETAIL MODAL -->
-      <div id="m-quote-detail" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px">
-        <div style="background:#fff;border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+      <div id="m-quote-detail" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)">
+        <div style="background:var(--card);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.6)">
           <div style="background:linear-gradient(135deg,#D72323,#FF4444);color:#fff;padding:16px 20px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center">
             <div><b style="font-size:16px">💰 Chi tiết Báo Giá</b><div id="qd-id" style="font-size:11px;opacity:.8;margin-top:2px"></div></div>
-            <button onclick="closeM('quote-detail')" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer">✕</button>
+            <button onclick="closeM('quote-detail')" style="background:rgba(255,255,255,.2);border:none;color:#fff;font-size:22px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center">✕</button>
           </div>
           <div style="padding:20px" id="qd-body"></div>
         </div>
@@ -714,16 +714,19 @@ tbody td{padding:11px 14px;font-size:13px}
         </div>
 
         <div class="sdiv">Dịch vụ báo giá <span style="font-size:10px;color:var(--text3);font-weight:400">(Tick chọn → điền giá → ghi chú nếu cần)</span></div>
+        <!-- Banner yêu cầu gốc từ khách (hiện khi mở từ quote request) -->
+        <div id="qb-inbound-ref" style="display:none"></div>
         <div id="qb-services-list">
           <!-- rendered by JS -->
         </div>
+
+        <div class="fr full" style="margin-top:4px"><div class="fg"><label>Ghi chú chung cho khách</label><textarea id="qb-note" rows="2" placeholder="Ghi chú thêm, yêu cầu đặc biệt..."></textarea></div></div>
 
         <div class="sdiv">Thanh toán & Đặt cọc</div>
         <div class="fr">
           <div class="fg"><label>Tiền cọc (VNĐ)</label><input id="qb-deposit" type="number" placeholder="0" oninput="qbCalcTotal()"></div>
           <div class="fg"><label>Ngân hàng nhận cọc</label><input id="qb-bank-name" placeholder="VD: Vietcombank"></div>
         </div>
-        <div class="fr">
           <div class="fg"><label>Số tài khoản</label><input id="qb-bank-acc" placeholder="0011004321234"></div>
           <div class="fg"><label>Chủ tài khoản</label><input id="qb-bank-owner" placeholder="CONG TY CP DICH THUAT SO HOA"></div>
         </div>
@@ -1585,30 +1588,30 @@ window.openQuoteDetail = function(id) {
   document.getElementById('qd-body').innerHTML = `
     <div style="display:grid;gap:12px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Họ tên</div><div style="font-weight:600">${q.name||'—'}</div></div>
-        <div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Điện thoại</div><div style="font-weight:600;color:#D72323">${q.phone||'—'}</div></div>
-        <div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Email</div><div>${q.email||'—'}</div></div>
-        <div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Deadline</div><div>${q.deadline||'Càng sớm càng tốt'}</div></div>
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:3px">Họ tên</div><div style="font-weight:600;color:var(--text)">${q.name||'—'}</div></div>
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:3px">Điện thoại</div><div style="font-weight:700;color:#FF6B6B;font-size:15px">${q.phone||'—'}</div></div>
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:3px">Email</div><div style="color:var(--text2)">${q.email||'—'}</div></div>
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:3px">Deadline</div><div style="color:var(--text2)">${q.deadline||'Càng sớm càng tốt'}</div></div>
       </div>
-      <div style="background:#F8FAFF;border-radius:8px;padding:12px">
-        <div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:6px">Dịch vụ yêu cầu</div>
-        <div style="font-size:14px;font-weight:600;color:#1e3a8a">${q.services||'Chưa chọn'}</div>
+      <div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:8px;padding:12px">
+        <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:6px">Dịch vụ yêu cầu</div>
+        <div style="font-size:14px;font-weight:700;color:var(--blue-ll)">${q.services||'Chưa chọn'}</div>
       </div>
-      <div style="background:#F8FAFF;border-radius:8px;padding:12px">
-        <div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:6px">Nhận hàng</div>
-        <div>${q.delivery||'—'}</div>
-        ${q.deliveryAddr?`<div style="font-size:13px;color:#374151;margin-top:4px">📍 ${q.deliveryAddr}</div>`:''}
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:6px">Nhận hàng</div>
+        <div style="color:var(--text2)">${q.delivery||'—'}</div>
+        ${q.deliveryAddr?`<div style="font-size:13px;color:var(--text2);margin-top:4px">📍 ${q.deliveryAddr}</div>`:''}
       </div>
-      ${q.fileNames?`<div style="background:#F0FDF4;border-radius:8px;padding:12px"><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:6px">Files đính kèm</div><div>📎 ${q.fileNames}</div></div>`:''}
-      ${q.gdriveLink?`<div style="background:#EFF6FF;border-radius:8px;padding:12px"><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:6px">Google Drive</div><a href="${q.gdriveLink}" target="_blank" style="color:#2563EB;word-break:break-all">📁 ${q.gdriveLink}</a></div>`:''}
-      ${q.note?`<div><div style="font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;margin-bottom:3px">Ghi chú</div><div>${q.note}</div></div>`:''}
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <select id="qd-status-sel" style="border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:13px;background:#fff;flex:1">
+      ${q.fileNames?`<div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:6px">Files đính kèm</div><div style="color:var(--green-l)">📎 ${q.fileNames}</div></div>`:''}
+      ${q.gdriveLink?`<div style="background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:6px">Google Drive</div><a href="${q.gdriveLink}" target="_blank" style="color:var(--blue-ll);word-break:break-all">📁 ${q.gdriveLink}</a></div>`:''}
+      ${q.note?`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:3px">Ghi chú</div><div style="color:var(--text2)">${q.note}</div></div>`:''}
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <select id="qd-status-sel" style="border:1px solid var(--border2);border-radius:6px;padding:7px 12px;font-size:13px;background:var(--bg3);color:var(--text);flex:1;min-width:130px">
           ${Object.entries(QS).map(([v,l])=>`<option value="${v}" ${q.status===v?'selected':''}>${l}</option>`).join('')}
         </select>
-        <button onclick="updateQuoteStatus('${id}',document.getElementById('qd-status-sel').value);closeM('quote-detail')" style="background:#2563EB;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer">Lưu trạng thái</button>
-        <button onclick="closeM('quote-detail');openQuoteBuilder('${id}')" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer">📝 Lập Báo Giá</button>
-        <button onclick="createLeadFromQuote('${id}')" style="background:#059669;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer">→ Tạo Lead</button>
+        <button onclick="updateQuoteStatus('${id}',document.getElementById('qd-status-sel').value);closeM('quote-detail')" style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer">Lưu TT</button>
+        <button onclick="closeM('quote-detail');openQuoteBuilder('${id}')" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer">📝 Lập Báo Giá</button>
+        <button onclick="createLeadFromQuote('${id}')" style="background:#059669;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer">→ Tạo Lead</button>
       </div>
     </div>`;
   document.getElementById('m-quote-detail').style.display = 'flex';
@@ -1721,6 +1724,54 @@ window.openQuoteBuilder = function(quoteId) {
       document.getElementById('qb-email').value = q.email || '';
       document.getElementById('qb-phone').value = q.phone || '';
       document.getElementById('qb-send-email').value = q.email || '';
+
+      // Auto-tick dịch vụ khớp với q.services (so sánh tên không phân biệt hoa/thường)
+      if (q.services) {
+        const svLower = q.services.toLowerCase();
+        QB_SERVICES.forEach(s => {
+          // Map từ khóa từ tên dịch vụ trong form yêu cầu sang QB_SERVICES
+          const keywords = {
+            'typing':    ['đánh máy','nhập liệu'],
+            'prepare':   ['chuẩn bị hồ sơ','sắp xếp'],
+            'translate': ['dịch thuật','dịch tài liệu','anh viet','viet anh','anh-viet','anh – viet'],
+            'notarize':  ['công chứng','chứng thực','bản sao'],
+            'print':     ['in ấn','in tài liệu'],
+            'stamp':     ['đóng dấu'],
+            'legalize':  ['hợp pháp','apostille','lãnh sự'],
+            'delivery':  ['giao tài liệu','giao tận nơi'],
+          };
+          const kws = keywords[s.id] || [s.label.toLowerCase()];
+          const matched = kws.some(kw => svLower.includes(kw));
+          if (matched) {
+            const cb = document.getElementById('svc-cb-' + s.id);
+            const wrap = document.getElementById('svc-wrap-' + s.id);
+            const noteEl = document.getElementById('svc-note-' + s.id);
+            if (cb) { cb.checked = true; }
+            if (wrap) wrap.classList.add('selected');
+            if (noteEl) noteEl.classList.add('show');
+          }
+        });
+      }
+
+      // Điền ghi chú vào field ghi chú chung nếu có
+      if (q.note) {
+        const noteEl = document.getElementById('qb-note');
+        if (noteEl) noteEl.value = q.note;
+      }
+
+      // Hiển thị banner yêu cầu gốc để nhân viên tham khảo
+      const banner = document.getElementById('qb-inbound-ref');
+      if (banner) {
+        banner.style.display = 'block';
+        banner.innerHTML = `<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12.5px">
+          <div style="font-weight:700;color:var(--gold-l);margin-bottom:4px">📋 Yêu cầu từ khách:</div>
+          <div style="color:var(--text2)"><b>Dịch vụ:</b> ${q.services||'—'}</div>
+          ${q.note?`<div style="color:var(--text2);margin-top:3px"><b>Ghi chú:</b> ${q.note}</div>`:''}
+          ${q.deadline?`<div style="color:var(--text2);margin-top:3px"><b>Deadline:</b> ${q.deadline}</div>`:''}
+        </div>`;
+      }
+
+      qbCalcTotal();
     }
   }
 
@@ -1738,6 +1789,10 @@ window.openQuoteBuilder = function(quoteId) {
   document.getElementById('qb-output').style.display = 'none';
   document.getElementById('qb-copy-btn').style.display = 'none';
   document.getElementById('qb-send-area').style.display = 'none';
+  // Reset inbound ref banner
+  const ibRef = document.getElementById('qb-inbound-ref'); if(ibRef){ibRef.style.display='none';ibRef.innerHTML='';}
+  // Reset ghi chú chung
+  const qbNote = document.getElementById('qb-note'); if(qbNote) qbNote.value = '';
   // Reset customer search
   _qbSelectedCustomer = null;
   const csi = document.getElementById('qb-cust-search'); if(csi) csi.value = '';
