@@ -147,6 +147,15 @@ a{text-decoration:none;color:inherit}
 .cbtn:disabled{opacity:.6;transform:none;cursor:not-allowed}
 /* Báo giá form */
 .bg-section-lbl{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+/* Service items (giống admin QB) */
+.svc-item{border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;transition:all .2s;background:#FAFBFF}
+.svc-item.selected{border-color:var(--blue3);background:#EFF6FF}
+.svc-header{display:flex;align-items:center;gap:10px;cursor:pointer}
+.svc-cb{width:17px;height:17px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+.svc-label{font-size:13.5px;font-weight:600;color:var(--text);flex:1}
+.svc-note-portal{width:100%;margin-top:8px;padding:7px 10px;background:#fff;border:1.5px solid var(--border);border-radius:7px;color:var(--text);font-size:12.5px;outline:none;resize:none;font-family:'Be Vietnam Pro',sans-serif;display:none;box-sizing:border-box}
+.svc-note-portal.show{display:block}
+.svc-note-portal:focus{border-color:var(--blue3);box-shadow:0 0 0 3px rgba(22,119,255,.1)}
 .bq-upload-zone{border:2px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:#FAFBFF;position:relative;transition:border-color .2s}
 .bq-upload-zone:hover{border-color:var(--blue3);background:#EFF6FF}
 .bq-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -376,13 +385,8 @@ a{text-decoration:none;color:inherit}
         <button type="button" id="bq-gdrive-toggle" class="bq-gdrive-btn">📁 File lớn? Dùng Google Drive →</button>
 
         <!-- Dịch vụ yêu cầu -->
-        <div class="bg-section-lbl" style="margin-top:18px">🛠️ Dịch vụ yêu cầu</div>
-        <div class="bq-checks" id="bq-services">
-          <div class="bq-check" data-val="Dịch thuật" onclick="bqToggle(this,'service')"><span class="ck-icon">📝</span>Dịch thuật</div>
-          <div class="bq-check" data-val="Dịch thuật + Công chứng" onclick="bqToggle(this,'service')"><span class="ck-icon">🔏</span>Dịch thuật + Công chứng</div>
-          <div class="bq-check" data-val="Hợp pháp hóa lãnh sự" onclick="bqToggle(this,'service')"><span class="ck-icon">🏛️</span>Hợp pháp hóa lãnh sự</div>
-          <div class="bq-check" data-val="Đánh máy / Nhập liệu" onclick="bqToggle(this,'service')"><span class="ck-icon">⌨️</span>Đánh máy / Nhập liệu</div>
-        </div>
+        <div class="bg-section-lbl" style="margin-top:18px">🛠️ Dịch vụ yêu cầu <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(tick chọn → ghi chú nếu cần)</span></div>
+        <div id="bq-services-list"></div>
 
         <!-- Nhận hàng -->
         <div class="bg-section-lbl" style="margin-top:18px">🚚 Nhận hàng</div>
@@ -772,12 +776,32 @@ function renderProfile(){
     <div class="df"><span class="dl">Ngày tạo</span><span class="dv">${p?.createdAt?.toDate?fd(p.createdAt):'—'}</span></div>`;
 }
 
-// ── Checkbox toggle báo giá
+// ── Danh sách dịch vụ báo giá (giống admin QB)
+const BQ_SERVICES = [
+  {id:'translate',  label:'Dịch thuật tài liệu',              icon:'🌐'},
+  {id:'notarize',   label:'Công chứng / Chứng thực bản sao',  icon:'✅'},
+  {id:'legalize',   label:'Hợp pháp hoá lãnh sự / Apostille', icon:'🏛️'},
+  {id:'typing',     label:'Đánh máy / Nhập liệu vi tính',     icon:'⌨️'},
+  {id:'prepare',    label:'Chuẩn bị hồ sơ, sắp xếp tài liệu',icon:'📂'},
+  {id:'print',      label:'In ấn tài liệu',                   icon:'🖨️'},
+  {id:'stamp',      label:'Đóng dấu chứng nhận',              icon:'🔏'},
+  {id:'delivery',   label:'Giao tài liệu tận nơi',            icon:'🚚'},
+];
+
+// ── Toggle dịch vụ (tick → hiện ghi chú)
+window.bqToggleSvc=function(id){
+  const cb=document.getElementById('bq-cb-'+id);
+  const wrap=document.getElementById('bq-wrap-'+id);
+  const note=document.getElementById('bq-snote-'+id);
+  cb.checked=!cb.checked;
+  wrap.classList.toggle('selected',cb.checked);
+  note.classList.toggle('show',cb.checked);
+  if(cb.checked)note.focus();
+};
+
+// ── Delivery toggle (single)
 window.bqToggle=(el,type)=>{
-  if(type==='service'){
-    el.classList.toggle('checked');
-  } else {
-    // delivery: single select
+  if(type==='delivery'){
     document.querySelectorAll('#bq-delivery .bq-check').forEach(l=>l.classList.remove('checked'));
     el.classList.add('checked');
     document.getElementById('bq-delivery-addr').style.display=
@@ -786,7 +810,12 @@ window.bqToggle=(el,type)=>{
 };
 
 window.sendRequest=async()=>{
-  const services=[...document.querySelectorAll('#bq-services .bq-check.checked')].map(l=>l.dataset.val);
+  const services=BQ_SERVICES
+    .filter(s=>document.getElementById('bq-cb-'+s.id)?.checked)
+    .map(s=>({
+      label:s.label,
+      note:document.getElementById('bq-snote-'+s.id)?.value?.trim()||''
+    }));
   const delivery=document.querySelector('#bq-delivery .bq-check.checked')?.dataset.val||'';
   const addr=document.getElementById('bq-addr').value.trim();
   const err=document.getElementById('bq-err');
@@ -796,12 +825,14 @@ window.sendRequest=async()=>{
   if(!services.length){err.textContent='⚠️ Vui lòng chọn ít nhất một dịch vụ.';err.style.display='block';return;}
   if(delivery==='Giao hàng tận nơi'&&!addr){document.getElementById('bq-addr').focus();err.textContent='⚠️ Vui lòng nhập địa chỉ giao hàng.';err.style.display='block';return;}
   btn.disabled=true;btn.textContent='⏳ Đang gửi...';
+  const servicesText=services.map(s=>s.note?`${s.label} (${s.note})`:s.label).join(', ');
   const data={
     name:S.profile?.name||S.user.displayName||S.user.email,
     email:S.user.email,
     phone:S.profile?.phone||'',
     channel:'Portal KH',
-    services:services.join(', '),
+    services:servicesText,
+    servicesDetail:services,
     delivery,
     deliveryAddr:addr,
     deadline:document.getElementById('bq-date').value||'Càng sớm càng tốt',
@@ -815,10 +846,18 @@ window.sendRequest=async()=>{
   };
   try{
     await addDoc(collection(db,'quotes'),data);
-    suc.textContent='✅ Đã gửi yêu cầu báo giá! Chúng tôi sẽ liên hệ qua Zalo/email trong 5–15 phút.';
+    suc.textContent='✅ Đã gửi yêu cầu báo giá! Chúng tôi sẽ liên hệ trong 5–15 phút.';
     suc.style.display='block';
-    // Reset form
-    document.querySelectorAll('#bq-services .bq-check, #bq-delivery .bq-check').forEach(l=>l.classList.remove('checked'));
+    // Reset
+    BQ_SERVICES.forEach(s=>{
+      const cb=document.getElementById('bq-cb-'+s.id);
+      const wrap=document.getElementById('bq-wrap-'+s.id);
+      const note=document.getElementById('bq-snote-'+s.id);
+      if(cb)cb.checked=false;
+      if(wrap)wrap.classList.remove('selected');
+      if(note){note.classList.remove('show');note.value='';}
+    });
+    document.querySelectorAll('#bq-delivery .bq-check').forEach(l=>l.classList.remove('checked'));
     document.getElementById('bq-delivery-addr').style.display='none';
     ['bq-date','bq-addr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     const noteEl=document.getElementById('bq-note');if(noteEl)noteEl.value='';
@@ -836,12 +875,29 @@ window.sendRequest=async()=>{
 
 // Init báo giá form (gọi sau khi user đăng nhập)
 function initBaoGiaForm(){
-  // Prefill tên
+  // Prefill tên/email
   const nm=S.profile?.name||S.user.displayName||S.user.email;
   const el=document.getElementById('bq-prefill-name');
   const el2=document.getElementById('bq-prefill-email');
   if(el)el.textContent=nm;
   if(el2)el2.textContent=S.user.email;
+
+  // Render service items
+  const list=document.getElementById('bq-services-list');
+  if(list&&!list.dataset.init){
+    list.dataset.init='1';
+    list.innerHTML=BQ_SERVICES.map(s=>`
+      <div class="svc-item" id="bq-wrap-${s.id}">
+        <div class="svc-header" onclick="bqToggleSvc('${s.id}')">
+          <input type="checkbox" class="svc-cb" id="bq-cb-${s.id}" onclick="event.stopPropagation();bqToggleSvc('${s.id}')">
+          <span style="font-size:16px">${s.icon}</span>
+          <span class="svc-label">${s.label}</span>
+        </div>
+        <textarea class="svc-note-portal" id="bq-snote-${s.id}"
+          placeholder="Ghi chú cho dịch vụ này (tuỳ chọn)..." rows="2"
+          onclick="event.stopPropagation()"></textarea>
+      </div>`).join('');
+  }
 
   // Upload file
   window._bqFiles=[];
@@ -871,9 +927,7 @@ function initBaoGiaForm(){
     gBtn.addEventListener('click',()=>{gdriveTip.style.display=gdriveTip.style.display==='none'?'block':'none';});
   }
 
-  // Service checkboxes — dùng bqToggle onclick inline, không cần listener ở đây
-
-  // Delivery checkboxes — dùng bqToggle onclick inline, không cần listener ở đây
+  // Delivery checkboxes (single) — dùng onclick inline bqToggle
 }
 
 let fbOrderId=null;
