@@ -388,7 +388,7 @@ tbody td{padding:11px 14px;font-size:13px}
         <div class="tw">
           <div class="th2">
             <h3>👤 Tài khoản khách hàng thân thiết</h3>
-            <button class="btn btn-p" onclick="openM('cust-acc')">+ Tạo tài khoản KH</button>
+            <span style="font-size:12px;color:var(--text3)">Khách tự đăng ký trên portal</span>
           </div>
           <div style="overflow-x:auto"><table>
             <thead><tr><th>Tên khách hàng</th><th>Email</th><th>Điện thoại</th><th>Đơn hàng</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
@@ -659,21 +659,6 @@ tbody td{padding:11px 14px;font-size:13px}
   </div>
 </div>
 
-<!-- CUSTOMER ACCOUNT MODAL -->
-<div id="m-cust-acc" style="display:none" class="mo" onclick="if(event.target===this)closeM('cust-acc')">
-  <div class="mb" style="max-width:480px">
-    <div class="mh"><h3>👤 Tạo tài khoản khách hàng</h3><button class="mc-btn" onclick="closeM('cust-acc')">×</button></div>
-    <div class="mbody">
-      <div class="fr full"><div class="fg"><label>Họ tên *</label><input id="ca-nm" placeholder="Nguyễn Văn A"></div></div>
-      <div class="fr full"><div class="fg"><label>Email *</label><input id="ca-em" type="email" placeholder="khachhang@gmail.com"></div></div>
-      <div class="fr full"><div class="fg"><label>Số điện thoại</label><input id="ca-ph" placeholder="0909.xxx.xxx"></div></div>
-      <div class="fr full"><div class="fg"><label>Mật khẩu *</label><input id="ca-pw" type="password" placeholder="Tối thiểu 8 ký tự"></div></div>
-      <p style="font-size:12px;color:var(--text3);margin-top:8px">Sau khi tạo, khách hàng có thể đăng nhập tại <strong style="color:var(--blue-ll)">portal/index.html</strong> để theo dõi hồ sơ.</p>
-    </div>
-    <div class="mfoot"><button class="bm bm-c" onclick="closeM('cust-acc')">Hủy</button><button class="bm bm-p" onclick="createCustAcc()">💾 Tạo tài khoản</button></div>
-  </div>
-</div>
-
 <!-- STAFF ACCOUNT MODAL -->
 <div id="m-staff-acc" style="display:none" class="mo" onclick="if(event.target===this)closeM('staff-acc')">
   <div class="mb" style="max-width:440px">
@@ -802,8 +787,7 @@ tbody td{padding:11px 14px;font-size:13px}
             </div>
             <!-- No account hint -->
             <div id="qb-cust-noacc" style="display:none;margin-top:10px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--gold-l)">
-              ⚠️ Không tìm thấy tài khoản. Khách chưa đăng ký portal → dùng <strong>Luồng B</strong>: sao chép hoặc tải PDF gửi thủ công.
-              <button onclick="openM('cust-acc')" style="margin-left:8px;background:rgba(37,99,235,.2);border:none;color:var(--blue-ll);border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:600">+ Tạo tài khoản ngay</button>
+              ⚠️ Không tìm thấy tài khoản. Khách chưa đăng ký portal → dùng <strong>Luồng B</strong>: sao chép hoặc tải PDF gửi thủ công cho khách xác nhận.
             </div>
           </div>
 
@@ -1172,25 +1156,13 @@ function renderAccounts(){
     <td>${S.orders.filter(o=>o.customerEmail===u.email).length} đơn</td>
     <td style="font-size:11px;color:var(--text3)">${u.createdAt?.toDate?fd2(u.createdAt.toDate()):''}</td>
     <td><button class="ab ab-r" onclick="delAcc('${u.id}')">🗑</button></td>
-  </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text3)">Chưa có tài khoản KH. <button class="ab ab-v" onclick="openM('cust-acc')">+ Tạo ngay</button></td></tr>`;
+  </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text3)">Khách hàng chưa có tài khoản — khách tự đăng ký trên portal.</td></tr>`;
 }
 
 function renderStaff(){
   const staff=S.users.filter(u=>['superadmin','admin','staff'].includes(u.role));
   document.getElementById('staff-tb').innerHTML=staff.map(u=>`<tr><td>${u.name||u.email?.split('@')[0]||'—'}</td><td style="font-size:12px">${u.email||'—'}</td><td><span style="background:rgba(245,158,11,.1);color:var(--gold-l);padding:2px 7px;border-radius:8px;font-size:11px;font-weight:700">${u.role==='superadmin'?'Super Admin':u.role==='admin'?'Admin':'NV'}</span></td><td><button class="ab ab-r" onclick="delAcc('${u.id}')">🗑</button></td></tr>`).join('')||`<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:12px">Chưa có nhân viên</td></tr>`;
 }
-
-window.createCustAcc=async()=>{
-  const nm=document.getElementById('ca-nm').value;const em=document.getElementById('ca-em').value;const ph=document.getElementById('ca-ph').value;const pw=document.getElementById('ca-pw').value;
-  if(!em||!pw||pw.length<8){notif('⚠️ Email & mật khẩu ≥8 ký tự','er');return;}
-  try{
-    const cred=await createUserWithEmailAndPassword(auth,em,pw);
-    await setDoc(doc(db,'users',cred.user.uid),{name:nm,email:em,phone:ph,role:'customer',createdAt:serverTimestamp()});
-    await log('Tạo tài khoản KH',`${nm} – ${em}`,'pu');
-    notif('✅ Đã tạo tài khoản khách hàng','ok');closeM('cust-acc');
-    ['ca-nm','ca-em','ca-ph','ca-pw'].forEach(id=>document.getElementById(id).value='');
-  }catch(e){notif('❌ '+e.message,'er');}
-};
 
 window.createStaffAcc=async()=>{
   const nm=document.getElementById('sa-nm').value;const em=document.getElementById('sa-em').value;const pw=document.getElementById('sa-pw').value;const role=document.getElementById('sa-ro').value;
