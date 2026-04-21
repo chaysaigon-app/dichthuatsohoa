@@ -51,8 +51,17 @@ service cloud.firestore {
               resource.data.customerUid == request.auth.uid
            || resource.data.customerEmail == request.auth.token.email
            ));
-      allow create: if isStaff();
-      allow update: if isStaff();
+
+      // Staff tạo thủ công; Khách tạo khi xác nhận báo giá trên portal
+      allow create: if isStaff() || isCustomerOrNew();
+
+      // Staff cập nhật toàn bộ; Khách chỉ được ghi đánh giá
+      allow update: if isStaff()
+        || (isCustomerOrNew()
+            && resource.data.customerUid == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['customerRating','customerComment','updatedAt']));
+
       allow delete: if isSuperAdmin();
     }
 
@@ -106,11 +115,11 @@ service cloud.firestore {
       // Staff tạo và cập nhật toàn bộ (lập báo giá, sửa báo giá)
       allow create: if isStaff();
       allow update: if isStaff()
-        // Khách cập nhật giới hạn: chỉ status, confirmedAt, rejectedAt, rejectReason, updatedAt
+        // Khách cập nhật: status, confirmedAt, orderId, orderNum khi confirm; updatedAt
         || (isCustomerOrNew()
             && resource.data.customerUid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys()
-                .hasOnly(['status','confirmedAt','rejectedAt','rejectReason','updatedAt']));
+                .hasOnly(['status','confirmedAt','rejectedAt','rejectReason','orderId','orderNum','updatedAt']));
 
       allow delete: if isAdmin();
     }
