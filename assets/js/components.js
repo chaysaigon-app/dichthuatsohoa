@@ -1,5 +1,6 @@
 // ================================================================
 // SHARED COMPONENTS — Dịch Thuật Số Hóa
+// Chat-first: MỌI CTA đều mở live chat, không gọi/mở app ngoài
 // ================================================================
 
 function getBase() {
@@ -8,6 +9,20 @@ function getBase() {
   if (p.match(/\/(pages|admin|portal)\//)) return '../';
   return './';
 }
+
+// ================================================================
+// GLOBAL CHAT OPENER — dùng ở mọi nơi: onclick="window.__openChat()"
+// ================================================================
+window.__openChat = function(topic) {
+  const box = document.getElementById('chat-box');
+  if (!box) { window.__chatPendingOpen = topic || true; return; }
+  box.classList.add('open');
+  const badge = document.getElementById('chat-unread-badge');
+  if (badge) badge.style.display = 'none';
+  const inp = document.getElementById('chat-input');
+  if (inp) { if (topic) inp.value = topic; inp.focus(); }
+  // Nếu đang ở màn quick-opts thì vẫn giữ, khách tự chọn
+};
 
 export function renderTopbar() {
   const b = getBase();
@@ -20,7 +35,7 @@ export function renderTopbar() {
       </div>
       <div style="display:flex;gap:14px">
         <a href="mailto:sohoavn@gmail.com" class="topbar-item">📧 sohoavn@gmail.com</a>
-        <a href="https://zalo.me/84909108890" class="topbar-item">💬 Zalo</a>
+        <a href="javascript:void(0)" onclick="window.__openChat()" class="topbar-item">💬 Nhắn tin</a>
         <a href="${b}portal/index.html" class="topbar-item" style="color:#FFB800;font-weight:700">👤 Cổng KH</a>
       </div>
     </div>`);
@@ -39,7 +54,11 @@ export function renderHeader(activePage = '') {
           </div>
         </a>
         <div>
-          <div class="header-phone"><a href="tel:0909108890">0909.108.890</a></div>
+          <div class="header-phone">
+            <a href="javascript:void(0)" onclick="window.__openChat()" style="cursor:pointer;text-decoration:none">
+              💬 Nhắn tin tư vấn
+            </a>
+          </div>
           <div style="font-size:12px;color:var(--gray-mid);text-align:right">Tư vấn miễn phí · Báo giá 5 phút</div>
         </div>
       </div>
@@ -75,7 +94,11 @@ export function renderFooter() {
             <div><div class="logo-name" style="color:#fff">Dịch Thuật Số Hóa</div><div class="logo-sub">DIGITIZATION TECHNOLOGY &amp; TRANSLATION</div></div>
           </div>
           <p style="font-size:13.5px;color:rgba(255,255,255,.65);line-height:1.8">Chuyên dịch thuật công chứng uy tín tại TP.HCM từ 2007. Hơn 20 ngôn ngữ, lấy ngay trong ngày, giá rẻ nhất Sài Gòn.</p>
-          <div class="footer-phone"><a href="tel:0909108890" style="color:var(--gold)">0909.108.890</a></div>
+          <div class="footer-phone">
+            <a href="javascript:void(0)" onclick="window.__openChat()" style="color:var(--gold);cursor:pointer;text-decoration:none">
+              💬 Nhắn tin báo giá ngay
+            </a>
+          </div>
           <p style="font-size:12px;color:rgba(255,255,255,.45);margin-top:6px">35 Nguyễn Văn Tráng, P. Bến Thành, Q.1, TP.HCM</p>
         </div>
         <div class="footer-col"><h4>Dịch Vụ</h4><ul>
@@ -128,13 +151,17 @@ export function showToast(msg, type = 'info', duration = 4000) {
   setTimeout(() => t.remove(), duration);
 }
 
+// ================================================================
+// STICKY CTA — Mobile: 3 nút đều mở chat (không gọi/mở app)
+// ================================================================
 export function renderStickyCTA() {
   const div = document.createElement('div');
+  div.id = 'sticky-cta';
   div.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:800;display:none;background:#fff;border-top:2px solid #D1DCF0;padding:10px 16px;gap:8px';
   div.innerHTML = `
-    <a href="tel:0909108890" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#D72323;color:#fff;font-weight:700;font-size:13px">📞 Gọi ngay</a>
-    <a href="https://zalo.me/84909108890" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#0068FF;color:#fff;font-weight:700;font-size:13px">💬 Zalo</a>
-    <a href="https://wa.me/84909108890" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#25D366;color:#fff;font-weight:700;font-size:13px">WhatsApp</a>`;
+    <button onclick="window.__openChat()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:linear-gradient(135deg,#1A56DB,#2563EB);color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer">💬 Nhắn tin</button>
+    <button onclick="window.__openChat()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#0068FF;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer">💙 Zalo</button>
+    <button onclick="window.__openChat()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:8px;background:#25D366;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer">📱 WhatsApp</button>`;
   document.body.appendChild(div);
   const update = () => { div.style.display = window.innerWidth <= 768 ? 'flex' : 'none'; };
   update(); window.addEventListener('resize', update);
@@ -142,65 +169,90 @@ export function renderStickyCTA() {
 }
 
 // ================================================================
-// CHAT WIDGET — hiện trên mọi trang website (không dùng trong admin/portal)
-// Khách nhắn tin → lưu Firestore collection "conversations" → admin/staff thấy realtime
+// CHAT WIDGET — Live chat phễu tư vấn
+// Quick Options: Báo giá · Đặt hàng · Hỏi thêm · Chat trực tiếp
+// Sau tin đầu: xin phone/email để nhân viên gọi lại
 // ================================================================
 export async function renderChatWidget() {
-  // Inject CSS
   const style = document.createElement('style');
   style.textContent = `
-    #chat-fab{position:fixed;bottom:80px;right:20px;z-index:900;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#1A56DB,#2563EB);border:none;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.45);display:flex;align-items:center;justify-content:center;font-size:24px;transition:transform .2s}
-    #chat-fab:hover{transform:scale(1.1)}
+    #chat-fab{position:fixed;bottom:80px;right:20px;z-index:900;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1A56DB,#2563EB);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.5);display:flex;align-items:center;justify-content:center;font-size:26px;transition:transform .2s}
+    #chat-fab:hover{transform:scale(1.12)}
     #chat-fab .chat-badge{position:absolute;top:-2px;right:-2px;background:#EF4444;color:#fff;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;display:none}
-    #chat-box{position:fixed;bottom:145px;right:20px;z-index:900;width:340px;max-width:calc(100vw - 32px);background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden;font-family:'Be Vietnam Pro',sans-serif}
+    #chat-box{position:fixed;bottom:150px;right:20px;z-index:900;width:355px;max-width:calc(100vw - 32px);background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden;font-family:'Be Vietnam Pro',sans-serif}
     #chat-box.open{display:flex}
     .chat-head{background:linear-gradient(135deg,#1A56DB,#2563EB);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px}
-    .chat-head .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:16px}
+    .chat-head .av{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:18px}
     .chat-head .info{flex:1}.chat-head .info b{display:block;font-size:14px}
     .chat-head .info span{font-size:11px;opacity:.8}
-    .chat-head .close-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0;line-height:1}
-    .chat-msgs{flex:1;height:280px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#F8FAFF}
-    .chat-msg{max-width:80%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.5;word-break:break-word}
+    .chat-head .close-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0;line-height:1}
+    #chat-quick-opts{padding:16px 14px 14px;background:#F8FAFF}
+    #chat-quick-opts .greet{font-size:13px;color:#374151;margin:0 0 12px;text-align:center;line-height:1.6}
+    .chat-opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .chat-opt-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:13px 8px;border-radius:13px;border:1.5px solid #C7D7F8;background:#fff;cursor:pointer;font-size:12.5px;font-weight:600;color:#1e3a8a;line-height:1.35;transition:all .15s;text-align:center}
+    .chat-opt-btn:hover{background:#EEF4FF;border-color:#2563EB;transform:translateY(-1px);box-shadow:0 3px 10px rgba(37,99,235,.15)}
+    .chat-opt-btn .opt-icon{font-size:24px;line-height:1;margin-bottom:2px}
+    .chat-msgs{flex:1;height:250px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#F8FAFF}
+    .chat-msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.55;word-break:break-word}
     .chat-msg.staff{background:#E8EFFE;color:#1e3a8a;align-self:flex-start;border-bottom-left-radius:4px}
     .chat-msg.guest{background:#2563EB;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+    .chat-msg.sys{background:#E0F2FE;color:#0369A1;align-self:center;font-size:12px;max-width:92%;text-align:center;border-radius:10px}
     .chat-msg .msg-meta{font-size:10px;opacity:.6;margin-top:3px}
     .chat-typing{font-size:12px;color:#6B7280;padding:0 12px 6px;min-height:20px}
-    .chat-info-bar{background:#FFF9E6;border-top:1px solid #FDE68A;padding:8px 12px;font-size:12px;color:#92400E;display:flex;align-items:center;gap:6px}
-    .chat-info-bar input{flex:1;border:1px solid #FCD34D;border-radius:6px;padding:4px 8px;font-size:12px;outline:none}
-    .chat-info-bar button{background:#F59E0B;border:none;color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600}
-    .chat-foot{padding:10px 12px;border-top:1px solid #E5E7EB;display:flex;gap:8px;background:#fff}
+    .chat-contact-bar{background:#FFF9E6;border-top:1px solid #FDE68A;padding:10px 12px;font-size:12px;color:#92400E}
+    .chat-contact-bar p{margin:0 0 7px;font-weight:600}
+    .chat-contact-bar .cb-row{display:flex;gap:6px;margin-bottom:6px}
+    .chat-contact-bar input{flex:1;border:1px solid #FCD34D;border-radius:6px;padding:5px 8px;font-size:12px;outline:none;font-family:inherit}
+    .chat-contact-bar button{background:#F59E0B;border:none;color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
+    .chat-foot{padding:10px 12px;border-top:1px solid #E5E7EB;display:flex;gap:8px;background:#fff;align-items:flex-end}
     .chat-foot textarea{flex:1;border:1px solid #D1D5DB;border-radius:8px;padding:8px;font-size:13px;resize:none;height:38px;line-height:1.4;font-family:inherit;outline:none;transition:border-color .2s}
     .chat-foot textarea:focus{border-color:#2563EB}
-    .chat-foot button{background:#2563EB;border:none;color:#fff;border-radius:8px;padding:0 14px;cursor:pointer;font-size:18px;transition:background .2s}
+    .chat-foot button{background:#2563EB;border:none;color:#fff;border-radius:8px;padding:0 14px;cursor:pointer;font-size:18px;transition:background .2s;height:38px;min-width:42px}
     .chat-foot button:hover{background:#1A56DB}
-    .chat-empty{text-align:center;color:#9CA3AF;font-size:13px;padding:32px 16px}
-    @media(max-width:480px){#chat-box{bottom:80px;right:0;left:0;width:100%;border-radius:16px 16px 0 0}#chat-fab{bottom:90px}}
+    @media(max-width:480px){#chat-box{bottom:80px;right:0;left:0;width:100%;border-radius:18px 18px 0 0}#chat-fab{bottom:90px}}
   `;
   document.head.appendChild(style);
 
-  // FAB button
+  const QUICK_OPTS = [
+    { icon: '💰', label: 'Hỏi bảng giá\n& báo giá',     msg: 'Tôi muốn hỏi bảng giá và nhận báo giá dịch vụ dịch thuật.' },
+    { icon: '📋', label: 'Đặt hàng\ndịch thuật',          msg: 'Tôi muốn đặt hàng dịch thuật. Nhờ tư vấn quy trình.' },
+    { icon: '❓', label: 'Hỏi thêm\nthông tin',           msg: 'Tôi muốn hỏi thêm thông tin về các dịch vụ của công ty.' },
+    { icon: '💬', label: 'Chat trực tiếp\nvới tư vấn viên', msg: null },
+  ];
+
+  // FAB
   const fab = document.createElement('button');
   fab.id = 'chat-fab';
   fab.innerHTML = `💬<span class="chat-badge" id="chat-unread-badge"></span>`;
   fab.title = 'Nhắn tin tư vấn';
 
-  // Chat box
+  // Box
   const box = document.createElement('div');
   box.id = 'chat-box';
   box.innerHTML = `
     <div class="chat-head">
       <div class="av">🧑‍💼</div>
-      <div class="info"><b>Tư vấn viên Dịch Thuật Số Hóa</b><span>Trả lời trong vài phút • T2–T7 8:00–17:30</span></div>
+      <div class="info"><b>Tư vấn viên Dịch Thuật Số Hóa</b><span>Phản hồi trong vài phút • T2–T7 8:00–17:30</span></div>
       <button class="close-btn" id="chat-close">✕</button>
     </div>
-    <div class="chat-msgs" id="chat-msgs">
-      <div class="chat-empty">👋 Xin chào! Hãy đặt câu hỏi hoặc mô tả tài liệu cần dịch, chúng tôi sẽ báo giá ngay!</div>
+    <div id="chat-quick-opts">
+      <p class="greet">👋 Xin chào! Bạn cần hỗ trợ gì?<br><span style="font-size:11px;color:#9CA3AF">Chọn nhanh hoặc nhập tin nhắn bên dưới</span></p>
+      <div class="chat-opt-grid">
+        ${QUICK_OPTS.map((o,i)=>`<button class="chat-opt-btn" data-idx="${i}"><span class="opt-icon">${o.icon}</span>${o.label.replace('\n','<br>')}</button>`).join('')}
+      </div>
     </div>
-    <div class="chat-typing" id="chat-typing"></div>
-    <div class="chat-info-bar" id="chat-info-bar" style="display:none">
-      📞 Để lại SĐT để nhân viên gọi lại:
-      <input type="tel" id="chat-phone-input" placeholder="09xxxxxxxx">
-      <button id="chat-phone-send">Gửi</button>
+    <div class="chat-msgs" id="chat-msgs" style="display:none"></div>
+    <div class="chat-typing" id="chat-typing" style="display:none"></div>
+    <div class="chat-contact-bar" id="chat-contact-bar" style="display:none">
+      <p>📞 Để lại số điện thoại hoặc email — nhân viên sẽ liên hệ lại:</p>
+      <div class="cb-row">
+        <input type="tel" id="chat-phone-input" placeholder="Số điện thoại (Zalo/WhatsApp)">
+        <button id="chat-phone-send">Gửi</button>
+      </div>
+      <div class="cb-row">
+        <input type="email" id="chat-email-input" placeholder="Email nhận báo giá">
+        <button id="chat-email-send">Gửi</button>
+      </div>
     </div>
     <div class="chat-foot">
       <textarea id="chat-input" placeholder="Nhập tin nhắn..." rows="1"></textarea>
@@ -210,26 +262,69 @@ export async function renderChatWidget() {
   document.body.appendChild(fab);
   document.body.appendChild(box);
 
-  // State
+  // ── Global opener (dùng cho onclick="window.__openChat()" khắp web) ──
+  window.__openChat = function(topic) {
+    box.classList.add('open');
+    document.getElementById('chat-unread-badge').style.display = 'none';
+    if (topic) {
+      const inp = document.getElementById('chat-input');
+      if (inp) inp.value = topic;
+    }
+    document.getElementById('chat-input')?.focus();
+    if (!convId) _maybeInit();
+    else if (!unsubscribe) listenMessages();
+  };
+
   let convId = localStorage.getItem('sohoa_conv_id') || null;
   let guestName = localStorage.getItem('sohoa_guest_name') || 'Khách';
   let unsubscribe = null;
   let msgCount = 0;
+  let chatMode = false;
 
-  // Toggle
+  // Returning visitor → skip quick opts
+  if (convId) _enterChat();
+
+  function _enterChat() {
+    chatMode = true;
+    document.getElementById('chat-quick-opts').style.display = 'none';
+    document.getElementById('chat-msgs').style.display = 'flex';
+    document.getElementById('chat-typing').style.display = 'block';
+  }
+
+  // FAB toggle
   fab.addEventListener('click', () => {
     box.classList.toggle('open');
     if (box.classList.contains('open')) {
       document.getElementById('chat-unread-badge').style.display = 'none';
-      document.getElementById('chat-input').focus();
-      if (!convId) initConversation();
+      document.getElementById('chat-input')?.focus();
+      if (!convId) _maybeInit();
       else if (!unsubscribe) listenMessages();
     }
   });
   document.getElementById('chat-close').addEventListener('click', () => box.classList.remove('open'));
 
-  // Firebase lazy import
-  async function getFirestore() {
+  // Quick options
+  box.querySelectorAll('.chat-opt-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const opt = QUICK_OPTS[parseInt(btn.dataset.idx)];
+      _enterChat();
+      if (opt.msg) await sendMessage(opt.msg);
+      else document.getElementById('chat-input')?.focus();
+    });
+  });
+
+  // Focus input → enter chat mode
+  document.getElementById('chat-input').addEventListener('focus', () => {
+    if (!chatMode) _enterChat();
+  });
+
+  function _maybeInit() {
+    if (convId) { listenMessages(); return; }
+    // Wait for first message before creating conversation
+  }
+
+  // Firebase
+  async function getFS() {
     const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
     const { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, orderBy, query, serverTimestamp }
       = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
@@ -242,85 +337,77 @@ export async function renderChatWidget() {
   }
 
   async function initConversation() {
-    const { db, collection, addDoc, serverTimestamp } = await getFirestore();
+    if (convId) return;
+    const { db, collection, addDoc, serverTimestamp } = await getFS();
     const ref = await addDoc(collection(db, 'conversations'), {
       guestName, guestPhone: '', guestEmail: '',
-      status: 'open',           // open | assigned | closed
-      assignedTo: '',            // uid nhân viên được giao
-      assignedName: '',
-      unreadAdmin: 1,
-      unreadGuest: 0,
+      status: 'open', assignedTo: '', assignedName: '',
+      unreadAdmin: 1, unreadGuest: 0,
       lastMessage: 'Bắt đầu cuộc trò chuyện',
-      lastAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
+      lastAt: serverTimestamp(), createdAt: serverTimestamp(),
       page: window.location.pathname,
     });
     convId = ref.id;
     localStorage.setItem('sohoa_conv_id', convId);
     listenMessages();
-    // Gửi tin chào tự động
-    await sendSystemMsg('👋 Xin chào! Nhân viên tư vấn sẽ phản hồi sớm nhất. Bạn có thể để lại số điện thoại để chúng tôi gọi lại nếu cần nhé!', db);
-  }
-
-  async function sendSystemMsg(text, db) {
-    const { collection, addDoc, serverTimestamp, doc, updateDoc } = await getFirestore();
-    await addDoc(collection(db, 'conversations', convId, 'messages'), {
-      text, sender: 'system', senderName: 'Bot', createdAt: serverTimestamp()
+    // Auto greeting
+    const fs2 = await getFS();
+    await fs2.addDoc(fs2.collection(fs2.db, 'conversations', convId, 'messages'), {
+      text: '👋 Nhân viên đã nhận tin nhắn và sẽ phản hồi sớm nhất trong giờ làm việc (T2–T7, 8:00–17:30). Bạn có thể để lại số điện thoại hoặc email bên dưới để chúng tôi chủ động liên hệ lại nhé!',
+      sender: 'system', senderName: 'Bot', createdAt: fs2.serverTimestamp()
     });
   }
 
   async function listenMessages() {
-    const { db, collection, onSnapshot, orderBy, query, doc, updateDoc } = await getFirestore();
+    if (unsubscribe) return;
+    const { db, collection, onSnapshot, orderBy, query } = await getFS();
     const q = query(collection(db, 'conversations', convId, 'messages'), orderBy('createdAt', 'asc'));
     unsubscribe = onSnapshot(q, snap => {
       const msgs = document.getElementById('chat-msgs');
+      if (!msgs) return;
       msgs.innerHTML = '';
-      let staffMsgCount = 0;
+      let staffCount = 0;
       snap.forEach(d => {
         const m = d.data();
-        if (m.sender === 'staff' || m.sender === 'admin') staffMsgCount++;
+        if (m.sender === 'staff' || m.sender === 'admin') staffCount++;
         const div = document.createElement('div');
-        const isGuest = m.sender === 'guest';
-        const isSystem = m.sender === 'system';
-        div.className = `chat-msg ${isGuest ? 'guest' : 'staff'}`;
-        if (isSystem) div.style.cssText = 'align-self:center;background:#E0F2FE;color:#0369A1;font-size:12px;max-width:90%;text-align:center';
+        const isGuest = m.sender === 'guest', isSys = m.sender === 'system';
+        div.className = `chat-msg ${isSys ? 'sys' : isGuest ? 'guest' : 'staff'}`;
         const t = m.createdAt?.toDate ? m.createdAt.toDate().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) : '';
-        div.innerHTML = `${m.text}<div class="msg-meta">${isGuest ? '' : (m.senderName||'Nhân viên') + ' · '}${t}</div>`;
+        div.innerHTML = `${m.text}<div class="msg-meta">${isGuest||isSys ? '' : (m.senderName||'Nhân viên')+' · '}${t}</div>`;
         msgs.appendChild(div);
       });
       msgs.scrollTop = msgs.scrollHeight;
-      // Hiện thanh nhập SĐT sau khi khách gửi tin đầu tiên
-      if (msgCount > 0) document.getElementById('chat-info-bar').style.display = 'flex';
-      // Báo có tin nhắn mới khi box đóng
-      if (!box.classList.contains('open') && staffMsgCount > 0) {
+      // Hiện thanh liên hệ sau tin đầu tiên của khách
+      if (msgCount > 0) document.getElementById('chat-contact-bar').style.display = 'block';
+      // Badge khi box đóng
+      if (!box.classList.contains('open') && staffCount > 0) {
         document.getElementById('chat-unread-badge').style.display = 'block';
-        document.getElementById('chat-unread-badge').textContent = staffMsgCount;
+        document.getElementById('chat-unread-badge').textContent = staffCount;
       }
     });
   }
 
   async function sendMessage(text) {
     if (!text.trim()) return;
+    if (!chatMode) _enterChat();
     if (!convId) await initConversation();
+    else if (!unsubscribe) await listenMessages();
     msgCount++;
-    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFirestore();
+    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFS();
     await addDoc(collection(db, 'conversations', convId, 'messages'), {
-      text: text.trim(), sender: 'guest', senderName: guestName,
-      createdAt: serverTimestamp()
+      text: text.trim(), sender: 'guest', senderName: guestName, createdAt: serverTimestamp()
     });
     await updateDoc(doc(db, 'conversations', convId), {
-      lastMessage: text.trim().substring(0, 60),
-      lastAt: serverTimestamp(),
-      unreadAdmin: 1
+      lastMessage: text.trim().substring(0,60), lastAt: serverTimestamp(), unreadAdmin: 1
     });
-    document.getElementById('chat-info-bar').style.display = 'flex';
+    document.getElementById('chat-contact-bar').style.display = 'block';
   }
 
-  // Send button
+  // Send
   document.getElementById('chat-send').addEventListener('click', async () => {
     const inp = document.getElementById('chat-input');
-    await sendMessage(inp.value);
-    inp.value = '';
+    await sendMessage(inp.value); inp.value = '';
   });
   document.getElementById('chat-input').addEventListener('keydown', async e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); await document.getElementById('chat-send').click(); }
@@ -330,15 +417,39 @@ export async function renderChatWidget() {
   document.getElementById('chat-phone-send').addEventListener('click', async () => {
     const phone = document.getElementById('chat-phone-input').value.trim();
     if (!phone) return;
-    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFirestore();
+    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFS();
     await addDoc(collection(db, 'conversations', convId, 'messages'), {
-      text: `📞 Khách để lại số điện thoại: ${phone}`, sender: 'guest', senderName: guestName,
-      createdAt: serverTimestamp()
+      text: `📞 Số điện thoại (Zalo/WhatsApp): ${phone}`, sender: 'guest', senderName: guestName, createdAt: serverTimestamp()
     });
     await updateDoc(doc(db, 'conversations', convId), {
-      guestPhone: phone, lastMessage: `SĐT: ${phone}`, lastAt: serverTimestamp(), unreadAdmin: 1
+      guestPhone: phone, lastAt: serverTimestamp(), unreadAdmin: 1
     });
-    document.getElementById('chat-info-bar').style.display = 'none';
+    document.getElementById('chat-phone-input').value = '';
+    document.getElementById('chat-phone-input').placeholder = '✅ Đã lưu số: ' + phone;
+    document.getElementById('chat-phone-send').disabled = true;
     localStorage.setItem('sohoa_guest_phone', phone);
   });
+
+  // Email submit
+  document.getElementById('chat-email-send').addEventListener('click', async () => {
+    const email = document.getElementById('chat-email-input').value.trim();
+    if (!email) return;
+    const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = await getFS();
+    await addDoc(collection(db, 'conversations', convId, 'messages'), {
+      text: `📧 Email nhận báo giá: ${email}`, sender: 'guest', senderName: guestName, createdAt: serverTimestamp()
+    });
+    await updateDoc(doc(db, 'conversations', convId), {
+      guestEmail: email, lastAt: serverTimestamp(), unreadAdmin: 1
+    });
+    document.getElementById('chat-email-input').value = '';
+    document.getElementById('chat-email-input').placeholder = '✅ Đã lưu: ' + email;
+    document.getElementById('chat-email-send').disabled = true;
+    localStorage.setItem('sohoa_guest_email', email);
+  });
+
+  // Handle pending open (called before widget loaded)
+  if (window.__chatPendingOpen) {
+    window.__openChat(typeof window.__chatPendingOpen === 'string' ? window.__chatPendingOpen : undefined);
+    delete window.__chatPendingOpen;
+  }
 }
