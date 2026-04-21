@@ -765,15 +765,61 @@ tbody td{padding:11px 14px;font-size:13px}
           <div id="qb-output" style="padding:24px;max-height:480px;overflow-y:auto;background:#fff;color:#111;font-family:'Be Vietnam Pro',sans-serif"></div>
         </div>
         <div id="qb-send-area" style="display:none;margin-top:14px">
-          <div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--blue-ll);margin-bottom:12px">
-            💡 <strong>Quy trình tiếp theo:</strong> Gửi nội dung này cho khách qua Zalo/Email, hoặc nhập email để lưu vào hệ thống. Sau khi khách xác nhận → bấm <strong>Lên đơn hàng</strong>.
-          </div>
-          <div class="fr">
-            <div class="fg"><label>Lưu & gửi vào tài khoản portal (Email KH)</label><input id="qb-send-email" placeholder="để trống nếu chỉ copy gửi Zalo/Email"></div>
-            <div class="fg" style="align-self:flex-end">
-              <button class="btn btn-g" onclick="qbSendToCustomer()" style="width:100%;justify-content:center">💾 Lưu báo giá vào hệ thống</button>
+
+          <!-- 2-flow explainer -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+            <div style="background:rgba(37,99,235,.07);border:1.5px solid rgba(37,99,235,.25);border-radius:10px;padding:12px 14px">
+              <div style="font-size:12px;font-weight:700;color:var(--blue-ll);margin-bottom:5px">🖥️ Luồng A — Gửi qua Portal</div>
+              <div style="font-size:11.5px;color:var(--text2);line-height:1.7">Khách có tài khoản trên portal → tìm theo tên/email/phone → chọn → lưu → báo giá xuất hiện trên dashboard của khách để họ bấm <strong>Xác nhận</strong>.</div>
+            </div>
+            <div style="background:rgba(245,158,11,.06);border:1.5px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 14px">
+              <div style="font-size:12px;font-weight:700;color:var(--gold-l);margin-bottom:5px">📤 Luồng B — Gửi thủ công</div>
+              <div style="font-size:11.5px;color:var(--text2);line-height:1.7">Khách <strong>chưa có</strong> tài khoản portal → dùng nút <strong>Sao chép</strong> hoặc <strong>Tải PDF</strong> ở trên, gửi qua Zalo/Email → đợi khách reply xác nhận rồi tự bấm "KH OK" trong danh sách.</div>
             </div>
           </div>
+
+          <!-- Customer search box -->
+          <div style="background:var(--bg3);border:1.5px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+              🔍 Tìm tài khoản khách hàng trên Portal
+              <span style="background:rgba(37,99,235,.15);color:var(--blue-ll);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">Luồng A</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="qb-cust-search" placeholder="Nhập tên, email hoặc số điện thoại..."
+                style="flex:1;padding:8px 12px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;font-family:'Be Vietnam Pro',sans-serif"
+                oninput="qbSearchCustomer()" onfocus="qbSearchCustomer()">
+              <button class="btn btn-p" onclick="qbSearchCustomer()" style="flex-shrink:0">🔍 Tìm</button>
+            </div>
+            <!-- Search results dropdown -->
+            <div id="qb-cust-results" style="display:none;margin-top:8px;border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-height:200px;overflow-y:auto"></div>
+            <!-- Selected customer badge -->
+            <div id="qb-cust-selected" style="display:none;margin-top:10px;background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.3);border-radius:8px;padding:10px 13px;display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--green-l)">✅ Đã chọn khách hàng</div>
+                <div id="qb-cust-info" style="font-size:12.5px;color:var(--text);margin-top:3px"></div>
+              </div>
+              <button onclick="qbClearCustomer()" style="background:rgba(239,68,68,.15);border:none;color:var(--red-l);border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;font-weight:600">✕ Bỏ chọn</button>
+            </div>
+            <!-- No account hint -->
+            <div id="qb-cust-noacc" style="display:none;margin-top:10px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--gold-l)">
+              ⚠️ Không tìm thấy tài khoản. Khách chưa đăng ký portal → dùng <strong>Luồng B</strong>: sao chép hoặc tải PDF gửi thủ công.
+              <button onclick="openM('cust-acc')" style="margin-left:8px;background:rgba(37,99,235,.2);border:none;color:var(--blue-ll);border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:600">+ Tạo tài khoản ngay</button>
+            </div>
+          </div>
+
+          <!-- Hidden email field (auto-filled) -->
+          <input type="hidden" id="qb-send-email">
+
+          <!-- Save button -->
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-g" onclick="qbSendToCustomer()" style="flex:1;justify-content:center;padding:10px 0;font-size:13.5px">
+              💾 Lưu báo giá vào hệ thống
+            </button>
+            <div style="font-size:11.5px;color:var(--text3);text-align:right;line-height:1.5">
+              Nếu có chọn khách → gửi lên portal.<br>Nếu không chọn → lưu nháp, gửi thủ công.
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -1683,6 +1729,12 @@ window.openQuoteBuilder = function(quoteId) {
   document.getElementById('qb-output').style.display = 'none';
   document.getElementById('qb-copy-btn').style.display = 'none';
   document.getElementById('qb-send-area').style.display = 'none';
+  // Reset customer search
+  _qbSelectedCustomer = null;
+  const csi = document.getElementById('qb-cust-search'); if(csi) csi.value = '';
+  const csr = document.getElementById('qb-cust-results'); if(csr) csr.style.display = 'none';
+  const css = document.getElementById('qb-cust-selected'); if(css) css.style.display = 'none';
+  const csn = document.getElementById('qb-cust-noacc'); if(csn) csn.style.display = 'none';
 
   qbCalcTotal();
   document.getElementById('m-qbuilder').style.display = 'flex';
@@ -1843,6 +1895,7 @@ Ngày: ${dateStr}`;
 
   const out = document.getElementById('qb-output');
   out.innerHTML = html;
+  out.style.display = 'block';
   document.getElementById('qb-preview-wrap').style.display = 'block';
   document.getElementById('qb-copy-btn').style.display = 'inline-flex';
   document.getElementById('qb-pdf-btn').style.display = 'inline-flex';
@@ -1895,7 +1948,8 @@ window.qbPrintPDF = function() {
 
 window.qbSendToCustomer = async function() {
   if (!_qbData) { notif('⚠️ Hãy tạo văn bản báo giá trước', 'er'); return; }
-  const sendEmail = document.getElementById('qb-send-email').value.trim();
+  const sendEmail = _qbSelectedCustomer?.email || document.getElementById('qb-send-email').value.trim();
+  const hasPortalCustomer = !!_qbSelectedCustomer;
 
   // Build tasks array for later order creation
   const tasks = _qbData.selected.map(s => ({
@@ -1924,8 +1978,9 @@ window.qbSendToCustomer = async function() {
     bankOwner: _qbData.bankOwner,
     staff: _qbData.staff,
     quotedAt: _qbData.dateStr,
-    status: sendEmail ? 'sent' : 'ready',
+    status: hasPortalCustomer ? 'sent' : sendEmail ? 'sent' : 'ready',
     linkedQuoteId: _qbQuoteId || null,
+    customerUid: _qbSelectedCustomer?.id || null,
     createdAt: serverTimestamp()
   };
 
@@ -1940,7 +1995,14 @@ window.qbSendToCustomer = async function() {
       await upDoc(dRef(db, 'quotes', _qbQuoteId), { status: 'quoted', staffQuoteId: ref.id });
     }
 
-    notif(`✅ Đã lưu báo giá! ${sendEmail ? 'Khách ' + sendEmail + ' có thể xem trên portal.' : 'Dùng nút Sao chép để gửi qua Zalo/Email.'}`, 'ok', 6000);
+    notif(
+      hasPortalCustomer
+        ? `✅ Đã gửi báo giá lên portal của ${_qbSelectedCustomer.name || sendEmail}! Họ sẽ thấy ngay trên dashboard.`
+        : sendEmail
+          ? `✅ Đã lưu báo giá! Dùng Sao chép / PDF để gửi thủ công cho khách.`
+          : `✅ Đã lưu báo giá nháp! Dùng Sao chép / PDF để gửi qua Zalo/Email.`,
+      'ok', 6000
+    );
     closeM('qbuilder');
 
     // Reload staff quotes list if visible
@@ -2230,13 +2292,92 @@ window.renderStaffQuotesFiltered = function() {
   }).join('');
 };
 
-window.renderStaffQuotes = function() {
-  renderStaffQuotesFiltered();
-  // Update confirmed badge
-  const confirmed = allStaffQuotes.filter(q => q.status === 'confirmed').length;
-  const badge = document.getElementById('b-sq');
-  if (badge) { badge.textContent = confirmed; badge.style.display = confirmed ? 'inline' : 'none'; }
+
+// ================================================================
+// QUOTE BUILDER — Customer search (Luồng A)
+// ================================================================
+let _qbSelectedCustomer = null;
+
+window.qbSearchCustomer = function() {
+  const q = (document.getElementById('qb-cust-search')?.value || '').trim().toLowerCase();
+  const resultsEl = document.getElementById('qb-cust-results');
+  const noAccEl   = document.getElementById('qb-cust-noacc');
+
+  // If customer already selected, don't re-search
+  if (_qbSelectedCustomer) return;
+
+  // Hide no-account hint while typing
+  noAccEl.style.display = 'none';
+
+  if (!q || q.length < 2) {
+    resultsEl.style.display = 'none';
+    return;
+  }
+
+  const customers = S.users.filter(u => u.role === 'customer');
+  const matches = customers.filter(u =>
+    (u.name  || '').toLowerCase().includes(q) ||
+    (u.email || '').toLowerCase().includes(q) ||
+    (u.phone || '').includes(q)
+  );
+
+  if (!matches.length) {
+    resultsEl.style.display = 'none';
+    noAccEl.style.display = 'block';
+    return;
+  }
+
+  noAccEl.style.display = 'none';
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = matches.map(u => `
+    <div onclick="qbSelectCustomer('${u.id}')"
+      style="padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s;display:flex;align-items:center;justify-content:space-between"
+      onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${u.name || u.email?.split('@')[0] || '—'}</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:2px">${u.email || ''}${u.phone ? ' · ' + u.phone : ''}</div>
+      </div>
+      <span style="background:rgba(16,185,129,.15);color:var(--green-l);padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;flex-shrink:0">Portal ✓</span>
+    </div>
+  `).join('');
 };
+
+window.qbSelectCustomer = function(uid) {
+  const u = S.users.find(x => x.id === uid);
+  if (!u) return;
+  _qbSelectedCustomer = u;
+
+  // Fill hidden email field
+  document.getElementById('qb-send-email').value = u.email || '';
+
+  // Auto-fill Tab1 fields if empty
+  const nameEl  = document.getElementById('qb-name');
+  const emailEl = document.getElementById('qb-email');
+  const phoneEl = document.getElementById('qb-phone');
+  if (nameEl  && !nameEl.value)  nameEl.value  = u.name  || '';
+  if (emailEl && !emailEl.value) emailEl.value = u.email || '';
+  if (phoneEl && !phoneEl.value) phoneEl.value = u.phone || '';
+
+  // Show selected badge
+  document.getElementById('qb-cust-results').style.display  = 'none';
+  document.getElementById('qb-cust-noacc').style.display    = 'none';
+  const selEl = document.getElementById('qb-cust-selected');
+  selEl.style.display = 'flex';
+  document.getElementById('qb-cust-info').innerHTML =
+    `<strong>${u.name || u.email?.split('@')[0]}</strong> · ${u.email || ''}${u.phone ? ' · ' + u.phone : ''}`;
+
+  notif(`✅ Chọn khách: ${u.name || u.email} — báo giá sẽ gửi lên portal của họ.`, 'ok', 4000);
+};
+
+window.qbClearCustomer = function() {
+  _qbSelectedCustomer = null;
+  document.getElementById('qb-send-email').value = '';
+  document.getElementById('qb-cust-search').value = '';
+  document.getElementById('qb-cust-selected').style.display = 'none';
+  document.getElementById('qb-cust-results').style.display  = 'none';
+  document.getElementById('qb-cust-noacc').style.display    = 'none';
+};
+
 </script>
 </body>
 </html>
