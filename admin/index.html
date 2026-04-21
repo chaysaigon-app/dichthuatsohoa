@@ -1183,7 +1183,10 @@ function renderAccounts(){
 
 function renderStaff(){
   const staff=S.users.filter(u=>['superadmin','admin','staff'].includes(u.role));
-  document.getElementById('staff-tb').innerHTML=staff.map(u=>`<tr><td>${u.name||u.email?.split('@')[0]||'—'}</td><td style="font-size:12px">${u.email||'—'}</td><td><span style="background:rgba(245,158,11,.1);color:var(--gold-l);padding:2px 7px;border-radius:8px;font-size:11px;font-weight:700">${u.role==='superadmin'?'Super Admin':u.role==='admin'?'Admin':'NV'}</span></td><td><button class="ab ab-r" onclick="delAcc('${u.id}')">🗑</button>`:''}</td></tr>`).join('')||`<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:12px">Chưa có nhân viên</td></tr>`;
+  document.getElementById('staff-tb').innerHTML=staff.map(u=>{
+    const delBtn=['superadmin','admin'].includes(S.role)?'<button class="ab ab-r" onclick="delAcc(\''+u.id+'\')" title="Xóa">🗑</button>':'';
+    return `<tr><td>${u.name||u.email?.split('@')[0]||'—'}</td><td style="font-size:12px">${u.email||'—'}</td><td><span style="background:rgba(245,158,11,.1);color:var(--gold-l);padding:2px 7px;border-radius:8px;font-size:11px;font-weight:700">${u.role==='superadmin'?'Super Admin':u.role==='admin'?'Admin':'NV'}</span></td><td>${delBtn}</td></tr>`;
+  }).join('')||`<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:12px">Chưa có nhân viên</td></tr>`;
 }
 
 window.createStaffAcc=async()=>{
