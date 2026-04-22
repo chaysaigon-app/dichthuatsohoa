@@ -1563,9 +1563,27 @@ window.renderQuotes = function() {
     const statusColor = QS_COLOR[q.status] || '#6B7280';
     const fileCount = (Array.isArray(q.fileUrls) && q.fileUrls.length) ? q.fileUrls.length : (q.fileNames ? q.fileNames.split(',').filter(Boolean).length : 0);
     const hasFile = fileCount > 0 || q.gdriveLink;
-    const fileHtml = hasFile
-      ? `<span style="font-size:11px;color:var(--blue-ll)">${fileCount > 0 ? '⬇️ '+fileCount+' file' : ''}${q.gdriveLink ? ' 📁 GDrive' : ''}</span>`
-      : '<span style="color:var(--text3);font-size:11px">—</span>';
+    const fileHtml = (() => {
+      const urls = Array.isArray(q.fileUrls) && q.fileUrls.length ? q.fileUrls : [];
+      if (!urls.length && !q.gdriveLink) {
+        return q.fileNames
+          ? `<span style="font-size:11px;color:var(--text3)" title="${q.fileNames}">📎 ${q.fileNames.split(',').filter(Boolean).length} file<br><span style="font-size:10px;color:var(--text3);font-style:italic">(cũ, không có link)</span></span>`
+          : '<span style="color:var(--text3);font-size:11px">—</span>';
+      }
+      let html = '<div style="display:flex;flex-direction:column;gap:3px">';
+      if (urls.length === 1) {
+        // 1 file → nút tải thẳng
+        html += `<a href="${urls[0].url}" target="_blank" download="${urls[0].name}" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;color:#1D4ED8;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">⬇️ ${urls[0].name.length>18?urls[0].name.substring(0,16)+'…':urls[0].name}</a>`;
+      } else if (urls.length > 1) {
+        // nhiều file → từng dòng
+        html += urls.map(f=>`<a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;color:#1D4ED8;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">⬇️ ${f.name.length>16?f.name.substring(0,14)+'…':f.name}</a>`).join('');
+      }
+      if (q.gdriveLink) {
+        html += `<a href="${q.gdriveLink}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:6px;color:var(--blue-ll);font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📁 GDrive</a>`;
+      }
+      html += '</div>';
+      return html;
+    })();
     return `<tr>
       <td style="font-size:11px;color:var(--text3);white-space:nowrap">${dt}</td>
       <td><div style="font-weight:600;color:var(--text)">${q.name||'Khách'}</div>${q.note?`<div style="font-size:11px;color:var(--text3)">${q.note.substring(0,30)}...</div>`:''}</td>
