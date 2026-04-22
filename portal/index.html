@@ -798,13 +798,30 @@ function _renderReceivedQuotes() {
 
 function _qCard(q) {
   const isPending   = q.status==='pending_confirm';
-  const isConfirmed = q.status==='confirmed'||q.status==='order_created';
+  const isConfirmed = q.status==='order_created'||q.status==='confirmed';
   const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
   const sl = isPending?'⏳ Chờ xác nhận':isConfirmed?'✅ Đã xác nhận':q.status==='cancelled'?'🚫 Đã hủy':'📤 Đã gửi';
   const bdrCol = isPending?'#F59E0B':isConfirmed?'#10B981':'#D1DCF0';
   const tagBg  = isPending?'#FEF3C7':isConfirmed?'#D1FAE5':'#EFF6FF';
   const tagTx  = isPending?'#B45309':isConfirmed?'#065F46':'#1D4ED8';
+
+  // Trạng thái đơn hàng (admin đẩy về)
+  const orderStatus = q.portalOrderStatus || null;
+  const orderStatusLabel = {
+    confirmed:'✅ Đã xác nhận', processing:'⚙️ Đang thực hiện',
+    done:'🏁 Hoàn thành', delivered:'🚚 Đã giao', paid:'💰 Đã thanh toán'
+  };
+
+  // File dịch hoàn thành (admin đẩy về)
+  const resultFiles = Array.isArray(q.resultFiles) && q.resultFiles.length ? q.resultFiles : [];
+  const resultDriveLink = q.resultDriveLink || '';
+
+  // Hóa đơn (admin đẩy về)
+  const invoice = q.portalInvoice || null;
+
   return `<div class="quote-card" style="border-color:${bdrCol};${isPending?'background:linear-gradient(to right,#FFFBEB,#fff)':''}${isConfirmed?'background:linear-gradient(to right,#F0FDF4,#fff)':''}">
+
+    <!-- HEADER -->
     <div class="qc-head">
       <div style="flex:1">
         <div class="qc-title">📋 Báo giá dịch vụ</div>
@@ -816,15 +833,50 @@ function _qCard(q) {
         <span style="background:${tagBg};color:${tagTx};padding:3px 10px;border-radius:10px;font-size:11.5px;font-weight:700;display:inline-block;margin-top:4px">${sl}</span>
       </div>
     </div>
+
+    <!-- GIÁ -->
     <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:10px 0">
       <span>💰 DV: <strong>${fm(q.subTotal||0)}</strong></span>
       <span>🏛️ VAT: <strong>${fm(q.vat||0)}</strong></span>
       ${q.deposit?`<span>💳 Cọc: <strong style="color:var(--blue)">${fm(q.deposit)}</strong></span>`:''}
     </div>
-    ${isConfirmed?`<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:8px;padding:10px 14px;font-size:13px;color:#065F46;margin-bottom:8px">✅ Đã xác nhận. Đơn hàng đã tạo — xem tại tab <strong>Đơn hàng</strong>.</div>`:''}
+
+    <!-- TRẠNG THÁI ĐƠN HÀNG (admin đẩy về) -->
+    ${isConfirmed && orderStatus ? `
+    <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:9px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:13px;font-weight:700;color:#065F46">📋 Đơn hàng ${q.orderNum||''}</span>
+      <span style="background:#D1FAE5;color:#065F46;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:700">${orderStatusLabel[orderStatus]||orderStatus}</span>
+    </div>` : isConfirmed ? `
+    <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:9px;padding:10px 14px;margin-bottom:10px;font-size:12.5px;color:#B45309">
+      ⏳ Đơn hàng <strong>${q.orderNum||''}</strong> đã tạo — nhân viên đang chuẩn bị xử lý
+    </div>` : ''}
+
+    <!-- FILE DỊCH HOÀN THÀNH (admin đẩy về) -->
+    ${resultFiles.length ? `
+    <div style="background:linear-gradient(135deg,#ECFDF5,#F0FDF4);border:1.5px solid #6EE7B7;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:#065F46;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📤 Tài liệu dịch hoàn thành</div>
+      ${resultFiles.map(f=>`<div style="margin-bottom:6px"><a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#fff;border:1px solid #A7F3D0;border-radius:8px;color:#065F46;font-size:13px;font-weight:700;text-decoration:none">⬇️ Tải về: ${f.name}</a></div>`).join('')}
+      ${resultDriveLink?`<a href="${resultDriveLink}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#059669;margin-top:4px">🔗 Xem thêm trên Drive →</a>`:''}
+    </div>` : ''}
+
+    <!-- HÓA ĐƠN (admin đẩy về) -->
+    ${invoice ? `
+    <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1.5px solid #FCD34D;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">🧾 Hóa đơn dịch vụ</div>
+          <div style="font-size:13px;font-weight:700;color:#92400E">${invoice.invoiceNum||'—'} · <span style="color:#B45309">${fm(invoice.total||0)}</span></div>
+          <div style="font-size:11.5px;color:#B45309;margin-top:2px">Trạng thái: ${invoice.status==='paid'?'✅ Đã thanh toán':'⏳ Chờ thanh toán'}</div>
+        </div>
+        ${invoice.pdfUrl?`<a href="${invoice.pdfUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:#F59E0B;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;text-decoration:none">⬇️ Tải hóa đơn</a>`:''}
+      </div>
+      ${invoice.bankName?`<div style="margin-top:8px;font-size:12px;color:#92400E;background:rgba(255,255,255,.6);padding:7px 10px;border-radius:7px">🏦 CK: <strong>${invoice.bankName}</strong> · STK: <strong>${invoice.bankAcc}</strong> · ${invoice.bankOwner}</div>`:''}
+    </div>` : ''}
+
+    <!-- NÚT HÀNH ĐỘNG -->
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-view-quote" onclick="viewQuoteDetail('${q.id}')">👁 Xem nội dung báo giá</button>
-      ${isPending?`<button class="btn-confirm" onclick="confirmQuote('${q.id}')">✅ Đồng ý — Tạo đơn ngay</button>`:''}
+      <button class="btn-view-quote" onclick="viewQuoteDetail('${q.id}')">👁 Xem báo giá</button>
+      ${isPending?`<button class="btn-confirm" onclick="confirmQuote('${q.id}')">✅ Đồng ý — Xác nhận ngay</button>`:''}
     </div>
   </div>`;
 }
@@ -887,64 +939,25 @@ window.viewQuoteDetail = function(id) {
 window.confirmQuote = async function(id) {
   const q=(S_QUOTES_STATE.received||[]).find(x=>x.id===id);
   if(!q) return;
-  if(!confirm('Bạn đồng ý với báo giá này?\n\nĐơn hàng sẽ được tạo ngay và nhân viên bắt đầu thực hiện.')) return;
+  if(!confirm('Bạn đồng ý với báo giá này?\n\nNhân viên sẽ liên hệ và bắt đầu thực hiện ngay.')) return;
   try {
-    const oid='DT-'+Date.now().toString(36).toUpperCase().slice(-6);
-    let tasks=[]; try{tasks=JSON.parse(q.tasks||'[]');}catch(e){}
-
-    // Lấy fileUrls từ quote gốc (inbound) nếu customer_quote không có
-    const inboundQ = (S_QUOTES_STATE.inbound||[]).find(x=>x.id===q.linkedQuoteId);
-    const fileUrls  = Array.isArray(q.fileUrls)&&q.fileUrls.length ? q.fileUrls
-                    : Array.isArray(inboundQ?.fileUrls)&&inboundQ.fileUrls.length ? inboundQ.fileUrls
-                    : [];
-    const fileNames = q.fileNames||inboundQ?.fileNames||'';
-    const gdriveLink= q.gdriveLink||inboundQ?.gdriveLink||'';
-
-    const orderData={
-      orderId:oid,
-      customerName:q.name||S.profile?.name||'',
-      company:q.company||'',
-      phone:q.phone||'',
-      email:q.email||S.user.email,
-      customerEmail:q.email||S.user.email,
-      customerUid:S.user.uid,
-      service:q.services||'',
-      tasks:JSON.stringify(tasks),
-      subTotal:q.subTotal||0, vat:q.vat||0, total:q.grandTotal||0,
-      deposit:q.deposit||0,
-      bankName:q.bankName||'', bankAcc:q.bankAcc||'', bankOwner:q.bankOwner||'',
-      staff:q.staff||'Admin',
-      staffQuoteId:q.staffQuoteId||id,
-      linkedQuoteId:q.linkedQuoteId||null,
-      // ── File gốc của khách — copy đầy đủ ──
-      fileUrls:fileUrls,
-      fileNames:fileNames,
-      gdriveLink:gdriveLink,
-      // ── File kết quả — admin sẽ điền sau ──
-      resultFiles:[],
-      resultDriveLink:'',
-      status:'confirmed',
-      channel:'Portal – KH xác nhận',
-      confirmedAt:serverTimestamp(), createdAt:serverTimestamp(), updatedAt:serverTimestamp()
-    };
-
-    const orderRef=await addDoc(collection(db,'orders'),orderData);
-    await updateDoc(doc(db,'customer_quotes',id),{status:'order_created',orderId:orderRef.id,orderNum:oid,confirmedAt:serverTimestamp()});
+    await updateDoc(doc(db,'customer_quotes',id),{
+      status:'order_created',
+      confirmedAt:serverTimestamp(),
+      updatedAt:serverTimestamp()
+    });
     if(q.staffQuoteId){
-      try{await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{status:'order_created',orderId:orderRef.id,orderNum:oid,confirmedAt:serverTimestamp(),updatedAt:serverTimestamp()});}catch(e2){}
+      try{await updateDoc(doc(db,'staff_quotes',q.staffQuoteId),{
+        status:'confirmed', confirmedAt:serverTimestamp(), updatedAt:serverTimestamp()
+      });}catch(e2){}
     }
     if(q.linkedQuoteId){
-      try{await updateDoc(doc(db,'quotes',q.linkedQuoteId),{status:'confirmed',orderId:orderRef.id});}catch(e3){}
+      try{await updateDoc(doc(db,'quotes',q.linkedQuoteId),{
+        status:'confirmed', updatedAt:serverTimestamp()
+      });}catch(e3){}
     }
-
-    // Đóng modal báo giá nếu đang mở
     document.getElementById('m-quote').style.display='none';
-
-    // Chuyển ngay sang tab Đơn hàng
-    const ordTab = document.querySelector('.tn[onclick*="orders"]');
-    showSec('orders', ordTab);
-
-    notif(`✅ Đơn hàng ${oid} đã tạo! Nhân viên sẽ liên hệ ngay.`,'ok',8000);
+    notif('✅ Đã xác nhận! Nhân viên sẽ liên hệ ngay trong thời gian sớm nhất.','ok',8000);
   } catch(e) { console.error(e); notif('❌ Lỗi: '+e.message,'er'); }
 };
 function loadOrders(){

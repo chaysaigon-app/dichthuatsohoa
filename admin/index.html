@@ -2545,6 +2545,7 @@ window.viewOrderWithTasks = function(id) {
     </div>`;
   const _o2 = S.orders.find(x=>x.id===id);
   const _canInv = ['done','delivered','paid'].includes(_o2?.status);
+  const _hasCQ = !!_o2?.staffQuoteId; // có liên kết customer_quote không
   document.getElementById('ot-foot').innerHTML = `
     <button class="bm bm-c" onclick="closeM('order-tasks')">Đóng</button>
     <button class="bm" style="background:rgba(245,158,11,.2);color:var(--gold-l);border:none" onclick="closeM('order-tasks');editOrder('${id}')">✏️ Sửa</button>
@@ -2552,8 +2553,68 @@ window.viewOrderWithTasks = function(id) {
     <button class="bm" style="background:rgba(16,185,129,.18);color:var(--green-l);border:none" onclick="updateOrderStatus('${id}','done')">✅ Hoàn thành</button>
     <button class="bm" style="background:rgba(6,182,212,.18);color:var(--cyan);border:none" onclick="updateOrderStatus('${id}','delivered')">🚚 Đã giao</button>
     <button class="bm" style="background:rgba(16,185,129,.28);color:var(--green);border:none" onclick="updateOrderStatus('${id}','paid')">💰 Đã thu</button>
-    ${_canInv?`<button class="bm bm-g" onclick="closeM('order-tasks');createInvFor('${id}')">🧾 Xuất HĐ</button>`:''}`;
+    ${_hasCQ?`<button class="bm" style="background:rgba(37,99,235,.25);color:var(--blue-ll);border:none" onclick="pushOrderStatusToPortal('${id}')">📲 Đẩy TT→Portal</button>`:''}
+    ${_canInv?`<button class="bm bm-g" onclick="closeM('order-tasks');createInvFor('${id}')">🧾 Xuất HĐ</button>`:''}
+    ${_canInv&&_hasCQ?`<button class="bm" style="background:rgba(245,158,11,.3);color:var(--gold-l);border:none" onclick="pushInvoiceToPortal('${id}')">🧾📲 Gửi HĐ→Portal</button>`:''}`;
   document.getElementById('m-order-tasks').style.display = 'flex';
+};
+
+window.pushOrderStatusToPortal = async function(orderId) {
+  const o = S.orders.find(x => x.id === orderId);
+  if (!o) return;
+  const cqId = o.staffQuoteId;
+  if (!cqId) { notif('⚠️ Đơn hàng này không liên kết với báo giá portal', 'er'); return; }
+
+  // Lấy resultFiles từ order để đẩy kèm
+  const resultFiles = Array.isArray(o.resultFiles) ? o.resultFiles : [];
+  const resultDriveLink = o.resultDriveLink || '';
+
+  try {
+    const { doc: dRef, updateDoc: upDoc } = await getFSMod();
+    await upDoc(dRef(db, 'customer_quotes', cqId), {
+      portalOrderStatus: o.status,
+      orderNum: o.orderId,
+      resultFiles: resultFiles,
+      resultDriveLink: resultDriveLink,
+      portalUpdatedAt: serverTimestamp()
+    });
+    const statusLabel = {confirmed:'Xác nhận',processing:'Đang thực hiện',done:'Hoàn thành',delivered:'Đã giao',paid:'Đã thanh toán'};
+    notif(`📲 Đã đẩy trạng thái "${statusLabel[o.status]||o.status}" về Portal khách!`, 'ok', 5000);
+    await log('📲 Đẩy TT đơn hàng về Portal', `Đơn ${o.orderId} → ${o.status}`, 'b');
+  } catch(e) { notif('❌ Lỗi: ' + e.message, 'er'); }
+};
+
+window.pushInvoiceToPortal = async function(orderId) {
+  const o = S.orders.find(x => x.id === orderId);
+  if (!o) return;
+  const cqId = o.staffQuoteId;
+  if (!cqId) { notif('⚠️ Đơn hàng này không liên kết với báo giá portal', 'er'); return; }
+
+  // Tìm hóa đơn của đơn hàng này
+  const inv = S.invoices.find(x => x.orderId === orderId);
+  if (!inv) { notif('⚠️ Chưa có hóa đơn cho đơn hàng này. Hãy xuất HĐ trước.', 'er'); return; }
+
+  try {
+    const { doc: dRef, updateDoc: upDoc } = await getFSMod();
+    await upDoc(dRef(db, 'customer_quotes', cqId), {
+      portalInvoice: {
+        invoiceNum: inv.invoiceNum,
+        total: inv.total,
+        amount: inv.amount,
+        vat: inv.vat,
+        status: inv.status,
+        payMethod: inv.payMethod || '',
+        bankName: o.bankName || '',
+        bankAcc: o.bankAcc || '',
+        bankOwner: o.bankOwner || '',
+        pdfUrl: inv.pdfUrl || '',
+        createdAt: new Date().toISOString()
+      },
+      portalUpdatedAt: serverTimestamp()
+    });
+    notif(`📲 Đã gửi hóa đơn ${inv.invoiceNum} về Portal khách!`, 'ok', 5000);
+    await log('📲 Gửi hóa đơn về Portal', `${inv.invoiceNum} – ${fm(inv.total)}`, 'gold');
+  } catch(e) { notif('❌ Lỗi: ' + e.message, 'er'); }
 };
 
 window.saveOrderResultLink = async function(orderId) {
@@ -2594,8 +2655,22 @@ window.uploadResultFiles = async function(orderId) {
     if (o) o.resultFiles = existing;
     prog.style.display = 'none';
     input.value = '';
-    notif(`✅ Đã upload ${files.length} file! Khách hàng thấy ngay trên Portal.`, 'ok', 6000);
+    notif(`✅ Đã upload ${files.length} file! Đang đẩy về Portal khách...`, 'ok', 4000);
     await log('📤 Upload tài liệu kết quả', `Đơn ${o?.orderId||orderId} — ${files.map(f=>f.name).join(', ')}`, 'g');
+    // Tự động đẩy về portal nếu có liên kết customer_quote
+    if (o?.staffQuoteId) {
+      try {
+        const { doc: dRef2, updateDoc: upDoc2 } = await getFSMod();
+        await upDoc2(dRef2(db, 'customer_quotes', o.staffQuoteId), {
+          resultFiles: existing,
+          resultDriveLink: o.resultDriveLink || '',
+          portalOrderStatus: o.status,
+          orderNum: o.orderId,
+          portalUpdatedAt: serverTimestamp()
+        });
+        notif(`✅ Upload xong & đã đẩy về Portal! Khách thấy ngay.`, 'ok', 6000);
+      } catch(ep) { notif('✅ Upload xong nhưng lỗi đẩy Portal: ' + ep.message, 'in'); }
+    }
     viewOrderWithTasks(orderId);
   } catch(e) {
     prog.style.display = 'none';
