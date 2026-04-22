@@ -46,24 +46,21 @@ service cloud.firestore {
 
     // ─── orders ─────────────────────────────────────────────────────
     match /orders/{id} {
-      // Đọc: staff đọc tất cả; khách đọc đơn của chính mình (check uid hoặc email, không cần role)
-      allow read: if isStaff()
+      // LIST query (where customerUid==uid): chỉ cần đăng nhập — query tự filter
+      // GET đơn lẻ: phải là staff hoặc chính chủ
+      allow list: if request.auth != null;
+      allow get:  if isStaff()
         || (request.auth != null && (
               resource.data.customerUid == request.auth.uid
            || resource.data.customerEmail == request.auth.token.email
            || resource.data.email == request.auth.token.email
            ));
-
-      // Tạo: staff hoặc bất kỳ user đã đăng nhập (khách xác nhận báo giá)
       allow create: if request.auth != null;
-
-      // Cập nhật: staff toàn bộ; khách chỉ ghi đánh giá vào đơn của mình
       allow update: if isStaff()
         || (request.auth != null
             && resource.data.customerUid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys()
                 .hasOnly(['customerRating','customerComment','updatedAt']));
-
       allow delete: if isSuperAdmin();
     }
 
@@ -95,34 +92,29 @@ service cloud.firestore {
     // ─── quotes (inbound – từ website/portal khách gửi) ─────────────
     match /quotes/{id} {
       allow create: if true;
-      allow read: if isStaff()
-        || (request.auth != null && resource.data.customerUid == request.auth.uid);
+      allow list:   if request.auth != null;
+      allow get:    if isStaff() || (request.auth != null && resource.data.customerUid == request.auth.uid);
       allow update, delete: if isStaff();
     }
 
     // ─── staff_quotes (báo giá nội bộ – do nhân viên lập) ───────────
     match /staff_quotes/{id} {
-      allow read: if isStaff()
-        || (request.auth != null && resource.data.customerUid == request.auth.uid);
+      allow list:   if request.auth != null;
+      allow get:    if isStaff() || (request.auth != null && resource.data.customerUid == request.auth.uid);
       allow create, update: if isStaff();
       allow delete: if isAdmin();
     }
 
     // ─── customer_quotes (báo giá gửi lên portal khách) ─────────────
     match /customer_quotes/{id} {
-      // Staff đọc tất cả; Khách chỉ đọc record của chính mình
-      allow read: if isStaff()
-        || (request.auth != null && resource.data.customerUid == request.auth.uid);
-
-      // Staff tạo và cập nhật toàn bộ (lập báo giá, sửa báo giá)
+      allow list:   if request.auth != null;
+      allow get:    if isStaff() || (request.auth != null && resource.data.customerUid == request.auth.uid);
       allow create: if isStaff();
       allow update: if isStaff()
-        // Khách cập nhật: status, confirmedAt, orderId, orderNum khi confirm; updatedAt
         || (request.auth != null
             && resource.data.customerUid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys()
                 .hasOnly(['status','confirmedAt','rejectedAt','rejectReason','orderId','orderNum','updatedAt']));
-
       allow delete: if isAdmin();
     }
 
