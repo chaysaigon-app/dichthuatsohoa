@@ -182,6 +182,39 @@ tbody td{padding:11px 14px;font-size:13px}
 .empty .ei{font-size:40px;margin-bottom:12px;opacity:.4}
 /* NOTIF */
 #notif{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+/* BELL NOTIFICATION */
+.bell-wrap{position:relative;cursor:pointer}
+.bell-btn{width:36px;height:36px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:all .2s;position:relative;user-select:none}
+.bell-btn:hover{border-color:var(--blue);background:rgba(37,99,235,.1)}
+.bell-btn.ringing{animation:bellRing .6s ease}
+@keyframes bellRing{0%,100%{transform:rotate(0)}15%{transform:rotate(15deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(9deg)}60%{transform:rotate(-6deg)}75%{transform:rotate(3deg)}}
+.bell-dot{position:absolute;top:-3px;right:-3px;width:18px;height:18px;background:var(--red);border-radius:50%;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg2);display:none}
+.bell-drop{position:absolute;top:44px;right:0;width:340px;background:var(--card);border:1px solid var(--border2);border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,.6);z-index:9999;display:none;overflow:hidden}
+.bell-drop.open{display:block}
+.bell-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.bell-head h4{font-size:13px;font-weight:700}
+.bell-read-all{font-size:11px;color:var(--blue-ll);cursor:pointer;background:none;border:none;font-family:inherit}
+.bell-read-all:hover{text-decoration:underline}
+.bell-list{max-height:360px;overflow-y:auto}
+.bell-item{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;cursor:pointer;transition:background .15s}
+.bell-item:hover{background:var(--bg3)}
+.bell-item.unread{background:rgba(37,99,235,.06)}
+.bell-item .bi-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.bell-item .bi-body{flex:1;min-width:0}
+.bell-item .bi-title{font-size:13px;font-weight:600;color:var(--text)}
+.bell-item .bi-sub{font-size:11.5px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bell-item .bi-time{font-size:10.5px;color:var(--text3);margin-top:4px}
+.bell-item .bi-dot{width:7px;height:7px;background:var(--blue);border-radius:50%;flex-shrink:0;margin-top:6px}
+.bell-empty{padding:32px;text-align:center;color:var(--text3);font-size:13px}
+/* ONLINE STATUS TOGGLE */
+.online-toggle{display:flex;align-items:center;gap:7px;padding:5px 11px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s;user-select:none}
+.online-toggle.on{border-color:var(--green);background:rgba(16,185,129,.1);color:var(--green-l)}
+.online-toggle .od{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+.online-toggle.on .od{background:var(--green);box-shadow:0 0 6px var(--green)}
+/* ARCHIVE PAGE */
+.arch-tabs{display:flex;gap:6px;margin-bottom:14px}
+.arch-tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s}
+.arch-tab.on{border-color:var(--gold);color:var(--gold-l);background:rgba(245,158,11,.1)}
 .noti{background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:11px 14px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.5);pointer-events:all;display:flex;align-items:center;gap:9px;min-width:260px;animation:nin .3s ease}
 @keyframes nin{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
 .noti.ok{border-color:var(--green);background:rgba(16,185,129,.1)}
@@ -281,6 +314,7 @@ tbody td{padding:11px 14px;font-size:13px}
       </div>
       <div class="ns"><div class="ns-title">Hệ thống</div>
         <div class="ni" onclick="nav('activity',this)"><span class="ni-icon">🕐</span>Nhật ký</div>
+        <div class="ni" onclick="nav('archive',this)" id="ni-arch"><span class="ni-icon">🗂</span>Hồ sơ lưu<span class="ni-badge" id="b-arch" style="display:none;background:var(--gold)">0</span></div>
         <div class="ni" onclick="nav('settings',this)" id="ni-set"><span class="ni-icon">⚙️</span>Cài đặt</div>
       </div>
     </div>
@@ -297,6 +331,14 @@ tbody td{padding:11px 14px;font-size:13px}
       <div class="tb-title" id="tb-title">📊 Dashboard</div>
       <div class="tb-right">
         <div class="tb-live"><span class="dot"></span>Firebase Realtime</div>
+        <div class="online-toggle" id="online-toggle" onclick="toggleOnlineStatus()"><span class="od"></span><span id="online-label">Offline</span></div>
+        <div class="bell-wrap" id="bell-wrap">
+          <div class="bell-btn" id="bell-btn" onclick="toggleBellDrop(event)">🔔<span class="bell-dot" id="bell-dot">0</span></div>
+          <div class="bell-drop" id="bell-drop">
+            <div class="bell-head"><h4>🔔 Thông báo</h4><button class="bell-read-all" onclick="markAllRead()">Đánh dấu đã đọc</button></div>
+            <div class="bell-list" id="bell-list"><div class="bell-empty">Chưa có thông báo</div></div>
+          </div>
+        </div>
         <button class="btn btn-ghost" onclick="openM('lead')">+ Liên hệ</button>
         <button class="btn" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff;font-weight:700" onclick="openQuoteBuilder(null)">📝 Lập Báo Giá</button>
         <button class="btn btn-p" onclick="openM('order')">+ Tạo đơn hàng</button>
@@ -556,6 +598,40 @@ tbody td{padding:11px 14px;font-size:13px}
         <div class="tw">
           <div class="th2"><h3>🕐 Nhật ký hoạt động</h3></div>
           <div style="padding:14px 18px;max-height:580px;overflow-y:auto"><div class="tl" id="act-log"></div></div>
+        </div>
+      </div>
+
+      <!-- ARCHIVE (Hồ sơ lưu) -->
+      <div class="pg" id="pg-archive">
+        <div class="tw">
+          <div class="th2">
+            <h3>🗂 Hồ sơ lưu — Đã xóa / Lưu trữ</h3>
+            <div class="tf">
+              <button class="arch-tab on" onclick="switchArchTab('orders',this)">📋 Đơn hàng</button>
+              <button class="arch-tab" onclick="switchArchTab('accounts',this)">👤 Tài khoản</button>
+              <button class="arch-tab" onclick="switchArchTab('quotes',this)">💰 Báo giá</button>
+            </div>
+          </div>
+          <div id="arch-content" style="padding:0 0 8px">
+            <div id="arch-orders">
+              <div style="overflow-x:auto"><table>
+                <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Dịch vụ</th><th>Giá trị</th><th>Xóa lúc</th><th>Người xóa</th><th>Thao tác</th></tr></thead>
+                <tbody id="arch-ord-tb"></tbody>
+              </table></div>
+            </div>
+            <div id="arch-accounts" style="display:none">
+              <div style="overflow-x:auto"><table>
+                <thead><tr><th>Tên</th><th>Email</th><th>Xóa lúc</th><th>Người xóa</th><th>Thao tác</th></tr></thead>
+                <tbody id="arch-acc-tb"></tbody>
+              </table></div>
+            </div>
+            <div id="arch-quotes" style="display:none">
+              <div style="overflow-x:auto"><table>
+                <thead><tr><th>Khách</th><th>Dịch vụ</th><th>Tổng tiền</th><th>Xóa lúc</th><th>Thao tác</th></tr></thead>
+                <tbody id="arch-qt-tb"></tbody>
+              </table></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -858,7 +934,7 @@ import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.
 const cfg={apiKey:"AIzaSyCkyAJJm-kj6JReuGOcy1kj3RHn5hqRWwo",authDomain:"sohoa-baafc.firebaseapp.com",projectId:"sohoa-baafc",storageBucket:"sohoa-baafc.firebasestorage.app",messagingSenderId:"523020863823",appId:"1:523020863823:web:6634451caa743ef5dddd3a"};
 const fb=initializeApp(cfg);const db=getFirestore(fb);const auth=getAuth(fb);const storage=getStorage(fb);
 
-const S={user:null,role:'admin',orders:[],leads:[],invoices:[],activity:[],users:[],customers:[],fOrd:'all',fInv:'all',cfg:{labor:15000000,ops:5000000,vat:8}};
+const S={user:null,role:'admin',orders:[],leads:[],invoices:[],activity:[],users:[],customers:[],fOrd:'all',fInv:'all',cfg:{labor:15000000,ops:5000000,vat:8},notifications:[],isOnline:false,archived:{orders:[],users:[],quotes:[]}};
 const SL={new:'Mới',quoted:'Báo giá',confirmed:'Xác nhận',processing:'Đang thực hiện',done:'Hoàn thành',delivered:'Đã giao hàng',invoiced:'Xuất HĐ',paid:'Đã thu',cancelled:'Hủy'};
 
 window.doLogin=async()=>{
@@ -879,6 +955,7 @@ onAuthStateChanged(auth,async u=>{
     document.getElementById('uav').textContent=(u.displayName||u.email)[0].toUpperCase();
     if(['superadmin','admin'].includes(role)){document.getElementById('ni-set').style.display='flex';document.getElementById('ni-acc').style.display='flex';}
     loadData();
+    loadDataExtended();
   }
 });
 
@@ -952,7 +1029,7 @@ function orderRow(o){
 }
 
 function renderOrders(){
-  let o=S.orders;if(S.fOrd!=='all')o=o.filter(x=>x.status===S.fOrd);
+  let o=S.orders.filter(x=>!x.archived);if(S.fOrd!=='all')o=o.filter(x=>x.status===S.fOrd);
   const q=document.getElementById('q-ord')?.value?.toLowerCase()||'';
   if(q)o=o.filter(x=>(x.customerName||'').toLowerCase().includes(q)||(x.phone||'').includes(q)||(x.orderId||'').toLowerCase().includes(q));
   const tb=document.getElementById('ord-tb');
@@ -1111,10 +1188,10 @@ function resetOrd(){
 window.calcT=()=>{}; // kept for compatibility
 window.delOrder=async(id)=>{
   if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
-  if(!confirm('Xóa đơn hàng này? Hành động không thể hoàn tác.'))return;
-  await deleteDoc(doc(db,'orders',id));
-  await log('🗑️ Xóa đơn hàng',id,'r');
-  notif('🗑️ Đã xóa đơn hàng','in');
+  if(!confirm('Chuyển đơn hàng vào Hồ sơ lưu?'))return;
+  await updateDoc(doc(db,'orders',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});
+  await log('🗂 Lưu trữ đơn hàng',id,'r');
+  notif('🗂 Đã chuyển vào Hồ sơ lưu','in');
 };
 
 function renderLeads(){
@@ -1154,7 +1231,7 @@ function renderCustomers(){
 window.filterCust=(ph)=>{nav('orders',null);const i=document.getElementById('q-ord');if(i){i.value=ph;renderOrders();}};
 
 function renderAccounts(){
-  const custAccs=S.users.filter(u=>u.role==='customer');
+  const custAccs=S.users.filter(u=>u.role==='customer'&&!u.archived);
   document.getElementById('acc-tb').innerHTML=custAccs.length?custAccs.map(u=>`<tr>
     <td><div class="td-name">${u.name||u.email?.split('@')[0]||'—'}</div></td>
     <td style="font-size:12.5px">${u.email||'—'}</td>
@@ -1166,7 +1243,7 @@ function renderAccounts(){
 }
 
 function renderStaff(){
-  const staff=S.users.filter(u=>['superadmin','admin','staff'].includes(u.role));
+  const staff=S.users.filter(u=>['superadmin','admin','staff'].includes(u.role)&&!u.archived);
   document.getElementById('staff-tb').innerHTML=staff.map(u=>{
     const delBtn=['superadmin','admin'].includes(S.role)?'<button class="ab ab-r" onclick="delAcc(\''+u.id+'\')" title="Xóa">🗑</button>':'';
     return `<tr><td>${u.name||u.email?.split('@')[0]||'—'}</td><td style="font-size:12px">${u.email||'—'}</td><td><span style="background:rgba(245,158,11,.1);color:var(--gold-l);padding:2px 7px;border-radius:8px;font-size:11px;font-weight:700">${u.role==='superadmin'?'Super Admin':u.role==='admin'?'Admin':'NV'}</span></td><td>${delBtn}</td></tr>`;
@@ -1184,7 +1261,7 @@ window.createStaffAcc=async()=>{
   }catch(e){notif('❌ '+e.message,'er');}
 };
 
-window.delAcc=async(id)=>{if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}if(!confirm('Xóa tài khoản?'))return;await deleteDoc(doc(db,'users',id));await log('🗑️ Xóa tài khoản',id,'r');notif('🗑️ Đã xóa','in');};
+window.delAcc=async(id)=>{if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}if(!confirm('Chuyển tài khoản vào Hồ sơ lưu?'))return;await updateDoc(doc(db,'users',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});await log('🗂 Lưu trữ tài khoản',id,'r');notif('🗂 Đã chuyển vào Hồ sơ lưu','in');};
 
 function populateOrdDrop(){
   const sel=document.getElementById('iv-ord');if(!sel)return;
@@ -1676,11 +1753,12 @@ window.nav=(pg,el)=>{
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById('pg-'+pg)?.classList.add('on');
   if(el)el.classList.add('active');
-  const t={dashboard:'📊 Dashboard',messages:'💬 Tin nhắn khách',quotes:'💰 Báo Giá','staff-quotes':'📝 Lập Báo Giá Nội Bộ',orders:'📋 Đơn hàng',leads:'📥 Khách liên hệ',customers:'👥 Khách hàng',accounts:'👤 Tài khoản KH',invoices:'🧾 Hóa đơn',reports:'📈 Báo cáo doanh thu',activity:'🕐 Nhật ký',settings:'⚙️ Cài đặt'};
+  const t={dashboard:'📊 Dashboard',messages:'💬 Tin nhắn khách',quotes:'💰 Báo Giá','staff-quotes':'📝 Lập Báo Giá Nội Bộ',orders:'📋 Đơn hàng',leads:'📥 Khách liên hệ',customers:'👥 Khách hàng',accounts:'👤 Tài khoản KH',invoices:'🧾 Hóa đơn',reports:'📈 Báo cáo doanh thu',activity:'🕐 Nhật ký',archive:'🗂 Hồ sơ lưu',settings:'⚙️ Cài đặt'};
   document.getElementById('tb-title').textContent=t[pg]||pg;
   if(pg==='messages'){renderMessages();}
   if(pg==='quotes'){renderQuotes();}
   if(pg==='staff-quotes'){renderStaffQuotes();}
+  if(pg==='archive'){renderArchiveOrders();renderArchiveAccounts();renderArchiveQuotes();}
 };
 window.openM=(t)=>{
   if(t==='invoice')populateOrdDrop();
@@ -2770,6 +2848,7 @@ window.renderStaffQuotesFiltered = function() {
   if (!tbody) return;
 
   let list = allStaffQuotes.filter(q => {
+    if (q.archived) return false;
     if (filter && q.status !== filter) return false;
     if (search && !((q.name||'').toLowerCase().includes(search) || (q.company||'').toLowerCase().includes(search) || (q.phone||'').includes(search))) return false;
     return true;
@@ -2902,11 +2981,10 @@ window.qbClearCustomer = function() {
 
 window.delStaffQuote=async(id)=>{
   if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
-  if(!confirm('Xóa báo giá này? Hành động không thể hoàn tác.'))return;
-  const {doc:dRef,deleteDoc:dDoc}=await getFSMod();
-  await dDoc(dRef(db,'staff_quotes',id));
-  await log('🗑️ Xóa báo giá',id,'r');
-  notif('🗑️ Đã xóa báo giá','in');
+  if(!confirm('Chuyển báo giá vào Hồ sơ lưu?'))return;
+  await updateDoc(doc(db,'staff_quotes',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});
+  await log('🗂 Lưu trữ báo giá',id,'r');
+  notif('🗂 Đã chuyển vào Hồ sơ lưu','in');
 };
 window.renderStaffQuotes = function() {
   renderStaffQuotesFiltered();
@@ -2916,6 +2994,216 @@ window.renderStaffQuotes = function() {
   const badge = document.getElementById('b-sq');
   if (badge) { badge.textContent = attention; badge.style.display = attention ? 'inline' : 'none'; }
 };
+
+// ═══════════════════════════════════════════════════════════
+// 🔔 BELL NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════
+function loadNotifications(){
+  onSnapshot(
+    query(collection(db,'notifications'),where('recipientRole','==','admin'),orderBy('createdAt','desc')),
+    sn=>{
+      S.notifications=sn.docs.map(d=>({id:d.id,...d.data()}));
+      renderBell();
+    }
+  );
+}
+
+function renderBell(){
+  const list=S.notifications.slice(0,30);
+  const unread=list.filter(n=>!n.read).length;
+  const dot=document.getElementById('bell-dot');
+  const btn=document.getElementById('bell-btn');
+  if(dot){dot.textContent=unread;dot.style.display=unread?'flex':'none';}
+  if(unread>0&&btn){btn.classList.add('ringing');setTimeout(()=>btn.classList.remove('ringing'),700);}
+  const el=document.getElementById('bell-list');
+  if(!el)return;
+  if(!list.length){el.innerHTML='<div class="bell-empty">✅ Không có thông báo mới</div>';return;}
+  const iconMap={new_order:'📋',new_quote:'💰',quote_confirmed:'✅',message:'💬',invoice_paid:'💳',file_uploaded:'📎'};
+  el.innerHTML=list.map(n=>{
+    const dt=n.createdAt?.toDate?fdt(n.createdAt.toDate()):'vừa xong';
+    return`<div class="bell-item${n.read?'':' unread'}" onclick="readNotif('${n.id}','${n.link||''}')">
+      <div class="bi-icon">${iconMap[n.type]||'🔔'}</div>
+      <div class="bi-body">
+        <div class="bi-title">${n.title||'Thông báo'}</div>
+        <div class="bi-sub">${n.body||''}</div>
+        <div class="bi-time">${dt}</div>
+      </div>
+      ${n.read?'':'<div class="bi-dot"></div>'}
+    </div>`;
+  }).join('');
+}
+
+window.toggleBellDrop=function(e){
+  e.stopPropagation();
+  const d=document.getElementById('bell-drop');
+  d.classList.toggle('open');
+};
+document.addEventListener('click',()=>{document.getElementById('bell-drop')?.classList.remove('open');});
+
+window.readNotif=async function(id,link){
+  await updateDoc(doc(db,'notifications',id),{read:true});
+  document.getElementById('bell-drop').classList.remove('open');
+  if(link){const parts=link.split(':');if(parts[0]==='order'&&parts[1])viewOrder(parts[1]);}
+};
+
+window.markAllRead=async function(){
+  const batch=S.notifications.filter(n=>!n.read);
+  for(const n of batch)await updateDoc(doc(db,'notifications',n.id),{read:true});
+  notif('✅ Đã đánh dấu tất cả đã đọc','ok');
+};
+
+async function pushNotification(recipientRole,recipientUid,type,title,body,link=''){
+  await addDoc(collection(db,'notifications'),{recipientRole:recipientRole||'admin',recipientUid:recipientUid||'',type,title,body,link,read:false,createdAt:serverTimestamp()});
+}
+
+// ═══════════════════════════════════════════════════════════
+// 🟢 ONLINE STATUS TOGGLE
+// ═══════════════════════════════════════════════════════════
+function loadOnlineStatus(){
+  onSnapshot(doc(db,'settings','staffStatus'),snap=>{
+    const data=snap.data()||{};
+    S.isOnline=!!data.online;
+    const tog=document.getElementById('online-toggle');
+    const lbl=document.getElementById('online-label');
+    if(tog){tog.classList.toggle('on',S.isOnline);}
+    if(lbl){lbl.textContent=S.isOnline?'Đang trực':'Offline';}
+  });
+}
+
+window.toggleOnlineStatus=async function(){
+  const newState=!S.isOnline;
+  await setDoc(doc(db,'settings','staffStatus'),{online:newState,updatedAt:serverTimestamp(),updatedBy:S.user?.email||'admin'},{merge:true});
+  notif(newState?'🟢 Bạn đang trực tuyến — khách sẽ thấy trạng thái này':'⚫ Đã chuyển sang Offline','ok');
+};
+
+// ═══════════════════════════════════════════════════════════
+// 🗂 ARCHIVE — Hồ sơ lưu
+// ═══════════════════════════════════════════════════════════
+function loadArchive(){
+  onSnapshot(query(collection(db,'orders'),where('archived','==',true),orderBy('archivedAt','desc')),sn=>{
+    S.archived.orders=sn.docs.map(d=>({id:d.id,...d.data()}));
+    renderArchiveOrders();updateArchiveBadge();
+  });
+  onSnapshot(query(collection(db,'users'),where('archived','==',true)),sn=>{
+    S.archived.users=sn.docs.map(d=>({id:d.id,...d.data()}));
+    renderArchiveAccounts();updateArchiveBadge();
+  });
+  onSnapshot(query(collection(db,'staff_quotes'),where('archived','==',true),orderBy('archivedAt','desc')),sn=>{
+    S.archived.quotes=sn.docs.map(d=>({id:d.id,...d.data()}));
+    renderArchiveQuotes();updateArchiveBadge();
+  });
+}
+
+function updateArchiveBadge(){
+  const total=S.archived.orders.length+S.archived.users.length+S.archived.quotes.length;
+  const b=document.getElementById('b-arch');
+  if(b){b.textContent=total;b.style.display=total?'inline':'none';}
+}
+
+function renderArchiveOrders(){
+  const tb=document.getElementById('arch-ord-tb');if(!tb)return;
+  if(!S.archived.orders.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3)">Không có đơn hàng lưu trữ</td></tr>';return;}
+  tb.innerHTML=S.archived.orders.map(o=>`<tr>
+    <td><span class="mono">${o.orderId||o.id.slice(-6).toUpperCase()}</span></td>
+    <td><div class="td-name">${o.customerName||'—'}</div><div class="td-s">${o.phone||''}</div></td>
+    <td style="font-size:12px;max-width:140px">${o.service||'—'}</td>
+    <td style="color:var(--gold-l);font-weight:700">${fm(o.total||0)}</td>
+    <td style="font-size:11px;color:var(--text3)">${o.archivedAt?.toDate?fdt(o.archivedAt.toDate()):'—'}</td>
+    <td style="font-size:11px;color:var(--text3)">${o.archivedBy||'—'}</td>
+    <td><div class="acts">
+      <button class="ab ab-v" onclick="viewOrder('${o.id}')">👁</button>
+      <button class="ab ab-g" onclick="restoreOrder('${o.id}')">♻️ Phục hồi</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderArchiveAccounts(){
+  const tb=document.getElementById('arch-acc-tb');if(!tb)return;
+  if(!S.archived.users.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3)">Không có tài khoản lưu trữ</td></tr>';return;}
+  tb.innerHTML=S.archived.users.map(u=>`<tr>
+    <td>${u.name||u.email?.split('@')[0]||'—'}</td>
+    <td style="font-size:12px">${u.email||'—'}</td>
+    <td style="font-size:11px;color:var(--text3)">${u.archivedAt?.toDate?fdt(u.archivedAt.toDate()):'—'}</td>
+    <td style="font-size:11px;color:var(--text3)">${u.archivedBy||'—'}</td>
+    <td><div class="acts"><button class="ab ab-g" onclick="restoreAcc('${u.id}')">♻️ Phục hồi</button></div></td>
+  </tr>`).join('');
+}
+
+function renderArchiveQuotes(){
+  const tb=document.getElementById('arch-qt-tb');if(!tb)return;
+  if(!S.archived.quotes.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3)">Không có báo giá lưu trữ</td></tr>';return;}
+  tb.innerHTML=S.archived.quotes.map(q=>`<tr>
+    <td>${q.name||'—'}</td>
+    <td style="font-size:12px;max-width:160px">${q.services||'—'}</td>
+    <td style="font-weight:700;color:var(--gold-l)">${q.grandTotal?fm(q.grandTotal):'—'}</td>
+    <td style="font-size:11px;color:var(--text3)">${q.archivedAt?.toDate?fdt(q.archivedAt.toDate()):'—'}</td>
+    <td><div class="acts"><button class="ab ab-g" onclick="restoreQuote('${q.id}')">♻️ Phục hồi</button></div></td>
+  </tr>`).join('');
+}
+
+window.restoreOrder=async(id)=>{
+  if(!confirm('Phục hồi đơn hàng này?'))return;
+  await updateDoc(doc(db,'orders',id),{archived:false,archivedAt:null,archivedBy:null});
+  await log('♻️ Phục hồi đơn hàng',id,'g');
+  notif('✅ Đã phục hồi đơn hàng','ok');
+};
+window.restoreAcc=async(id)=>{
+  if(!confirm('Phục hồi tài khoản này?'))return;
+  await updateDoc(doc(db,'users',id),{archived:false,archivedAt:null,archivedBy:null});
+  await log('♻️ Phục hồi tài khoản',id,'g');
+  notif('✅ Đã phục hồi tài khoản','ok');
+};
+window.restoreQuote=async(id)=>{
+  if(!confirm('Phục hồi báo giá này?'))return;
+  await updateDoc(doc(db,'staff_quotes',id),{archived:false,archivedAt:null,archivedBy:null});
+  await log('♻️ Phục hồi báo giá',id,'g');
+  notif('✅ Đã phục hồi báo giá','ok');
+};
+
+window.switchArchTab=function(tab,btn){
+  document.querySelectorAll('.arch-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('arch-orders').style.display=tab==='orders'?'block':'none';
+  document.getElementById('arch-accounts').style.display=tab==='accounts'?'block':'none';
+  document.getElementById('arch-quotes').style.display=tab==='quotes'?'block':'none';
+};
+
+// ═══════════════════════════════════════════════════════════
+// 📋 FAQ CHATBOT — Gửi thông báo khi admin phản hồi
+// ═══════════════════════════════════════════════════════════
+// Hook vào sendChatReply để push notification cho khách
+const _origSendChatReply = window.sendChatReply;
+window.sendChatReply = async function(){
+  if(_origSendChatReply) await _origSendChatReply();
+  // Tìm uid khách trong conversation active
+  const conv=_allChats.find(c=>c.id===_activeChatConv);
+  if(conv?.customerUid){
+    await pushNotification('customer',conv.customerUid,'message',
+      '💬 Nhân viên vừa phản hồi','Bạn có tin nhắn mới từ Dịch Thuật Số Hóa','chat:'+_activeChatConv);
+  }
+};
+
+// Hook vào pushOrderStatusToPortal để push notification cho khách
+const _origPushStatus = window.pushOrderStatusToPortal;
+window.pushOrderStatusToPortal = async function(orderId){
+  if(_origPushStatus) await _origPushStatus(orderId);
+  const o=S.orders.find(x=>x.id===orderId);
+  if(o?.customerUid){
+    await pushNotification('customer',o.customerUid,'new_order',
+      '📦 Cập nhật đơn hàng của bạn',`Đơn ${o.orderId||orderId} — ${SL[o.status]||o.status}`,'order:'+orderId);
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+// PATCH loadData to include new features
+// ═══════════════════════════════════════════════════════════
+const _origLoadData = window.loadData || loadData;
+function loadDataExtended(){
+  loadNotifications();
+  loadOnlineStatus();
+  loadArchive();
+}
+// loadDataExtended is called directly after auth
 
 </script>
 </body>
