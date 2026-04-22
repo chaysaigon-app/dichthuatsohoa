@@ -496,6 +496,17 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
+<!-- REQUEST DETAIL MODAL -->
+<div id="m-request" style="display:none" class="mo" onclick="if(event.target===this)document.getElementById('m-request').style.display='none'">
+  <div class="mb" style="max-width:600px">
+    <div class="mh"><h3 id="mr-title">📤 Chi tiết yêu cầu báo giá</h3><button class="mc" onclick="document.getElementById('m-request').style.display='none'">×</button></div>
+    <div class="mbody" id="mr-body"></div>
+    <div class="mfoot">
+      <button class="bm bm-c" onclick="document.getElementById('m-request').style.display='none'">Đóng</button>
+    </div>
+  </div>
+</div>
+
 <!-- ORDER DETAIL MODAL -->
 <div id="m-order" style="display:none" class="mo" onclick="if(event.target===this)closeM()">
   <div class="mb">
@@ -538,9 +549,10 @@ a{text-decoration:none;color:inherit}
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getFirestore,collection,addDoc,doc,query,where,orderBy,onSnapshot,updateDoc,serverTimestamp,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,createUserWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,sendPasswordResetEmail,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const cfg={apiKey:"AIzaSyCkyAJJm-kj6JReuGOcy1kj3RHn5hqRWwo",authDomain:"sohoa-baafc.firebaseapp.com",projectId:"sohoa-baafc",storageBucket:"sohoa-baafc.firebasestorage.app",messagingSenderId:"523020863823",appId:"1:523020863823:web:6634451caa743ef5dddd3a"};
-const fb=initializeApp(cfg);const db=getFirestore(fb);const auth=getAuth(fb);
+const fb=initializeApp(cfg);const db=getFirestore(fb);const auth=getAuth(fb);const storage=getStorage(fb);
 
 const S={user:null,profile:null,orders:[],invoices:[],activity:[],currentOrderId:null,starRating:0};
 const SL={new:'Mới – Chờ báo giá',quoted:'Đã báo giá',confirmed:'Xác nhận – Đặt cọc',processing:'Đang dịch / Xử lý',done:'Hoàn thành',invoiced:'Đã xuất hóa đơn',paid:'Đã thanh toán',cancelled:'Đã hủy'};
@@ -746,7 +758,12 @@ function _renderRequests() {
     const sl = hasQ ? '📝 Đã có báo giá' : '⏳ Chờ báo giá';
     const bg = hasQ ? '#D1FAE5' : '#FEF9C3';
     const tx = hasQ ? '#065F46' : '#B45309';
-    return `<div class="quote-card" style="border-color:#E2E8F0">
+    // File badges
+    const urls = Array.isArray(q.fileUrls) && q.fileUrls.length ? q.fileUrls : [];
+    const fileHtml = urls.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">${urls.map(f=>`<a href="${f.url}" target="_blank" download="${f.name}" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;color:#1D4ED8;font-size:11.5px;font-weight:600;text-decoration:none">⬇️ ${f.name.length>20?f.name.substring(0,18)+'…':f.name}</a>`).join('')}${q.gdriveLink?`<a href="${q.gdriveLink}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:6px;color:var(--blue3);font-size:11.5px;font-weight:600;text-decoration:none">📁 GDrive</a>`:''}</div>`
+      : q.gdriveLink ? `<div style="margin-top:8px"><a href="${q.gdriveLink}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:6px;color:var(--blue3);font-size:11.5px;font-weight:600;text-decoration:none">📁 Xem tài liệu trên Drive</a></div>` : '';
+    return `<div class="quote-card" style="border-color:#E2E8F0;cursor:pointer" onclick="viewRequestDetail('${q.id}')">
       <div class="qc-head">
         <div style="flex:1">
           <div class="qc-title">📤 Yêu cầu báo giá</div>
@@ -755,8 +772,13 @@ function _renderRequests() {
         </div>
         <span style="background:${bg};color:${tx};padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:700;flex-shrink:0">${sl}</span>
       </div>
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">
-        ${hasQ ? `✅ Nhân viên đã gửi báo giá → <button onclick="showSec('my-quotes',document.getElementById('tab-my-quotes'))" style="background:none;border:none;color:var(--blue3);font-weight:700;cursor:pointer;font-size:12px;padding:0;font-family:inherit">Xem báo giá →</button>` : 'Nhân viên đang xử lý — báo giá sẽ xuất hiện trong tab <strong>Báo Giá</strong>.'}
+      ${fileHtml}
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--text3)">${hasQ ? '✅ Nhân viên đã gửi báo giá' : 'Nhân viên đang xử lý…'}</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="event.stopPropagation();viewRequestDetail('${q.id}')" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:4px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">👁 Xem chi tiết</button>
+          ${hasQ?`<button onclick="event.stopPropagation();showSec('my-quotes',document.getElementById('tab-my-quotes'))" style="background:var(--green);border:none;color:#fff;border-radius:6px;padding:4px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💰 Xem báo giá →</button>`:''}
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -995,7 +1017,7 @@ window.viewOrder=(id)=>{
 
     <div style="display:flex;gap:0;border-bottom:1.5px solid var(--border);margin-bottom:14px">
       <button class="portal-tab-btn active" onclick="portalSwitchTab(this,'po-tab-info')" style="padding:8px 16px;font-size:13px;font-weight:600;background:none;border:none;border-bottom:2.5px solid var(--blue);color:var(--blue);cursor:pointer;margin-bottom:-1.5px">📋 Chi tiết</button>
-      <button class="portal-tab-btn" onclick="portalSwitchTab(this,'po-tab-docs')" style="padding:8px 16px;font-size:13px;font-weight:600;background:none;border:none;border-bottom:2.5px solid transparent;color:var(--text3);cursor:pointer;margin-bottom:-1.5px">📎 Tài liệu${(o.resultDriveLink)?'<span style="display:inline-block;width:7px;height:7px;background:#10B981;border-radius:50%;margin-left:5px;vertical-align:middle"></span>':''}</button>
+      <button class="portal-tab-btn" onclick="portalSwitchTab(this,'po-tab-docs')" style="padding:8px 16px;font-size:13px;font-weight:600;background:none;border:none;border-bottom:2.5px solid transparent;color:var(--text3);cursor:pointer;margin-bottom:-1.5px">📎 Tài liệu${(o.resultDriveLink||(Array.isArray(o.resultFiles)&&o.resultFiles.length))?'<span style="display:inline-block;width:7px;height:7px;background:#10B981;border-radius:50%;margin-left:5px;vertical-align:middle"></span>':''}</button>
       <button class="portal-tab-btn" onclick="portalSwitchTab(this,'po-tab-log')" style="padding:8px 16px;font-size:13px;font-weight:600;background:none;border:none;border-bottom:2.5px solid transparent;color:var(--text3);cursor:pointer;margin-bottom:-1.5px">🕐 Lịch sử</button>
     </div>
 
@@ -1014,22 +1036,44 @@ window.viewOrder=(id)=>{
     </div>
 
     <div id="po-tab-docs" style="display:none">
+      <!-- Tài liệu khách đã gửi -->
       <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
-        <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">📎 Tài liệu đính kèm từ Quý khách</h4>
-        ${o.gdriveLink
-          ? `<a href="${o.gdriveLink}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:9px;color:#1D4ED8;font-size:13px;font-weight:600;text-decoration:none;word-break:break-all">📁 Xem tài liệu gốc trên Drive →</a>`
-          : `<p style="font-size:13px;color:var(--text3);font-style:italic">Chưa có tài liệu đính kèm.</p>`}
-        ${o.fileNames?`<div style="margin-top:8px;font-size:12.5px;color:var(--text2)">📎 ${o.fileNames}</div>`:''}
+        <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">📎 Tài liệu Quý khách đã gửi</h4>
+        ${(()=>{
+          const urls = Array.isArray(o.fileUrls) && o.fileUrls.length ? o.fileUrls : [];
+          let h = '';
+          if (urls.length) {
+            h += urls.map(f=>`<div style="margin-bottom:7px"><a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:9px;color:#1D4ED8;font-size:13px;font-weight:600;text-decoration:none">⬇️ ${f.name} <span style="font-size:11px;color:#64748B;font-weight:400">${f.size?(f.size/1024).toFixed(0)+'KB':''}</span></a></div>`).join('');
+          } else if (o.fileNames) {
+            h += `<p style="font-size:13px;color:var(--text2)">📎 ${o.fileNames}</p>`;
+          }
+          if (o.gdriveLink) h += `<div style="margin-top:8px"><a href="${o.gdriveLink}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:9px;color:#1D4ED8;font-size:13px;font-weight:600;text-decoration:none">📁 Xem tài liệu trên Drive →</a></div>`;
+          if (!h) h = '<p style="font-size:13px;color:var(--text3);font-style:italic">Chưa có tài liệu đính kèm.</p>';
+          return h;
+        })()}
       </div>
+
+      <!-- Tài liệu hoàn thành từ nhân viên -->
       <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px">
         <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)">📤 Tài liệu hoàn thành từ nhân viên</h4>
-        ${o.resultDriveLink
-          ? `<a href="${o.resultDriveLink}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1.5px solid #6EE7B7;border-radius:10px;color:#065F46;font-size:13.5px;font-weight:700;text-decoration:none;word-break:break-all">✅ Tải / Xem tài liệu dịch xong →</a>
-          <p style="font-size:11.5px;color:var(--text3);margin-top:6px">Nhấn để mở Google Drive. Nếu cần hỗ trợ, liên hệ nhân viên qua chat.</p>`
-          : `<div style="padding:16px;background:#F9FAFB;border:1.5px dashed #D1D5DB;border-radius:10px;text-align:center">
-              <div style="font-size:22px;margin-bottom:6px">⏳</div>
-              <p style="font-size:13px;color:var(--text3)">Nhân viên đang xử lý.<br>Tài liệu hoàn thành sẽ xuất hiện tại đây.</p>
-            </div>`}
+        ${(()=>{
+          const rf = Array.isArray(o.resultFiles) && o.resultFiles.length ? o.resultFiles : [];
+          const hasLink = !!o.resultDriveLink;
+          if (!rf.length && !hasLink) return `
+            <div style="padding:20px 16px;background:#F9FAFB;border:1.5px dashed #D1D5DB;border-radius:10px;text-align:center">
+              <div style="font-size:26px;margin-bottom:8px">⏳</div>
+              <p style="font-size:13px;color:var(--text3);line-height:1.6">Nhân viên đang xử lý hồ sơ của Quý khách.<br>Tài liệu hoàn thành sẽ xuất hiện tại đây — Quý khách không cần làm gì thêm.</p>
+            </div>`;
+          let h = '';
+          if (rf.length) {
+            h += `<div style="background:linear-gradient(135deg,#ECFDF5,#F0FDF4);border:1.5px solid #6EE7B7;border-radius:10px;padding:12px 14px;margin-bottom:8px"><div style="font-size:11px;font-weight:700;color:#065F46;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">✅ ${rf.length} file đã hoàn thành</div>`;
+            h += rf.map(f=>`<div style="margin-bottom:7px"><a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:7px;padding:9px 14px;background:#fff;border:1px solid #A7F3D0;border-radius:8px;color:#065F46;font-size:13px;font-weight:700;text-decoration:none">⬇️ Tải về: ${f.name} <span style="font-size:11px;color:#6B7280;font-weight:400">${f.size?(f.size/1024).toFixed(0)+'KB':''}</span></a></div>`).join('');
+            h += '</div>';
+          }
+          if (hasLink) h += `<a href="${o.resultDriveLink}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1.5px solid #6EE7B7;border-radius:10px;color:#065F46;font-size:13.5px;font-weight:700;text-decoration:none;margin-bottom:8px">🔗 Xem thêm tài liệu trên Drive →</a>`;
+          h += `<p style="font-size:11.5px;color:var(--text3);margin-top:6px">Nếu cần hỗ trợ hoặc muốn chỉnh sửa, vui lòng liên hệ nhân viên qua chat.</p>`;
+          return h;
+        })()}
       </div>
     </div>
 
@@ -1043,6 +1087,46 @@ window.viewOrder=(id)=>{
 };
 
 window.closeM=()=>{document.getElementById('m-order').style.display='none';};
+
+window.viewRequestDetail = function(id) {
+  const q = (S_QUOTES_STATE.inbound||[]).find(x=>x.id===id);
+  if (!q) return;
+  const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
+  const urls = Array.isArray(q.fileUrls) && q.fileUrls.length ? q.fileUrls : [];
+  const linked = new Set((S_QUOTES_STATE.received||[]).map(x=>x.linkedQuoteId).filter(Boolean));
+  const hasQ = linked.has(id);
+
+  document.getElementById('mr-title').textContent = '📤 Yêu cầu báo giá';
+  document.getElementById('mr-body').innerHTML = `
+    <!-- Trạng thái -->
+    <div style="background:${hasQ?'linear-gradient(135deg,#ECFDF5,#D1FAE5)':'linear-gradient(135deg,#FFFBEB,#FEF3C7)'};border:1.5px solid ${hasQ?'#6EE7B7':'#FCD34D'};border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:${hasQ?'#065F46':'#B45309'}">${hasQ?'📝 Nhân viên đã gửi báo giá':'⏳ Đang chờ nhân viên xử lý'}</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:3px">Gửi lúc: ${dt}</div>
+      </div>
+      ${hasQ?`<button onclick="document.getElementById('m-request').style.display='none';showSec('my-quotes',document.getElementById('tab-my-quotes'))" style="background:var(--green);border:none;color:#fff;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">💰 Xem báo giá →</button>`:''}
+    </div>
+
+    <!-- Dịch vụ yêu cầu -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px">
+      <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border)">🛠️ Dịch vụ yêu cầu</h4>
+      <div style="font-size:14px;font-weight:600;color:var(--blue)">${q.services||'—'}</div>
+      ${q.note?`<div style="margin-top:8px;font-size:13px;color:var(--text2);background:var(--bg3);padding:8px 12px;border-radius:8px">📝 ${q.note}</div>`:''}
+      ${q.deadline?`<div style="margin-top:8px;font-size:12.5px;color:var(--text2)">🕐 Deadline: <strong>${q.deadline}</strong></div>`:''}
+      ${q.delivery?`<div style="margin-top:6px;font-size:12.5px;color:var(--text2)">🚚 Nhận hàng: <strong>${q.delivery}</strong>${q.deliveryAddr?` — ${q.deliveryAddr}`:''}</div>`:''}
+    </div>
+
+    <!-- Tài liệu đính kèm -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px">
+      <h4 style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border)">📎 Tài liệu đính kèm</h4>
+      ${urls.length
+        ? urls.map(f=>`<div style="margin-bottom:7px"><a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:7px;padding:9px 14px;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:9px;color:#1D4ED8;font-size:13px;font-weight:600;text-decoration:none">⬇️ ${f.name} <span style="font-size:11px;color:#64748B;font-weight:400">${f.size?(f.size/1024).toFixed(0)+'KB':''}</span></a></div>`).join('')
+        : q.gdriveLink
+          ? `<a href="${q.gdriveLink}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 14px;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:9px;color:#1D4ED8;font-size:13px;font-weight:600;text-decoration:none">📁 Xem tài liệu trên Drive →</a>`
+          : '<p style="font-size:13px;color:var(--text3);font-style:italic">Không có tài liệu đính kèm.</p>'}
+    </div>`;
+  document.getElementById('m-request').style.display = 'flex';
+};
 
 window.portalSwitchTab=function(btn, tabId) {
   const modal = btn.closest('[id^="mo-body"],[id^="mq-body"]') || btn.parentElement.parentElement;
@@ -1139,6 +1223,31 @@ window.sendRequest=async()=>{
   if(delivery==='Giao hàng tận nơi'&&!addr){document.getElementById('bq-addr').focus();err.textContent='⚠️ Vui lòng nhập địa chỉ giao hàng.';err.style.display='block';return;}
   btn.disabled=true;btn.textContent='⏳ Đang gửi...';
   const servicesText=services.map(s=>s.note?`${s.label} (${s.note})`:s.label).join(', ');
+
+  // ── Upload files lên Firebase Storage trước khi lưu Firestore ──
+  let fileUrls = [];   // [{name, url, size}]
+  const filesToUpload = window._bqFiles || [];
+  if (filesToUpload.length > 0) {
+    btn.textContent = '⏳ Đang tải file... (0/' + filesToUpload.length + ')';
+    try {
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const f = filesToUpload[i];
+        btn.textContent = `⏳ Đang tải file ${i+1}/${filesToUpload.length}...`;
+        const safeName = Date.now() + '_' + f.name.replace(/[^a-zA-Z0-9._\-]/g, '_');
+        const path = `quote-files/${S.user.uid}/${safeName}`;
+        const fileRef = storageRef(storage, path);
+        await uploadBytes(fileRef, f);
+        const url = await getDownloadURL(fileRef);
+        fileUrls.push({ name: f.name, url, size: f.size });
+      }
+    } catch(uploadErr) {
+      err.textContent = '❌ Lỗi tải file: ' + uploadErr.message + '. Vui lòng thử lại hoặc dùng Google Drive.';
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = '🚀 Gửi Yêu Cầu Báo Giá';
+      return;
+    }
+  }
+
   const data={
     name:S.profile?.name||S.user.displayName||S.user.email,
     email:S.user.email,
@@ -1151,7 +1260,8 @@ window.sendRequest=async()=>{
     deadline:document.getElementById('bq-date').value||'Càng sớm càng tốt',
     note:document.getElementById('bq-note').value.trim(),
     gdriveLink:document.getElementById('bq-gdrive-link')?.value.trim()||'',
-    fileNames:window._bqFiles?.map(f=>f.name).join(', ')||'',
+    fileNames:fileUrls.length ? fileUrls.map(f=>f.name).join(', ') : (window._bqFiles?.map(f=>f.name).join(', ')||''),
+    fileUrls: fileUrls,   // mảng [{name, url, size}] — admin dùng để tải
     status:'new',
     customerUid:S.user.uid,
     page:'Portal KH – Báo giá mới',
@@ -1230,7 +1340,7 @@ function initBaoGiaForm(){
     });
   }
   function renderBqFiles(){
-    uploadList.innerHTML=(window._bqFiles||[]).map((f,i)=>`<div class="bq-upload-item">📄 ${f.name} <span style="color:var(--text3)">(${(f.size/1024).toFixed(0)}KB)</span><button class="rm" data-i="${i}">✕</button></div>`).join('');
+    uploadList.innerHTML=(window._bqFiles||[]).map((f,i)=>`<div class="bq-upload-item">📄 ${f.name} <span style="color:var(--text3)">(${(f.size/1024).toFixed(0)}KB)</span><span style="margin-left:4px;font-size:10px;background:#DBEAFE;color:#1D4ED8;padding:1px 6px;border-radius:8px;font-weight:600">Sẵn sàng tải</span><button class="rm" data-i="${i}">✕</button></div>`).join('');
     uploadList.querySelectorAll('.rm').forEach(btn=>{btn.addEventListener('click',()=>{window._bqFiles.splice(+btn.dataset.i,1);renderBqFiles();});});
   }
 
