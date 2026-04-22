@@ -969,45 +969,8 @@ window.qst=async(id,status)=>{
 };
 
 window.viewOrder=(id)=>{
-  const o=S.orders.find(x=>x.id===id);if(!o)return;
-  // If order has tasks (from quote builder), use the richer tasks modal
-  if(o.tasks){viewOrderWithTasks(id);return;}
-  document.getElementById('vo-title').textContent=`Chi tiết #${o.orderId||id.slice(-6).toUpperCase()}`;
-  const logs=S.activity.filter(a=>a.detail?.includes(o.orderId||id));
-  document.getElementById('vo-body').innerHTML=`
-    <div class="tab-bar">
-      <button class="tab-btn on" onclick="switchTab(this,'vt-info')">📋 Thông tin</button>
-      <button class="tab-btn" onclick="switchTab(this,'vt-log')">🕐 Lịch sử (${logs.length})</button>
-    </div>
-    <div class="tab-pane on" id="vt-info">
-      <div class="dc"><h4>Khách hàng</h4>
-        <div class="df"><span class="df-l">Họ tên</span><span class="df-v">${o.customerName||'—'}</span></div>
-        <div class="df"><span class="df-l">Điện thoại</span><span class="df-v">${o.phone||'—'}</span></div>
-        <div class="df"><span class="df-l">Email</span><span class="df-v">${o.email||'—'}</span></div>
-        <div class="df"><span class="df-l">Kênh liên hệ</span><span class="df-v">${o.channel||'—'}</span></div>
-      </div>
-      <div class="dc"><h4>Dịch vụ</h4>
-        <div class="df"><span class="df-l">Loại DV</span><span class="df-v" style="font-size:12px">${o.service||'—'}</span></div>
-        <div class="df"><span class="df-l">Ngôn ngữ</span><span class="df-v">${o.lang||'—'}</span></div>
-        <div class="df"><span class="df-l">Số trang</span><span class="df-v">${o.pages||'—'}</span></div>
-        <div class="df"><span class="df-l">Đơn giá</span><span class="df-v">${fm(o.price||0)}</span></div>
-        <div class="df"><span class="df-l">Tổng tiền</span><span class="df-v" style="color:var(--gold-l);font-size:16px">${fm(o.total||0)}</span></div>
-        <div class="df"><span class="df-l">Nhân viên</span><span class="df-v">${o.staff||'—'}</span></div>
-        <div class="df"><span class="df-l">Deadline</span><span class="df-v" style="color:var(--red-l)">${o.deadline?fdt(new Date(o.deadline)):'—'}</span></div>
-        <div class="df"><span class="df-l">Trạng thái</span><span class="df-v">${sb(o.status)}</span></div>
-      </div>
-      ${o.note?`<div class="dc"><h4>Ghi chú</h4><p style="font-size:13px;color:var(--text2)">${o.note}</p></div>`:''}
-    </div>
-    <div class="tab-pane" id="vt-log">
-      <div class="dc"><h4>Lịch sử xử lý</h4>
-        <div class="tl">${logs.map(a=>`<div class="tli"><div class="tld ${a.color||'b'}"></div><div style="flex:1"><div class="tla">${a.action}</div><div class="tlm">${a.user} · ${a.detail||''}</div></div><div class="tlt">${a.createdAt?.toDate?fdt(a.createdAt.toDate()):''}</div></div>`).join('')||'<p style="font-size:12px;color:var(--text3)">Chưa có lịch sử</p>'}</div>
-      </div>
-    </div>`;
-  document.getElementById('vo-foot').innerHTML=`
-    <button class="bm bm-c" onclick="closeM('view-order')">Đóng</button>
-    <button class="bm" style="background:rgba(245,158,11,.2);color:var(--gold-l);border:none" onclick="closeM('view-order');editOrder('${id}')">✏️ Sửa</button>
-    <button class="bm bm-g" onclick="closeM('view-order');createInvFor('${id}')">🧾 Xuất HĐ</button>`;
-  document.getElementById('m-view-order').style.display='flex';
+  // Luôn dùng modal đầy đủ (có tab tài liệu + upload) cho tất cả đơn hàng
+  viewOrderWithTasks(id);
 };
 
 window.editOrder=(id)=>{
@@ -2499,16 +2462,21 @@ window.viewOrderWithTasks = function(id) {
         ${o.company?`<div class="df"><span class="df-l">Công ty</span><span class="df-v">${o.company}</span></div>`:''}
         <div class="df"><span class="df-l">Điện thoại</span><span class="df-v">${o.phone||'—'}</span></div>
         <div class="df"><span class="df-l">Email</span><span class="df-v">${o.email||'—'}</span></div>
+        ${o.channel?`<div class="df"><span class="df-l">Kênh</span><span class="df-v">${o.channel}</span></div>`:''}
       </div>
       <div class="dc"><h4>Dịch vụ & Tài chính</h4>
         <div class="df"><span class="df-l">Dịch vụ</span><span class="df-v" style="font-size:12px">${o.service||'—'}</span></div>
+        ${o.lang?`<div class="df"><span class="df-l">Ngôn ngữ</span><span class="df-v">${o.lang}</span></div>`:''}
+        ${o.pages?`<div class="df"><span class="df-l">Số trang</span><span class="df-v">${o.pages}</span></div>`:''}
         <div class="df"><span class="df-l">Tổng DV</span><span class="df-v">${fm(o.subTotal||o.total||0)}</span></div>
         ${o.vat?`<div class="df"><span class="df-l">VAT 8%</span><span class="df-v" style="color:var(--gold-l)">${fm(o.vat)}</span></div>`:''}
         <div class="df"><span class="df-l">Tổng HĐ</span><span class="df-v" style="color:var(--gold-l);font-size:16px;font-weight:800">${fm(o.total||0)}</span></div>
         ${o.deposit?`<div class="df"><span class="df-l">Đã cọc</span><span class="df-v" style="color:var(--blue-ll)">${fm(o.deposit)}</span></div>`:''}
         <div class="df"><span class="df-l">Nhân viên</span><span class="df-v">${o.staff||'—'}</span></div>
+        ${o.deadline?`<div class="df"><span class="df-l">Deadline</span><span class="df-v" style="color:var(--red-l)">${fdt(new Date(o.deadline))}</span></div>`:''}
         <div class="df"><span class="df-l">Trạng thái</span><span class="df-v">${sb(o.status)}</span></div>
       </div>
+      ${o.note?`<div class="dc"><h4>Ghi chú</h4><p style="font-size:13px;color:var(--text2)">${o.note}</p></div>`:''}
     </div>
     ${tasks.length ? `<div class="tab-pane" id="ot-tab2">${tasksHtml}</div>` : ''}
     <div class="tab-pane" id="ot-tab-docs">
