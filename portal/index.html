@@ -800,28 +800,75 @@ function _qCard(q) {
   const isPending   = q.status==='pending_confirm';
   const isConfirmed = q.status==='order_created'||q.status==='confirmed';
   const dt = q.createdAt?.toDate ? fdt(q.createdAt.toDate()) : '—';
-  const sl = isPending?'⏳ Chờ xác nhận':isConfirmed?'✅ Đã xác nhận':q.status==='cancelled'?'🚫 Đã hủy':'📤 Đã gửi';
   const bdrCol = isPending?'#F59E0B':isConfirmed?'#10B981':'#D1DCF0';
-  const tagBg  = isPending?'#FEF3C7':isConfirmed?'#D1FAE5':'#EFF6FF';
-  const tagTx  = isPending?'#B45309':isConfirmed?'#065F46':'#1D4ED8';
 
-  // Trạng thái đơn hàng (admin đẩy về)
   const orderStatus = q.portalOrderStatus || null;
-  const orderStatusLabel = {
-    confirmed:'✅ Đã xác nhận', processing:'⚙️ Đang thực hiện',
-    done:'🏁 Hoàn thành', delivered:'🚚 Đã giao', paid:'💰 Đã thanh toán'
-  };
+  const orderStatusLabel = {confirmed:'✅ Xác nhận',processing:'⚙️ Đang thực hiện',done:'🏁 Hoàn thành',delivered:'🚚 Đã giao',paid:'💰 Đã thanh toán'};
+  const orderStatusColor = {confirmed:'#059669',processing:'#7C3AED',done:'#065F46',delivered:'#0284C7',paid:'#065F46'};
 
-  // File dịch hoàn thành (admin đẩy về)
-  const resultFiles = Array.isArray(q.resultFiles) && q.resultFiles.length ? q.resultFiles : [];
-  const resultDriveLink = q.resultDriveLink || '';
+  const resultFiles = Array.isArray(q.resultFiles)&&q.resultFiles.length ? q.resultFiles : [];
+  const resultDriveLink = q.resultDriveLink||'';
+  const invoice = q.portalInvoice||null;
 
-  // Hóa đơn (admin đẩy về)
-  const invoice = q.portalInvoice || null;
+  // ── Trường hợp ĐÃ XÁC NHẬN: hiện thông tin đơn hàng trước, xếp theo thời gian
+  if (isConfirmed) {
+    return `<div class="quote-card" style="border-color:${bdrCol};background:linear-gradient(to bottom,#F0FDF4,#fff)">
 
-  return `<div class="quote-card" style="border-color:${bdrCol};${isPending?'background:linear-gradient(to right,#FFFBEB,#fff)':''}${isConfirmed?'background:linear-gradient(to right,#F0FDF4,#fff)':''}">
+      <!-- TIÊU ĐỀ -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#065F46">✅ Đã xác nhận dịch vụ</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">${q.services||'—'} · NV: ${q.staff||'Admin'} · ${dt}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:800;color:#065F46">${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</div>
+          ${q.orderNum?`<div style="font-size:11px;color:var(--text3)">Đơn: <strong>${q.orderNum}</strong></div>`:''}
+        </div>
+      </div>
 
-    <!-- HEADER -->
+      <!-- TRẠNG THÁI ĐƠN HÀNG -->
+      <div style="background:#fff;border:1px solid #A7F3D0;border-radius:10px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--text3)">📋 Tình trạng xử lý:</span>
+        ${orderStatus
+          ? `<span style="background:${orderStatusColor[orderStatus]||'#059669'}20;color:${orderStatusColor[orderStatus]||'#059669'};padding:4px 12px;border-radius:20px;font-size:13px;font-weight:700">${orderStatusLabel[orderStatus]||orderStatus}</span>`
+          : `<span style="background:#FEF3C7;color:#B45309;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">⏳ Nhân viên đang chuẩn bị</span>`}
+      </div>
+
+      <!-- FILE DỊCH HOÀN THÀNH -->
+      ${resultFiles.length ? `
+      <div style="background:linear-gradient(135deg,#ECFDF5,#F0FDF4);border:1.5px solid #6EE7B7;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#065F46;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📤 Tài liệu dịch hoàn thành — nhấn để tải về</div>
+        ${resultFiles.map(f=>`<div style="margin-bottom:6px"><a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:8px;padding:9px 16px;background:#fff;border:1.5px solid #34D399;border-radius:8px;color:#065F46;font-size:13px;font-weight:700;text-decoration:none;width:100%;box-sizing:border-box">⬇️ ${f.name} <span style="font-size:11px;color:#6B7280;font-weight:400;margin-left:auto">${f.size?(f.size/1024).toFixed(0)+'KB':''}</span></a></div>`).join('')}
+        ${resultDriveLink?`<a href="${resultDriveLink}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#059669;margin-top:4px">🔗 Xem thêm trên Drive →</a>`:''}
+      </div>` : ''}
+
+      <!-- HÓA ĐƠN -->
+      ${invoice ? `
+      <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1.5px solid #FCD34D;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">🧾 Hóa đơn dịch vụ</div>
+            <div style="font-size:14px;font-weight:800;color:#92400E">${invoice.invoiceNum||'—'}</div>
+            <div style="font-size:13px;color:#B45309;margin-top:2px">Tổng: <strong>${fm(invoice.total||0)}</strong> · ${invoice.status==='paid'?'<span style="color:#059669;font-weight:700">✅ Đã thanh toán</span>':'<span style="color:#D97706;font-weight:700">⏳ Chờ thanh toán</span>'}</div>
+          </div>
+          <button onclick="viewPortalInvoice('${q.id}')" style="background:#F59E0B;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer;font-family:inherit">👁 Xem hóa đơn</button>
+        </div>
+        ${invoice.status!=='paid'&&invoice.bankName?`
+        <div style="background:rgba(255,255,255,.7);padding:8px 12px;border-radius:8px;font-size:12.5px;color:#92400E">
+          🏦 Chuyển khoản: <strong>${invoice.bankName}</strong> · STK: <strong>${invoice.bankAcc}</strong> · ${invoice.bankOwner}<br>
+          Nội dung CK: <strong>${invoice.invoiceNum}</strong>
+        </div>` : ''}
+      </div>` : ''}
+
+      <!-- NÚT XEM BÁO GIÁ GỐC (phụ, nhỏ) -->
+      <div style="border-top:1px solid #D1FAE5;padding-top:10px;margin-top:6px">
+        <button onclick="viewQuoteDetail('${q.id}')" style="background:none;border:1px solid #A7F3D0;color:#059669;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📋 Xem lại nội dung báo giá</button>
+      </div>
+    </div>`;
+  }
+
+  // ── Trường hợp CHƯA XÁC NHẬN: hiện báo giá đầy đủ
+  return `<div class="quote-card" style="border-color:${bdrCol};background:linear-gradient(to right,#FFFBEB,#fff)">
     <div class="qc-head">
       <div style="flex:1">
         <div class="qc-title">📋 Báo giá dịch vụ</div>
@@ -830,53 +877,17 @@ function _qCard(q) {
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div class="qc-price">${q.grandTotal?q.grandTotal.toLocaleString('vi-VN')+'đ':'—'}</div>
-        <span style="background:${tagBg};color:${tagTx};padding:3px 10px;border-radius:10px;font-size:11.5px;font-weight:700;display:inline-block;margin-top:4px">${sl}</span>
+        <span style="background:#FEF3C7;color:#B45309;padding:3px 10px;border-radius:10px;font-size:11.5px;font-weight:700;display:inline-block;margin-top:4px">⏳ Chờ xác nhận</span>
       </div>
     </div>
-
-    <!-- GIÁ -->
     <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--text2);padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:10px 0">
       <span>💰 DV: <strong>${fm(q.subTotal||0)}</strong></span>
       <span>🏛️ VAT: <strong>${fm(q.vat||0)}</strong></span>
       ${q.deposit?`<span>💳 Cọc: <strong style="color:var(--blue)">${fm(q.deposit)}</strong></span>`:''}
     </div>
-
-    <!-- TRẠNG THÁI ĐƠN HÀNG (admin đẩy về) -->
-    ${isConfirmed && orderStatus ? `
-    <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:9px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-      <span style="font-size:13px;font-weight:700;color:#065F46">📋 Đơn hàng ${q.orderNum||''}</span>
-      <span style="background:#D1FAE5;color:#065F46;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:700">${orderStatusLabel[orderStatus]||orderStatus}</span>
-    </div>` : isConfirmed ? `
-    <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:9px;padding:10px 14px;margin-bottom:10px;font-size:12.5px;color:#B45309">
-      ⏳ Đơn hàng <strong>${q.orderNum||''}</strong> đã tạo — nhân viên đang chuẩn bị xử lý
-    </div>` : ''}
-
-    <!-- FILE DỊCH HOÀN THÀNH (admin đẩy về) -->
-    ${resultFiles.length ? `
-    <div style="background:linear-gradient(135deg,#ECFDF5,#F0FDF4);border:1.5px solid #6EE7B7;border-radius:10px;padding:12px 14px;margin-bottom:10px">
-      <div style="font-size:11px;font-weight:700;color:#065F46;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📤 Tài liệu dịch hoàn thành</div>
-      ${resultFiles.map(f=>`<div style="margin-bottom:6px"><a href="${f.url}" target="_blank" download="${f.name}" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#fff;border:1px solid #A7F3D0;border-radius:8px;color:#065F46;font-size:13px;font-weight:700;text-decoration:none">⬇️ Tải về: ${f.name}</a></div>`).join('')}
-      ${resultDriveLink?`<a href="${resultDriveLink}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#059669;margin-top:4px">🔗 Xem thêm trên Drive →</a>`:''}
-    </div>` : ''}
-
-    <!-- HÓA ĐƠN (admin đẩy về) -->
-    ${invoice ? `
-    <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1.5px solid #FCD34D;border-radius:10px;padding:12px 14px;margin-bottom:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">🧾 Hóa đơn dịch vụ</div>
-          <div style="font-size:13px;font-weight:700;color:#92400E">${invoice.invoiceNum||'—'} · <span style="color:#B45309">${fm(invoice.total||0)}</span></div>
-          <div style="font-size:11.5px;color:#B45309;margin-top:2px">Trạng thái: ${invoice.status==='paid'?'✅ Đã thanh toán':'⏳ Chờ thanh toán'}</div>
-        </div>
-        ${invoice.pdfUrl?`<a href="${invoice.pdfUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:#F59E0B;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;text-decoration:none">⬇️ Tải hóa đơn</a>`:''}
-      </div>
-      ${invoice.bankName?`<div style="margin-top:8px;font-size:12px;color:#92400E;background:rgba(255,255,255,.6);padding:7px 10px;border-radius:7px">🏦 CK: <strong>${invoice.bankName}</strong> · STK: <strong>${invoice.bankAcc}</strong> · ${invoice.bankOwner}</div>`:''}
-    </div>` : ''}
-
-    <!-- NÚT HÀNH ĐỘNG -->
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-view-quote" onclick="viewQuoteDetail('${q.id}')">👁 Xem báo giá</button>
-      ${isPending?`<button class="btn-confirm" onclick="confirmQuote('${q.id}')">✅ Đồng ý — Xác nhận ngay</button>`:''}
+      <button class="btn-view-quote" onclick="viewQuoteDetail('${q.id}')">👁 Xem nội dung báo giá</button>
+      <button class="btn-confirm" onclick="confirmQuote('${q.id}')">✅ Đồng ý — Xác nhận ngay</button>
     </div>
   </div>`;
 }
@@ -1180,6 +1191,41 @@ window.viewRequestDetail = function(id) {
           : '<p style="font-size:13px;color:var(--text3);font-style:italic">Không có tài liệu đính kèm.</p>'}
     </div>`;
   document.getElementById('m-request').style.display = 'flex';
+};
+
+window.viewPortalInvoice = function(quoteId) {
+  const q = (S_QUOTES_STATE.received||[]).find(x=>x.id===quoteId);
+  const inv = q?.portalInvoice;
+  if (!inv) return;
+  document.getElementById('mq-title').textContent = '🧾 Hóa đơn dịch vụ';
+  document.getElementById('mq-body').innerHTML = `
+    <div style="background:#fff;border:1px solid #FCD34D;border-radius:12px;overflow:hidden">
+      <!-- Header HĐ -->
+      <div style="background:linear-gradient(135deg,#F59E0B,#FBBF24);padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:11px;font-weight:700;color:#fff;opacity:.8;text-transform:uppercase;letter-spacing:.5px">Hóa đơn dịch vụ</div><div style="font-size:20px;font-weight:900;color:#fff">${inv.invoiceNum||'—'}</div></div>
+        <div style="text-align:right"><div style="font-size:22px;font-weight:900;color:#fff">${fm(inv.total||0)}</div><div style="font-size:12px;color:#fff;opacity:.9">${inv.status==='paid'?'✅ Đã thanh toán':'⏳ Chờ thanh toán'}</div></div>
+      </div>
+      <!-- Chi tiết -->
+      <div style="padding:16px 20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;font-size:13px">
+          <div><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Dịch vụ</div><div style="font-weight:600;color:var(--text)">${q.services||'—'}</div></div>
+          <div><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-bottom:4px">Phương thức</div><div style="font-weight:600;color:var(--text)">${inv.payMethod||'Chuyển khoản'}</div></div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text2)">Phí dịch vụ</span><strong>${fm(inv.amount||0)}</strong></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text2)">VAT 8%</span><strong style="color:#F59E0B">${fm(inv.vat||0)}</strong></div>
+          ${inv.deposit?`<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text2)">Đã cọc</span><strong style="color:var(--blue-ll)">-${fm(inv.deposit)}</strong></div>`:''}
+          <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border)"><span style="font-weight:700">Tổng cộng</span><strong style="font-size:16px;color:#F59E0B">${fm(inv.total||0)}</strong></div>
+        </div>
+        ${inv.status!=='paid'&&inv.bankName?`
+        <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1.5px solid #FCD34D;border-radius:10px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:#B45309;margin-bottom:8px">🏦 Thông tin chuyển khoản</div>
+          <div style="font-size:14px;color:#92400E"><strong>${inv.bankName}</strong><br>STK: <strong style="font-size:16px">${inv.bankAcc}</strong><br>Chủ TK: ${inv.bankOwner}<br><span style="background:#FEF9C3;padding:2px 8px;border-radius:6px;font-size:12px">Nội dung: <strong>${inv.invoiceNum}</strong></span></div>
+        </div>` : inv.status==='paid'?`<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:8px;padding:12px;text-align:center;font-size:14px;font-weight:700;color:#065F46">✅ Đã thanh toán — Cảm ơn Quý khách!</div>`:''}
+      </div>
+    </div>`;
+  document.getElementById('mq-foot').innerHTML=`<button class="bm bm-c" onclick="document.getElementById('m-quote').style.display='none'">Đóng</button>`;
+  document.getElementById('m-quote').style.display='flex';
 };
 
 window.portalSwitchTab=function(btn, tabId) {

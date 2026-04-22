@@ -619,7 +619,7 @@ tbody td{padding:11px 14px;font-size:13px}
         <div class="fg"><label>Deadline</label><input id="o-dl" type="datetime-local"></div>
       </div>
       <div class="fr">
-        <div class="fg"><label>Nhân viên xử lý</label><select id="o-st"><option>Admin</option><option>Nhân viên 1</option><option>Nhân viên 2</option></select></div>
+        <div class="fg"><label>Nhân viên xử lý</label><select id="o-st"><option value="">-- Chọn nhân viên --</option></select></div>
         <div class="fg"><label>Trạng thái</label><select id="o-ss"><option value="new">Mới – Chờ xử lý</option><option value="quoted">Đã báo giá</option><option value="confirmed">Xác nhận – Đặt cọc</option><option value="processing">Đang xử lý</option><option value="done">Hoàn thành</option><option value="invoiced">Đã xuất hóa đơn</option><option value="paid">Đã thanh toán</option><option value="cancelled">Hủy</option></select></div>
       </div>
       <div class="fr full"><div class="fg"><label>Ghi chú chung</label><textarea id="o-nt" placeholder="Yêu cầu đặc biệt, ngôn ngữ, số trang..."></textarea></div></div>
@@ -1096,6 +1096,16 @@ function resetOrd(){
   document.getElementById('oi').value='';
   document.getElementById('m-ord-title').textContent='📋 Tạo đơn hàng mới';
   ['o-nm','o-ph','o-em','o-dep','o-dl','o-nt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  // Populate staff từ S.users (nhân viên thực tế)
+  const sel=document.getElementById('o-st');
+  if(sel){
+    const staffList=S.users.filter(u=>['superadmin','admin','staff'].includes(u.role));
+    const currentName=document.getElementById('uname')?.textContent||'Admin';
+    sel.innerHTML=staffList.map(u=>{
+      const name=u.displayName||u.name||u.email?.split('@')[0]||'Nhân viên';
+      return`<option value="${name}" ${name===currentName?'selected':''}>${name}</option>`;
+    }).join('')||`<option value="${currentName}">${currentName}</option>`;
+  }
   renderOrderTaskList([]);
 }
 window.calcT=()=>{}; // kept for compatibility
@@ -1183,16 +1193,36 @@ function populateOrdDrop(){
 }
 
 window.fillInv=()=>{
-  const id=document.getElementById('iv-ord').value;const o=S.orders.find(x=>x.id===id);if(!o)return;
+  const id=document.getElementById('iv-ord').value;
+  const o=S.orders.find(x=>x.id===id);if(!o)return;
   document.getElementById('iv-cust').value=o.customerName||'';
   document.getElementById('iv-sv').value=o.service||'';
-  document.getElementById('iv-amt').value=o.total||0;calcInv();
+  // Dùng subTotal (trước VAT) để tránh VAT tính 2 lần
+  document.getElementById('iv-amt').value=o.subTotal||o.total||0;
+  calcInv();
 };
 window.calcInv=()=>{const a=Number(document.getElementById('iv-amt').value)||0;const v=Math.round(a*.08);document.getElementById('iv-vat').value=fm(v);document.getElementById('iv-tot').value=fm(a+v);};
 window.saveInvoice=async()=>{
   const amt=Number(document.getElementById('iv-amt').value)||0;if(!amt){notif('⚠️ Nhập tiền DV','er');return;}
   const vat=Math.round(amt*.08);
-  const data={invoiceNum:'INV-SOHO-'+Date.now().toString(36).toUpperCase().slice(-6),orderId:document.getElementById('iv-ord').value,customer:document.getElementById('iv-cust').value,service:document.getElementById('iv-sv').value,amount:amt,vat,total:amt+vat,payMethod:document.getElementById('iv-pay').value,status:document.getElementById('iv-st').value,note:document.getElementById('iv-nt').value,createdAt:serverTimestamp()};
+  const ordId=document.getElementById('iv-ord').value;
+  const o=S.orders.find(x=>x.id===ordId);
+  const data={
+    invoiceNum:'INV-SOHO-'+Date.now().toString(36).toUpperCase().slice(-6),
+    orderId:ordId,
+    customerUid:o?.customerUid||'',
+    customerEmail:o?.email||o?.customerEmail||'',
+    customer:document.getElementById('iv-cust').value,
+    service:document.getElementById('iv-sv').value,
+    amount:amt,vat,total:amt+vat,
+    subTotal:amt,
+    bankName:o?.bankName||'',bankAcc:o?.bankAcc||'',bankOwner:o?.bankOwner||'',
+    deposit:o?.deposit||0,
+    payMethod:document.getElementById('iv-pay').value,
+    status:document.getElementById('iv-st').value,
+    note:document.getElementById('iv-nt').value,
+    createdAt:serverTimestamp()
+  };
   await addDoc(collection(db,'invoices'),data);
   if(data.orderId)await updateDoc(doc(db,'orders',data.orderId),{status:'invoiced',updatedAt:serverTimestamp()});
   await log('Xuất hóa đơn',`${data.invoiceNum} – ${data.customer} – ${fm(data.total)}`,'gold');
