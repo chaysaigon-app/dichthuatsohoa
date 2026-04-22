@@ -276,6 +276,19 @@ tbody td{padding:11px 14px;font-size:13px}
 <body>
 <div id="notif"></div>
 
+<!-- CUSTOM CONFIRM MODAL (thay thế window.confirm bị chặn trong module) -->
+<div id="m-confirm" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:28px 28px 22px;max-width:380px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,.6)">
+    <div style="font-size:28px;text-align:center;margin-bottom:12px" id="mc-icon">⚠️</div>
+    <div style="font-size:15px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px" id="mc-title">Xác nhận</div>
+    <div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:22px" id="mc-body"></div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button onclick="mcCancel()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Hủy</button>
+      <button id="mc-ok" style="flex:1;padding:10px;border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
 <!-- LOGIN -->
 <div id="login">
   <div class="lc">
@@ -1188,10 +1201,13 @@ function resetOrd(){
 window.calcT=()=>{}; // kept for compatibility
 window.delOrder=async(id)=>{
   if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
-  if(!confirm('Chuyển đơn hàng vào Hồ sơ lưu?'))return;
-  await updateDoc(doc(db,'orders',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});
-  await log('🗂 Lưu trữ đơn hàng',id,'r');
-  notif('🗂 Đã chuyển vào Hồ sơ lưu','in');
+  mc('🗂','Chuyển vào Hồ sơ lưu?','Đơn hàng sẽ được lưu trữ. Có thể phục hồi sau.','warning',async()=>{
+    try{
+      await updateDoc(doc(db,'orders',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});
+      await log('🗂 Lưu trữ đơn hàng',id,'r');
+      notif('🗂 Đã chuyển vào Hồ sơ lưu','in');
+    }catch(e){notif('❌ Lỗi: '+e.message,'er');}
+  });
 };
 
 function renderLeads(){
@@ -1220,7 +1236,13 @@ window.saveLead=async()=>{
 };
 window.uls=async(id,st)=>{await updateDoc(doc(db,'leads',id),{status:st,updatedAt:serverTimestamp()});notif('✅ Đã cập nhật','ok');};
 window.c2o=(id)=>{const l=S.leads.find(x=>x.id===id);if(!l)return;resetOrd();document.getElementById('o-nm').value=l.name||'';document.getElementById('o-ph').value=l.phone||'';document.getElementById('o-ch').value=l.channel||'Zalo';document.getElementById('o-nt').value=l.request||'';openM('order');uls(id,'converted');};
-window.delLead=async(id)=>{if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}if(!confirm('Xóa liên hệ?'))return;await deleteDoc(doc(db,'leads',id));await log('🗑️ Xóa lead',id,'r');notif('🗑️ Đã xóa','in');};
+window.delLead=async(id)=>{
+  if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
+  mc('🗑️','Xóa liên hệ?','Hành động này không thể hoàn tác.','danger',async()=>{
+    try{await deleteDoc(doc(db,'leads',id));await log('🗑️ Xóa lead',id,'r');notif('🗑️ Đã xóa','in');}
+    catch(e){notif('❌ Lỗi: '+e.message,'er');}
+  });
+};
 
 function renderCustomers(){
   const map={};
@@ -1261,7 +1283,16 @@ window.createStaffAcc=async()=>{
   }catch(e){notif('❌ '+e.message,'er');}
 };
 
-window.delAcc=async(id)=>{if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}if(!confirm('Chuyển tài khoản vào Hồ sơ lưu?'))return;await updateDoc(doc(db,'users',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});await log('🗂 Lưu trữ tài khoản',id,'r');notif('🗂 Đã chuyển vào Hồ sơ lưu','in');};
+window.delAcc=async(id)=>{
+  if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
+  mc('🗂','Chuyển vào Hồ sơ lưu?','Tài khoản sẽ được lưu trữ. Có thể phục hồi sau.','warning',async()=>{
+    try{
+      await updateDoc(doc(db,'users',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});
+      await log('🗂 Lưu trữ tài khoản',id,'r');
+      notif('🗂 Đã chuyển vào Hồ sơ lưu','in');
+    }catch(e){notif('❌ Lỗi: '+e.message,'er');}
+  });
+};
 
 function populateOrdDrop(){
   const sel=document.getElementById('iv-ord');if(!sel)return;
@@ -1327,10 +1358,10 @@ function renderInvoices(){
 }
 window.delInvoice=async(id)=>{
   if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
-  if(!confirm('Xóa hóa đơn này? Hành động không thể hoàn tác.'))return;
-  await deleteDoc(doc(db,'invoices',id));
-  await log('🗑️ Xóa hóa đơn',id,'r');
-  notif('🗑️ Đã xóa hóa đơn','in');
+  mc('🗑️','Xóa hóa đơn?','Hành động này không thể hoàn tác.','danger',async()=>{
+    try{await deleteDoc(doc(db,'invoices',id));await log('🗑️ Xóa hóa đơn',id,'r');notif('🗑️ Đã xóa hóa đơn','in');}
+    catch(e){notif('❌ Lỗi: '+e.message,'er');}
+  });
 };
 window.fis=(s,btn)=>{S.fInv=s;document.querySelectorAll('#pg-invoices .fi').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderInvoices();};
 window.markPaid=async(id)=>{await updateDoc(doc(db,'invoices',id),{status:'paid',paidAt:serverTimestamp()});const i=S.invoices.find(x=>x.id===id);await log('Thu tiền HĐ',`${i?.invoiceNum} – ${fm(i?.total||0)}`,'g');notif('✅ Đã đánh dấu thu tiền','ok');};
@@ -1538,9 +1569,10 @@ window.sendChatReply=async()=>{
 };
 
 window.closeChat=async(convId)=>{
-  if(!confirm('Đóng cuộc trò chuyện này?'))return;
-  await updateDoc(doc(db,'conversations',convId),{status:'closed'});
-  notif('Đã đóng cuộc trò chuyện','ok');
+  mc('💬','Đóng cuộc trò chuyện?','Khách sẽ không thể nhắn thêm vào cuộc trò chuyện này.','warning',async()=>{
+    await updateDoc(doc(db,'conversations',convId),{status:'closed'});
+    notif('Đã đóng cuộc trò chuyện','ok');
+  });
 };
 
 window.assignChat=async(convId)=>{
@@ -1557,16 +1589,17 @@ window.assignChat=async(convId)=>{
 
 window.createLeadFromChat=async(convId)=>{
   const conv=_allChats.find(c=>c.id===convId);if(!conv)return;
-  const nm=conv.guestName||(prompt('Tên khách:')||'Khách chat');
-  const ph=conv.guestPhone||(prompt('Số điện thoại:')||'');
-  if(!confirm('Tạo lead: '+nm+' — SĐT: '+(ph||'chưa có')+'?'))return;
-  await addDoc(collection(db,'leads'),{
-    name:nm,phone:ph,email:conv.guestEmail||'',channel:'chat_widget',
-    request:'Chat từ website ('+(conv.page||'')+')',status:'new',
-    convId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()
+  const nm=conv.guestName||conv.customerName||'Khách chat';
+  const ph=conv.guestPhone||conv.customerPhone||'';
+  mc('📥','Tạo lead từ chat?',`${nm}${ph?' — '+ph:''}`,'confirm',async()=>{
+    await addDoc(collection(db,'leads'),{
+      name:nm,phone:ph,email:conv.guestEmail||conv.customerEmail||'',channel:'chat_widget',
+      request:'Chat từ website ('+(conv.page||'')+')',status:'new',
+      convId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()
+    });
+    await log('📥 Lead từ chat',nm+' — '+ph,'g');
+    notif('✅ Đã tạo lead cho '+nm+'! Vào tab Liên hệ mới.','ok');
   });
-  await log('📥 Lead từ chat',nm+' — '+ph,'g');
-  notif('✅ Đã tạo lead cho '+nm+'! Vào tab Liên hệ mới.','ok');
 };
 
 window.createOrderFromChat=async(convId)=>{
@@ -2472,7 +2505,7 @@ window.sqEditQuote = function(id) {
 window.createOrderFromStaffQuote = async function(id) {
   const sq = allStaffQuotes.find(x => x.id === id);
   if (!sq) return;
-  if (!confirm(`Tạo đơn hàng cho ${sq.name} — ${sq.grandTotal?.toLocaleString('vi-VN')}đ?\n\nCác tác vụ sẽ được gán vào đơn hàng với trạng thái theo dõi.`)) return;
+  mc('🚀','Tạo đơn hàng?',`Khách: ${sq.name} — ${sq.grandTotal?.toLocaleString('vi-VN')||0}đ`,'confirm',async()=>{
 
   let tasks = [];
   try { tasks = JSON.parse(sq.tasks || '[]'); } catch (e) {}
@@ -2518,6 +2551,7 @@ window.createOrderFromStaffQuote = async function(id) {
   } catch (e) {
     notif('❌ Lỗi: ' + e.message, 'er');
   }
+  }); // end mc
 };
 
 // ================================================================
@@ -2787,7 +2821,7 @@ window.uploadResultFiles = async function(orderId) {
 };
 
 window.removeResultFile = async function(orderId, index) {
-  if (!confirm('Xoá file này khỏi đơn hàng?')) return;
+  mc('🗑️','Xóa file này?','File sẽ bị xóa khỏi đơn hàng.','danger',async()=>{
   try {
     const o = S.orders.find(x => x.id === orderId);
     const existing = Array.isArray(o?.resultFiles) ? [...o.resultFiles] : [];
@@ -2798,6 +2832,7 @@ window.removeResultFile = async function(orderId, index) {
     notif('🗑️ Đã xoá file.', 'in', 3000);
     viewOrderWithTasks(orderId);
   } catch(e) { notif('❌ Lỗi: ' + e.message, 'er'); }
+  }); // end mc
 };
 
 window.toggleOrderTask = async function(orderId, taskIndex) {
@@ -2824,14 +2859,14 @@ window.toggleOrderTask = async function(orderId, taskIndex) {
 // ── Cập nhật trạng thái đơn hàng
 window.updateOrderStatus = async function(orderId, newStatus) {
   const labels = {processing:'Đang thực hiện',done:'Hoàn thành',delivered:'Đã giao hàng',paid:'Đã thu tiền',cancelled:'Đã hủy'};
-  if (!confirm('Cập nhật: ' + (labels[newStatus]||newStatus) + '?')) return;
+  mc('📦','Cập nhật trạng thái?',labels[newStatus]||newStatus,'confirm',async()=>{
   const {doc:dRef,updateDoc:upDoc} = await getFSMod();
   await upDoc(dRef(db,'orders',orderId), {status:newStatus, updatedAt:serverTimestamp()});
   const o = S.orders.find(x=>x.id===orderId);
   await log('📦 ' + (o?.orderId||orderId) + ' → ' + (labels[newStatus]||newStatus), o?.customerName||'', newStatus==='paid'?'g':'gold');
   notif('✅ ' + (labels[newStatus]||newStatus), 'ok');
   closeM('order-tasks');
-  setTimeout(()=>viewOrderWithTasks(orderId), 350);
+  }); // end mc
 };
 
 // Patch loadData to also load staff quotes
@@ -2981,10 +3016,13 @@ window.qbClearCustomer = function() {
 
 window.delStaffQuote=async(id)=>{
   if(!['superadmin','admin'].includes(S.role)){notif('🚫 Chỉ Admin mới được xóa','er');return;}
-  if(!confirm('Chuyển báo giá vào Hồ sơ lưu?'))return;
-  await updateDoc(doc(db,'staff_quotes',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});
-  await log('🗂 Lưu trữ báo giá',id,'r');
-  notif('🗂 Đã chuyển vào Hồ sơ lưu','in');
+  mc('🗂','Chuyển vào Hồ sơ lưu?','Báo giá sẽ được lưu trữ. Có thể phục hồi sau.','warning',async()=>{
+    try{
+      await updateDoc(doc(db,'staff_quotes',id),{archived:true,archivedAt:serverTimestamp(),archivedBy:S.user?.email||'admin'});
+      await log('🗂 Lưu trữ báo giá',id,'r');
+      notif('🗂 Đã chuyển vào Hồ sơ lưu','in');
+    }catch(e){notif('❌ Lỗi: '+e.message,'er');}
+  });
 };
 window.renderStaffQuotes = function() {
   renderStaffQuotesFiltered();
@@ -3142,22 +3180,22 @@ function renderArchiveQuotes(){
 }
 
 window.restoreOrder=async(id)=>{
-  if(!confirm('Phục hồi đơn hàng này?'))return;
-  await updateDoc(doc(db,'orders',id),{archived:false,archivedAt:null,archivedBy:null});
-  await log('♻️ Phục hồi đơn hàng',id,'g');
-  notif('✅ Đã phục hồi đơn hàng','ok');
+  mc('♻️','Phục hồi đơn hàng?','Đơn sẽ xuất hiện lại trong danh sách chính.','confirm',async()=>{
+    try{await updateDoc(doc(db,'orders',id),{archived:false,archivedAt:null,archivedBy:null});await log('♻️ Phục hồi đơn hàng',id,'g');notif('✅ Đã phục hồi đơn hàng','ok');}
+    catch(e){notif('❌ Lỗi: '+e.message,'er');}
+  });
 };
 window.restoreAcc=async(id)=>{
-  if(!confirm('Phục hồi tài khoản này?'))return;
-  await updateDoc(doc(db,'users',id),{archived:false,archivedAt:null,archivedBy:null});
-  await log('♻️ Phục hồi tài khoản',id,'g');
-  notif('✅ Đã phục hồi tài khoản','ok');
+  mc('♻️','Phục hồi tài khoản?','Tài khoản sẽ xuất hiện lại trong danh sách.','confirm',async()=>{
+    try{await updateDoc(doc(db,'users',id),{archived:false,archivedAt:null,archivedBy:null});await log('♻️ Phục hồi tài khoản',id,'g');notif('✅ Đã phục hồi tài khoản','ok');}
+    catch(e){notif('❌ Lỗi: '+e.message,'er');}
+  });
 };
 window.restoreQuote=async(id)=>{
-  if(!confirm('Phục hồi báo giá này?'))return;
-  await updateDoc(doc(db,'staff_quotes',id),{archived:false,archivedAt:null,archivedBy:null});
-  await log('♻️ Phục hồi báo giá',id,'g');
-  notif('✅ Đã phục hồi báo giá','ok');
+  mc('♻️','Phục hồi báo giá?','Báo giá sẽ xuất hiện lại trong danh sách.','confirm',async()=>{
+    try{await updateDoc(doc(db,'staff_quotes',id),{archived:false,archivedAt:null,archivedBy:null});await log('♻️ Phục hồi báo giá',id,'g');notif('✅ Đã phục hồi báo giá','ok');}
+    catch(e){notif('❌ Lỗi: '+e.message,'er');}
+  });
 };
 
 window.switchArchTab=function(tab,btn){
@@ -3202,6 +3240,36 @@ function loadDataExtended(){
   loadOnlineStatus();
   loadArchive();
 }
+// ═══════════════════════════════════════════════════════════
+// ✅ CUSTOM CONFIRM MODAL — thay thế window.confirm() bị chặn
+// ═══════════════════════════════════════════════════════════
+let _mcCallback=null;
+window.mc=function(icon,title,body,type,callback){
+  _mcCallback=callback;
+  document.getElementById('mc-icon').textContent=icon;
+  document.getElementById('mc-title').textContent=title;
+  document.getElementById('mc-body').textContent=body;
+  const okBtn=document.getElementById('mc-ok');
+  const colors={danger:'#EF4444',warning:'#F59E0B',confirm:'#2563EB'};
+  const labels={danger:'Xóa',warning:'Lưu trữ',confirm:'Xác nhận'};
+  okBtn.style.background=colors[type]||colors.confirm;
+  okBtn.textContent=labels[type]||'Xác nhận';
+  okBtn.onclick=async()=>{
+    document.getElementById('m-confirm').style.display='none';
+    if(_mcCallback)await _mcCallback();
+    _mcCallback=null;
+  };
+  document.getElementById('m-confirm').style.display='flex';
+};
+window.mcCancel=function(){
+  document.getElementById('m-confirm').style.display='none';
+  _mcCallback=null;
+};
+// Close on backdrop click
+document.getElementById('m-confirm').addEventListener('click',function(e){
+  if(e.target===this)mcCancel();
+});
+
 // loadDataExtended is called directly after auth
 
 </script>
